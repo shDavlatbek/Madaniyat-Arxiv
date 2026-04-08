@@ -1,0 +1,67 @@
+<template>
+  <div id="main-wrapper" class="auth-customizer-none">
+
+    <div class="container">
+      <div class="row">
+        <div class="image-layer" :style="{
+          backgroundImage: `url(${logoGray})`,
+          backgroundSize: 'contain',
+          height: '100vh',
+          backgroundPosition: '60%',
+          opacity: 0.2,
+        }"></div>
+        <div class="col-lg-6 col-xxl-6 d-none d-lg-flex align-items-center justify-content-center min-vh-100"
+          style="z-index: 2;">
+
+          <div class="card m-0 shadow-none rounded-24 h-n80 position-relative overflow-hidden w-100">
+            <div class="image-layer-filter" :style="{
+              backgroundImage: `url(${background})`,
+              backgroundPosition: '60%',
+              opacity: 0.9,
+              filter: 'blur(2px)',
+            }"></div>
+            <div class="card-body text-center d-flex flex-column justify-content-center align-items-evenly px-3"
+              style="z-index: 2;">
+
+              <div class="row flex-grow-1 justify-content-center align-items-center">
+                <div class="col-4 d-flex justify-content-center align-items-center">
+                  <img :src="logoNoText" alt="icon" style="height: 200px;"
+                    class="img-fluid pb-2">
+                </div>
+                <div class="col-8 d-flex justify-content-start align-items-center">
+                  <h2 class="fs-7 fw-bolder text-white text-start mb-0 text-uppercase">O'zbekiston Respublikasi
+                    Madaniyat vazirligi</h2>
+                </div>
+              </div>
+
+              <div class="row mt-auto">
+                <div class="col-12 d-flex justify-content-center align-items-center">
+                  <img :src="logoMadh" alt="icon"
+                    style="filter: brightness(0) invert(1);height: 40px;" class="img-fluid pb-2">
+                  <h2 class="fs-5 fw-bolder text-white mb-0 ms-2 text-uppercase">Madaniy hayot</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-xxl-6" style="z-index: 2;">
+          <div class="min-vh-100 row justify-content-center align-items-center p-4">
+            <div class="col-9 px-4">
+              <h2 class="mb-1 fs-7 fw-bolder">Madaniyat vazirligi Arxiv tizimi</h2>
+              <p class="mb-7">O'zbekiston Respublikasi Madaniyat vazirligi Arxiv tizimi</p>
+              <!-- HERE SHOULD BE LOGIN INPUTS -->
+              <Button label="OneID orqali kirish" class="w-100 py-8" @click="handleLogin" :loading="loading" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import logoNoText from '@/assets/images/logos/logo-no-text.svg'
+import logoMadh from '@/assets/images/logos/logo-madh.svg'
+import logoGray from '@/assets/images/logos/logo-gray.svg'
+import background from '@/assets/images/backgrounds/employees-in-office.jpg'
+</script>
