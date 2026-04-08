@@ -53,6 +53,45 @@ class CategoryField(Entity):
             self.validation = validation
 
 
+class DefaultField(Entity):
+    def __init__(
+        self,
+        name: str,
+        label: str,
+        field_type: FieldType,
+        is_required: bool = False,
+        sort_order: int = 0,
+        options: list[str] | None = None,
+        placeholder: str | None = None,
+        id: uuid.UUID | None = None,
+        created_at: datetime | None = None,
+    ):
+        super().__init__(id=id, created_at=created_at)
+        self.name = name
+        self.label = label
+        self.field_type = field_type
+        self.is_required = is_required
+        self.sort_order = sort_order
+        self.options = options
+        self.placeholder = placeholder
+
+    def update(self, label: str | None = None, field_type: FieldType | None = None,
+               is_required: bool | None = None, sort_order: int | None = None,
+               options: list[str] | None = None, placeholder: str | None = None) -> None:
+        if label is not None:
+            self.label = label
+        if field_type is not None:
+            self.field_type = field_type
+        if is_required is not None:
+            self.is_required = is_required
+        if sort_order is not None:
+            self.sort_order = sort_order
+        if options is not None:
+            self.options = options
+        if placeholder is not None:
+            self.placeholder = placeholder
+
+
 class Category(Entity):
     def __init__(
         self,
@@ -61,6 +100,7 @@ class Category(Entity):
         description: str | None = None,
         sort_order: int = 0,
         fields: list[CategoryField] | None = None,
+        year_ids: list[int] | None = None,
         id: uuid.UUID | None = None,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
@@ -71,9 +111,11 @@ class Category(Entity):
         self.description = description
         self.sort_order = sort_order
         self.fields = fields or []
+        self.year_ids = year_ids or []
 
     def update(self, name: str | None = None, code: str | None = None,
-               description: str | None = None, sort_order: int | None = None) -> None:
+               description: str | None = None, sort_order: int | None = None,
+               year_ids: list[int] | None = None) -> None:
         if name is not None:
             self.name = name
         if code is not None:
@@ -82,6 +124,8 @@ class Category(Entity):
             self.description = description
         if sort_order is not None:
             self.sort_order = sort_order
+        if year_ids is not None:
+            self.year_ids = year_ids
         self.updated_at = datetime.now(timezone.utc)
 
     def add_field(self, field: CategoryField) -> None:

@@ -9,23 +9,30 @@ from src.api.schemas.category import (
     CategoryFieldResponse,
     CategoryListResponse,
     CategoryResponse,
+    CopyCategoryRequest,
     CreateCategoryRequest,
+    CreateDefaultFieldRequest,
+    DefaultFieldListResponse,
+    DefaultFieldResponse,
     UpdateCategoryRequest,
+    UpdateDefaultFieldRequest,
     UpdateFieldRequest,
 )
 from src.application.category.commands import (
     AddFieldCommand,
+    CopyCategoryCommand,
     CreateCategoryCommand,
+    CreateDefaultFieldCommand,
     DeleteCategoryCommand,
+    DeleteDefaultFieldCommand,
     DeleteFieldCommand,
-    LinkCategoryToYearCommand,
-    UnlinkCategoryFromYearCommand,
     UpdateCategoryCommand,
+    UpdateDefaultFieldCommand,
     UpdateFieldCommand,
 )
 from src.application.category.handlers import CategoryCommandHandler, CategoryQueryHandler
-from src.application.category.queries import GetCategoryFieldsQuery, ListAllCategoriesQuery, ListCategoriesByYearQuery
-from src.domain.category.entity import Category, CategoryField
+from src.application.category.queries import GetCategoryFieldsQuery, ListAllCategoriesQuery, ListCategoriesByYearQuery, ListDefaultFieldsQuery
+from src.domain.category.entity import Category, CategoryField, DefaultField
 from src.domain.user.entity import User
 
 router = APIRouter(tags=["categories"])
@@ -42,8 +49,17 @@ def _field_to_response(f: CategoryField) -> CategoryFieldResponse:
 def _to_response(cat: Category) -> CategoryResponse:
     return CategoryResponse(
         id=cat.id, name=cat.name, code=cat.code, description=cat.description,
-        sort_order=cat.sort_order, fields=[_field_to_response(f) for f in cat.fields],
+        sort_order=cat.sort_order, year_ids=cat.year_ids,
+        fields=[_field_to_response(f) for f in cat.fields],
         created_at=cat.created_at, updated_at=cat.updated_at,
+    )
+
+
+def _default_field_to_response(f: DefaultField) -> DefaultFieldResponse:
+    return DefaultFieldResponse(
+        id=f.id, name=f.name, label=f.label, field_type=f.field_type.value,
+        is_required=f.is_required, sort_order=f.sort_order, options=f.options,
+        placeholder=f.placeholder, created_at=f.created_at,
     )
 
 
@@ -73,7 +89,8 @@ async def create_category(
     _: User = Depends(require_admin),
 ):
     category = await handler.create(CreateCategoryCommand(
-        name=request.name, code=request.code, description=request.description, sort_order=request.sort_order,
+        name=request.name, code=request.code, description=request.description,
+        sort_order=request.sort_order, year_ids=request.year_ids,
     ))
     return _to_response(category)
 
@@ -88,6 +105,7 @@ async def update_category(
     category = await handler.update(UpdateCategoryCommand(
         category_id=category_id, name=request.name, code=request.code,
         description=request.description, sort_order=request.sort_order,
+        year_id=request.year_id,
     ))
     return _to_response(category)
 
@@ -99,6 +117,19 @@ async def delete_category(
     _: User = Depends(require_admin),
 ):
     await handler.delete(DeleteCategoryCommand(category_id=category_id))
+
+
+@router.post("/api/categories/{category_id}/copy", response_model=CategoryResponse, status_code=201)
+async def copy_category(
+    category_id: uuid.UUID,
+    request: CopyCategoryRequest,
+    handler: CategoryCommandHandler = Depends(get_category_command_handler),
+    _: User = Depends(require_admin),
+):
+    category = await handler.copy_category(CopyCategoryCommand(
+        source_category_id=category_id, target_year_ids=request.target_year_ids,
+    ))
+    return _to_response(category)
 
 
 @router.get("/api/categories/{category_id}/fields", response_model=list[CategoryFieldResponse])
@@ -153,22 +184,50 @@ async def delete_field(
     await handler.delete_field(DeleteFieldCommand(field_id=field_id))
 
 
-@router.post("/api/years/{year_id}/categories/{category_id}", status_code=201)
-async def link_category_to_year(
-    year_id: int,
-    category_id: uuid.UUID,
+# --- Default Fields CRUD ---
+
+@router.get("/api/default-fields", response_model=DefaultFieldListResponse)
+async def list_default_fields(
+    handler: CategoryQueryHandler = Depends(get_category_query_handler),
+    _: User = Depends(require_admin),
+):
+    fields = await handler.list_default_fields(ListDefaultFieldsQuery())
+    return DefaultFieldListResponse(items=[_default_field_to_response(f) for f in fields])
+
+
+@router.post("/api/default-fields", response_model=DefaultFieldResponse, status_code=201)
+async def create_default_field(
+    request: CreateDefaultFieldRequest,
     handler: CategoryCommandHandler = Depends(get_category_command_handler),
     _: User = Depends(require_admin),
 ):
-    await handler.link_to_year(LinkCategoryToYearCommand(year_id=year_id, category_id=category_id))
-    return {"status": "linked"}
+    field = await handler.create_default_field(CreateDefaultFieldCommand(
+        name=request.name, label=request.label, field_type=request.field_type,
+        is_required=request.is_required, sort_order=request.sort_order,
+        options=request.options, placeholder=request.placeholder,
+    ))
+    return _default_field_to_response(field)
 
 
-@router.delete("/api/years/{year_id}/categories/{category_id}", status_code=204)
-async def unlink_category_from_year(
-    year_id: int,
-    category_id: uuid.UUID,
+@router.put("/api/default-fields/{field_id}", response_model=DefaultFieldResponse)
+async def update_default_field(
+    field_id: uuid.UUID,
+    request: UpdateDefaultFieldRequest,
     handler: CategoryCommandHandler = Depends(get_category_command_handler),
     _: User = Depends(require_admin),
 ):
-    await handler.unlink_from_year(UnlinkCategoryFromYearCommand(year_id=year_id, category_id=category_id))
+    field = await handler.update_default_field(UpdateDefaultFieldCommand(
+        field_id=field_id, label=request.label, field_type=request.field_type,
+        is_required=request.is_required, sort_order=request.sort_order,
+        options=request.options, placeholder=request.placeholder,
+    ))
+    return _default_field_to_response(field)
+
+
+@router.delete("/api/default-fields/{field_id}", status_code=204)
+async def delete_default_field(
+    field_id: uuid.UUID,
+    handler: CategoryCommandHandler = Depends(get_category_command_handler),
+    _: User = Depends(require_admin),
+):
+    await handler.delete_default_field(DeleteDefaultFieldCommand(field_id=field_id))

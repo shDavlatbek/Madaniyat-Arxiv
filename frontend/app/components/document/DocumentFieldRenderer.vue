@@ -20,10 +20,9 @@ const model = defineModel<any>()
       v-model="model"
       :placeholder="field.placeholder || ''"
     />
-    <UInput
+    <DatePicker
       v-else-if="field.field_type === 'date'"
       v-model="model"
-      type="date"
     />
     <UTextarea
       v-else-if="field.field_type === 'textarea'"

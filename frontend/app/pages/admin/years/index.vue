@@ -23,12 +23,13 @@ const columns = [
 const modalOpen = ref(false)
 const editingYear = ref<YearResponse | null>(null)
 const schema = z.object({ value: z.coerce.number().min(1900).max(2100), is_active: z.boolean() })
-const state = reactive({ value: new Date().getFullYear(), is_active: true })
+const state = reactive({ value: new Date().getFullYear(), is_active: true, import_from_year_id: null as number | null })
 
 function openCreate() {
   editingYear.value = null
   state.value = new Date().getFullYear()
   state.is_active = true
+  state.import_from_year_id = null
   modalOpen.value = true
 }
 
@@ -72,35 +73,67 @@ async function handleDelete() {
 </script>
 
 <template>
-  <PagePanel title="Yillar">
+  <PagePanel title="Yillar" icon="i-lucide-calendar">
     <template #headerRight>
+      <UBadge :label="`${years.length} yil`" variant="subtle" class="mr-2" />
       <UButton icon="i-lucide-plus" label="Yangi yil" @click="openCreate" />
     </template>
-    <UTable :data="years" :columns="columns" :loading="status === 'pending'">
+    <UTable :data="years" :columns="columns" :loading="status === 'pending'" @select="(row: any) => openEdit(row.original)">
+      <template #value-cell="{ row }">
+        <span class="font-semibold text-highlighted text-base">{{ row.original.value }}</span>
+      </template>
       <template #is_active-cell="{ row }">
-        <UBadge :label="row.is_active ? 'Faol' : 'Nofaol'" :color="row.is_active ? 'success' : 'error'" variant="subtle" />
+        <UBadge :label="row.original.is_active ? 'Faol' : 'Nofaol'" :color="row.original.is_active ? 'success' : 'error'" variant="subtle" />
       </template>
       <template #actions-cell="{ row }">
-        <div class="flex gap-1">
-          <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEdit(row)" />
-          <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click="deleteTarget = row; deleteOpen = true" />
+        <div class="flex gap-1 justify-end">
+          <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEdit(row.original)" />
+          <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click="deleteTarget = row.original; deleteOpen = true" />
         </div>
       </template>
     </UTable>
+
+    <div v-if="!years.length && status !== 'pending'" class="flex items-center justify-center p-12">
+      <EmptyState icon="i-lucide-calendar-x" title="Yillar topilmadi" description="Hozircha yillar qo'shilmagan" />
+    </div>
   </PagePanel>
 
   <!-- Create/Edit modal -->
   <UModal v-model:open="modalOpen" :title="editingYear ? 'Yilni tahrirlash' : 'Yangi yil'">
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSave">
+      <UForm :schema="schema" :state="state" class="space-y-5" @submit="handleSave">
         <UFormField label="Yil" name="value" required>
-          <UInput v-model="state.value" type="number" />
+          <UInput v-model="state.value" type="number" icon="i-lucide-calendar" size="lg" />
         </UFormField>
-        <UFormField label="Faol" name="is_active">
-          <USwitch v-model="state.is_active" />
+        <UFormField label="Holat" name="is_active">
+          <div class="flex items-center gap-2">
+            <USwitch v-model="state.is_active" />
+            <span class="text-sm text-muted">{{ state.is_active ? 'Faol' : 'Nofaol' }}</span>
+          </div>
         </UFormField>
-        <div class="flex justify-end gap-2">
-          <UButton variant="ghost" label="Bekor qilish" @click="modalOpen = false" />
+        <!-- Import categories from another year (only on create) -->
+        <UFormField v-if="!editingYear" label="Nomenklaturalarni import qilish" help="Mavjud yildan nomenklaturalarni nusxalash">
+          <div class="flex flex-wrap gap-2">
+            <UButton
+              label="Import qilmaslik"
+              :variant="!state.import_from_year_id ? 'solid' : 'outline'"
+              :color="!state.import_from_year_id ? 'neutral' : 'neutral'"
+              size="sm"
+              @click="state.import_from_year_id = null"
+            />
+            <UButton
+              v-for="y in years"
+              :key="y.id"
+              :label="`${y.value} yildan`"
+              :variant="state.import_from_year_id === y.id ? 'solid' : 'outline'"
+              :color="state.import_from_year_id === y.id ? 'primary' : 'neutral'"
+              size="sm"
+              @click="state.import_from_year_id = y.id"
+            />
+          </div>
+        </UFormField>
+        <div class="flex justify-end gap-3 pt-2">
+          <UButton variant="outline" label="Bekor qilish" @click="modalOpen = false" />
           <UButton type="submit" :label="editingYear ? 'Saqlash' : 'Yaratish'" icon="i-lucide-save" />
         </div>
       </UForm>

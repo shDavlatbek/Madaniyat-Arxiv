@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { CategoryResponse } from '~/types'
+
 definePageMeta({ layout: 'dashboard' })
 
 const route = useRoute()
@@ -6,14 +8,29 @@ const year = computed(() => Number(route.params.year))
 const categoryId = computed(() => route.params.categoryId as string)
 const documentId = computed(() => route.params.documentId as string)
 
-const { getDocument, updateDocument } = useDocuments()
+const { apiFetch } = useApi()
+const { getDocument, updateDocument, uploadFile } = useDocuments()
 const toast = useToast()
 
 const { data: doc } = await useAsyncData(`doc-edit-${documentId.value}`, () => getDocument(documentId.value))
 
-async function handleSubmit(data: Record<string, any>) {
+// Fetch category name for display
+const { data: categoriesData } = await useAsyncData(
+  `categories-edit-${year.value}`,
+  () => apiFetch<{ items: CategoryResponse[] }>(`/api/years/${year.value}/categories`)
+)
+const currentCategory = computed(() => categoriesData.value?.items?.find((c: CategoryResponse) => c.id === categoryId.value))
+
+async function handleSubmit(data: Record<string, any>, file?: File) {
   try {
     await updateDocument(documentId.value, data)
+    if (file) {
+      try {
+        await uploadFile(documentId.value, file)
+      } catch {
+        toast.add({ title: 'Ogohlantirish', description: 'Hujjat yangilandi, lekin faylni yuklashda xatolik', color: 'warning', icon: 'i-lucide-alert-triangle' })
+      }
+    }
     toast.add({ title: 'Muvaffaqiyat', description: 'Hujjat yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
     navigateTo(`/archive/${year.value}/${categoryId.value}/${documentId.value}`)
   } catch (error: any) {
@@ -23,12 +40,15 @@ async function handleSubmit(data: Record<string, any>) {
 </script>
 
 <template>
-  <PagePanel title="Hujjatni tahrirlash">
+  <PagePanel title="Hujjatni tahrirlash" icon="i-lucide-file-pen">
     <template #headerLeft>
-      <UButton icon="i-lucide-arrow-left" variant="ghost" @click="$router.back()" />
+      <UButton icon="i-lucide-arrow-left" variant="ghost" :to="`/archive/${year}/${categoryId}/${documentId}`" />
+    </template>
+    <template #headerRight>
+      <UBadge v-if="currentCategory" :label="currentCategory.name" variant="subtle" icon="i-lucide-folder" />
     </template>
 
-    <div class="max-w-4xl mx-auto p-4 sm:p-6">
+    <div class="max-w-4xl mx-auto p-6 sm:p-8">
       <DocumentForm
         v-if="doc"
         :category-id="categoryId"

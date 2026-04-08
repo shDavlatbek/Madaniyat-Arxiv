@@ -1,24 +1,15 @@
 <script setup lang="ts">
 import { z } from 'zod'
-import type { CategoryFieldResponse, CategoryResponse } from '~/types'
+import type { DefaultFieldResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
 
-const route = useRoute()
-const catId = computed(() => route.params.id as string)
 const { apiFetch } = useApi()
 const toast = useToast()
 
-// Category info
-const { data: category } = await useAsyncData(`cat-fields-info-${catId.value}`, () =>
-  apiFetch<{ items: CategoryResponse[] }>('/api/categories').then(
-    res => res.items.find(c => c.id === catId.value) || null
-  )
-)
-
 // Fields
-const { data: fields, refresh } = await useAsyncData(`cat-fields-${catId.value}`, () =>
-  apiFetch<CategoryFieldResponse[]>(`/api/categories/${catId.value}/fields`)
+const { data: fields, refresh } = await useAsyncData('default-fields', () =>
+  apiFetch<{ items: DefaultFieldResponse[] }>('/api/default-fields').then(res => res.items)
 )
 
 const columns = [
@@ -32,7 +23,7 @@ const columns = [
 
 // Add/Edit modal
 const modalOpen = ref(false)
-const editingField = ref<CategoryFieldResponse | null>(null)
+const editingField = ref<DefaultFieldResponse | null>(null)
 
 const fieldTypes = ['text', 'number', 'date', 'textarea', 'select', 'file']
 
@@ -61,7 +52,7 @@ function openCreate() {
   modalOpen.value = true
 }
 
-function openEdit(field: CategoryFieldResponse) {
+function openEdit(field: DefaultFieldResponse) {
   editingField.value = field
   Object.assign(state, {
     name: field.name,
@@ -85,11 +76,11 @@ async function handleSave() {
 
   try {
     if (editingField.value) {
-      await apiFetch(`/api/categories/${catId.value}/fields/${editingField.value.id}`, { method: 'PUT', body })
-      toast.add({ title: 'Muvaffaqiyat', description: 'Maydon yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
+      await apiFetch(`/api/default-fields/${editingField.value.id}`, { method: 'PUT', body })
+      toast.add({ title: 'Muvaffaqiyat', description: 'Shablon maydon yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
     } else {
-      await apiFetch(`/api/categories/${catId.value}/fields`, { method: 'POST', body })
-      toast.add({ title: 'Muvaffaqiyat', description: 'Maydon qo\'shildi', color: 'success', icon: 'i-lucide-check-circle' })
+      await apiFetch('/api/default-fields', { method: 'POST', body })
+      toast.add({ title: 'Muvaffaqiyat', description: 'Shablon maydon qo\'shildi', color: 'success', icon: 'i-lucide-check-circle' })
     }
     modalOpen.value = false
     refresh()
@@ -99,13 +90,13 @@ async function handleSave() {
 }
 
 const deleteOpen = ref(false)
-const deleteTarget = ref<CategoryFieldResponse | null>(null)
+const deleteTarget = ref<DefaultFieldResponse | null>(null)
 
 async function handleDelete() {
   if (!deleteTarget.value) return
   try {
-    await apiFetch(`/api/categories/${catId.value}/fields/${deleteTarget.value.id}`, { method: 'DELETE' })
-    toast.add({ title: 'Muvaffaqiyat', description: 'Maydon o\'chirildi', color: 'success', icon: 'i-lucide-check-circle' })
+    await apiFetch(`/api/default-fields/${deleteTarget.value.id}`, { method: 'DELETE' })
+    toast.add({ title: 'Muvaffaqiyat', description: 'Shablon maydon o\'chirildi', color: 'success', icon: 'i-lucide-check-circle' })
     deleteOpen.value = false
     refresh()
   } catch {
@@ -115,12 +106,9 @@ async function handleDelete() {
 </script>
 
 <template>
-  <PagePanel :title="`${category?.name || ''} - Maydonlar`" icon="i-lucide-layers">
-    <template #headerLeft>
-      <UButton icon="i-lucide-arrow-left" variant="ghost" to="/admin/categories" />
-    </template>
+  <PagePanel title="Shablon maydonlar" icon="i-lucide-copy">
     <template #headerRight>
-      <UButton icon="i-lucide-plus" label="Yangi maydon" @click="openCreate" />
+      <UButton icon="i-lucide-plus" label="Yangi shablon" @click="openCreate" />
     </template>
     <UTable :data="fields || []" :columns="columns">
       <template #label-cell="{ row }">
@@ -144,12 +132,12 @@ async function handleDelete() {
     </UTable>
 
     <div v-if="!fields?.length" class="flex items-center justify-center p-12">
-      <EmptyState icon="i-lucide-layers" title="Maydonlar yo'q" description="Bu nomenklatura uchun qo'shimcha maydonlar qo'shilmagan" />
+      <EmptyState icon="i-lucide-copy" title="Shablon maydonlar yo'q" description="Hali shablon maydonlar qo'shilmagan" />
     </div>
   </PagePanel>
 
   <!-- Add/Edit modal -->
-  <UModal v-model:open="modalOpen" :title="editingField ? 'Maydonni tahrirlash' : 'Yangi maydon'">
+  <UModal v-model:open="modalOpen" :title="editingField ? 'Shablon maydonni tahrirlash' : 'Yangi shablon maydon'">
     <template #body>
       <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSave">
         <UFormField label="Label (ko'rinadigan nom)" name="label" required>
@@ -184,7 +172,7 @@ async function handleDelete() {
   </UModal>
 
   <!-- Delete modal -->
-  <UModal v-model:open="deleteOpen" title="Maydonni o'chirish" description="Bu maydon barcha hujjatlardan ham o'chiriladi.">
+  <UModal v-model:open="deleteOpen" title="Shablon maydonni o'chirish" description="Bu shablon maydon o'chiriladi.">
     <template #footer>
       <div class="flex justify-end gap-2">
         <UButton variant="ghost" label="Bekor qilish" @click="deleteOpen = false" />

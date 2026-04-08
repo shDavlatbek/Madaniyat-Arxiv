@@ -37,6 +37,7 @@ export interface CategoryResponse {
   code: string
   description: string | null
   sort_order: number
+  year_ids: number[]
   fields: CategoryFieldResponse[]
   created_at: string
   updated_at: string
@@ -63,6 +64,18 @@ export interface DocumentResponse {
   field_values: DocumentFieldValueResponse[]
   created_at: string
   updated_at: string
+}
+
+export interface DefaultFieldResponse {
+  id: string
+  name: string
+  label: string
+  field_type: string
+  is_required: boolean
+  sort_order: number
+  options: string[] | null
+  placeholder: string | null
+  created_at: string
 }
 
 export interface PaginatedResponse<T> {

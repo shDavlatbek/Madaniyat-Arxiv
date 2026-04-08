@@ -8,6 +8,7 @@ from dataclasses import dataclass
 class CreateCategoryCommand:
     name: str
     code: str
+    year_ids: list[int]
     description: str | None = None
     sort_order: int = 0
 
@@ -19,6 +20,7 @@ class UpdateCategoryCommand:
     code: str | None = None
     description: str | None = None
     sort_order: int | None = None
+    year_ids: list[int] | None = None
 
 
 @dataclass
@@ -57,12 +59,33 @@ class DeleteFieldCommand:
 
 
 @dataclass
-class LinkCategoryToYearCommand:
-    year_id: int
-    category_id: uuid.UUID
+class CopyCategoryCommand:
+    source_category_id: uuid.UUID
+    target_year_ids: list[int]
 
 
 @dataclass
-class UnlinkCategoryFromYearCommand:
-    year_id: int
-    category_id: uuid.UUID
+class CreateDefaultFieldCommand:
+    name: str
+    label: str
+    field_type: str
+    is_required: bool = False
+    sort_order: int = 0
+    options: list[str] | None = None
+    placeholder: str | None = None
+
+
+@dataclass
+class UpdateDefaultFieldCommand:
+    field_id: uuid.UUID
+    label: str | None = None
+    field_type: str | None = None
+    is_required: bool | None = None
+    sort_order: int | None = None
+    options: list[str] | None = None
+    placeholder: str | None = None
+
+
+@dataclass
+class DeleteDefaultFieldCommand:
+    field_id: uuid.UUID

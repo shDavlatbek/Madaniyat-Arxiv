@@ -48,24 +48,27 @@ async function handleDelete() {
 </script>
 
 <template>
-  <PagePanel title="Foydalanuvchilar">
+  <PagePanel title="Foydalanuvchilar" icon="i-lucide-users">
     <template #headerRight>
       <UButton icon="i-lucide-plus" label="Yangi foydalanuvchi" to="/admin/users/create" />
     </template>
     <template #toolbar>
       <UInput v-model="search" icon="i-lucide-search" placeholder="Qidirish..." class="w-64" />
     </template>
-    <UTable :data="users" :columns="columns" :loading="status === 'pending'">
+    <UTable :data="users" :columns="columns" :loading="status === 'pending'" @select="(row: any) => navigateTo(`/admin/users/${row.original.id}/edit`)">
+      <template #username-cell="{ row }">
+        <span class="font-semibold text-highlighted">{{ row.original.username }}</span>
+      </template>
       <template #is_active-cell="{ row }">
-        <UBadge :label="row.is_active ? 'Faol' : 'Nofaol'" :color="row.is_active ? 'success' : 'error'" variant="subtle" />
+        <UBadge :label="row.original.is_active ? 'Faol' : 'Nofaol'" :color="row.original.is_active ? 'success' : 'error'" variant="subtle" />
       </template>
       <template #role-cell="{ row }">
-        <UBadge :label="row.role" variant="subtle" />
+        <UBadge :label="row.original.role" variant="subtle" />
       </template>
       <template #actions-cell="{ row }">
         <UDropdownMenu :items="[
-          [{ label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/admin/users/${row.id}/edit`) }],
-          [{ label: 'O\'chirish', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => confirmDelete(row) }],
+          [{ label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/admin/users/${row.original.id}/edit`) }],
+          [{ label: 'O\'chirish', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => confirmDelete(row.original) }],
         ]">
           <UButton icon="i-lucide-ellipsis-vertical" variant="ghost" size="xs" />
         </UDropdownMenu>

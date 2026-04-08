@@ -60,31 +60,37 @@ async function changePassword() {
 </script>
 
 <template>
-  <PagePanel :title="`Tahrirlash: ${user?.username}`">
+  <PagePanel :title="`Tahrirlash: ${user?.username}`" icon="i-lucide-user-pen">
     <template #headerLeft>
       <UButton icon="i-lucide-arrow-left" variant="ghost" to="/admin/users" />
     </template>
-    <div class="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
+    <div class="max-w-2xl mx-auto p-6 sm:p-8 space-y-6">
       <UCard>
         <template #header>
-          <span class="font-semibold">Asosiy ma'lumotlar</span>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-id-card" class="text-primary" />
+            <span class="font-semibold">Asosiy ma'lumotlar</span>
+          </div>
         </template>
-        <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSubmit">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <UForm :schema="schema" :state="state" class="space-y-5" @submit="handleSubmit">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <UFormField label="Ism" name="name" required>
-              <UInput v-model="state.name" icon="i-lucide-id-card" />
+              <UInput v-model="state.name" icon="i-lucide-id-card" size="lg" />
             </UFormField>
             <UFormField label="Email" name="email">
-              <UInput v-model="state.email" type="email" icon="i-lucide-mail" />
+              <UInput v-model="state.email" type="email" icon="i-lucide-mail" size="lg" />
             </UFormField>
             <UFormField label="Rol" name="role">
-              <USelect v-model="state.role" :items="roleOptions" />
+              <USelect v-model="state.role" :items="roleOptions" size="lg" />
             </UFormField>
             <UFormField label="Holat" name="is_active">
-              <USwitch v-model="state.is_active" />
+              <div class="flex items-center gap-2 pt-1">
+                <USwitch v-model="state.is_active" />
+                <span class="text-sm text-muted">{{ state.is_active ? 'Faol' : 'Nofaol' }}</span>
+              </div>
             </UFormField>
           </div>
-          <div class="flex justify-end">
+          <div class="flex justify-end pt-4 border-t border-default">
             <UButton type="submit" label="Saqlash" icon="i-lucide-save" :loading="loading" />
           </div>
         </UForm>
@@ -92,10 +98,13 @@ async function changePassword() {
 
       <UCard>
         <template #header>
-          <span class="font-semibold">Parolni o'zgartirish</span>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-key" class="text-primary" />
+            <span class="font-semibold">Parolni o'zgartirish</span>
+          </div>
         </template>
-        <div class="flex gap-2">
-          <UInput v-model="newPassword" type="password" placeholder="Yangi parol" class="flex-1" />
+        <div class="flex gap-3">
+          <UInput v-model="newPassword" type="password" placeholder="Yangi parol" class="flex-1" size="lg" />
           <UButton label="O'zgartirish" icon="i-lucide-key" @click="changePassword" />
         </div>
       </UCard>

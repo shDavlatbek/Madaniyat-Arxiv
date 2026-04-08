@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 
+const route = useRoute()
 const { user, isAdmin, logout } = useAuth()
 const sidebarOpen = ref(true)
 const mobileSidebarOpen = ref(false)
@@ -12,7 +13,7 @@ const navItems = computed<NavigationMenuItem[]>(() => {
   if (isAdmin.value) {
     items.push(
       { label: 'Yillar', icon: 'i-lucide-calendar', to: '/admin/years' },
-      { label: 'Kategoriyalar', icon: 'i-lucide-folder', to: '/admin/categories' },
+      { label: 'Nomenklaturalar', icon: 'i-lucide-folder', to: '/admin/categories' },
       { label: 'Foydalanuvchilar', icon: 'i-lucide-users', to: '/admin/users' },
     )
   }
@@ -76,18 +77,31 @@ const userMenuItems = computed(() => [
       </div>
 
       <!-- Navigation -->
-      <nav class="flex-1 overflow-y-auto p-2">
+      <nav class="flex-1 overflow-y-auto p-3">
         <UNavigationMenu
           :items="navItems"
           orientation="vertical"
-          :ui="{ link: !sidebarOpen ? 'justify-center' : undefined }"
+          :ui="{
+            list: 'flex flex-col gap-1.5',
+            link: [
+              'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150',
+              'text-muted hover:text-highlighted hover:bg-accented/60',
+              !sidebarOpen && 'justify-center px-2',
+            ].filter(Boolean).join(' '),
+            linkLeadingIcon: 'size-5 shrink-0',
+            linkActive: 'text-primary bg-primary/10 hover:bg-primary/15 hover:text-primary',
+          }"
         />
       </nav>
 
       <!-- Footer - user menu -->
       <div class="border-t border-default p-2">
         <UDropdownMenu :items="userMenuItems">
-          <UButton variant="ghost" block :class="sidebarOpen ? 'justify-start' : 'justify-center'">
+          <UButton
+            variant="ghost"
+            block
+            :class="sidebarOpen ? 'justify-start gap-2 py-2' : 'justify-center py-2'"
+          >
             <UAvatar :text="user?.name?.charAt(0)" size="xs" />
             <span v-if="sidebarOpen" class="truncate text-sm">{{ user?.name }}</span>
           </UButton>

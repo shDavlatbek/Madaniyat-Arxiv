@@ -38,76 +38,103 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="min-h-screen flex">
-    <!-- Left: Branding panel -->
-    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden">
-      <img
-        :src="logoGray"
-        alt=""
-        class="absolute inset-0 w-full h-full object-contain opacity-5"
-      />
-      <img
-        :src="background"
-        alt=""
-        class="absolute inset-0 w-full h-full object-cover"
-      />
-      <div class="absolute inset-0 bg-madaniyat-800/70" />
+  <div class="relative min-h-screen w-full overflow-hidden">
+    <!-- Gray logo background layer (full screen, behind everything) -->
+    <div
+      class="absolute inset-0 bg-no-repeat pointer-events-none"
+      :style="{
+        backgroundImage: `url(${logoGray})`,
+        backgroundSize: 'contain',
+        backgroundPosition: '60%',
+        opacity: 0.2,
+      }"
+    />
 
-      <div class="relative z-10 flex flex-col items-center justify-center h-full p-8 text-center">
-        <div class="flex items-center gap-6 mb-8">
-          <img :src="logoNoText" alt="Logo" class="h-36 drop-shadow-lg" />
-          <h1 class="text-3xl font-bold text-white text-left uppercase leading-tight">
-            O'zbekiston<br />Respublikasi<br />Madaniyat<br />vazirligi
-          </h1>
-        </div>
+    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+      <!-- Left: Branding card -->
+      <div class="hidden lg:flex items-center justify-center min-h-screen p-4">
+        <div class="relative w-full rounded-3xl overflow-hidden shadow-none" style="height: calc(100vh - 80px);">
+          <!-- Blurred background image -->
+          <div
+            class="absolute inset-0 bg-no-repeat bg-cover"
+            :style="{
+              backgroundImage: `url(${background})`,
+              backgroundPosition: '60%',
+              opacity: 0.9,
+              filter: 'blur(2px)',
+            }"
+          />
+          <!-- Optional dark tint for legibility -->
+          <div class="absolute inset-0 bg-madaniyat-800/40" />
 
-        <div class="mt-auto flex items-center gap-2 opacity-80">
-          <img :src="logoMadh" alt="" class="h-8 brightness-0 invert" />
-          <span class="text-white font-semibold uppercase text-sm">Madaniy hayot</span>
+          <!-- Content -->
+          <div class="relative z-10 h-full flex flex-col px-3 py-6 text-center">
+            <!-- Top: logo + title row (4/8 split) -->
+            <div class="flex-grow grid grid-cols-12 items-center">
+              <div class="col-span-4 flex justify-center items-center">
+                <img :src="logoNoText" alt="icon" class="pb-2" style="height: 200px;" />
+              </div>
+              <div class="col-span-8 flex justify-start items-center">
+                <h2 class="text-3xl font-extrabold text-white text-left uppercase mb-0 leading-tight">
+                  O'zbekiston Respublikasi Madaniyat vazirligi
+                </h2>
+              </div>
+            </div>
+
+            <!-- Bottom: madh logo + label -->
+            <div class="mt-auto flex justify-center items-center">
+              <img
+                :src="logoMadh"
+                alt="icon"
+                class="pb-2"
+                style="filter: brightness(0) invert(1); height: 40px;"
+              />
+              <h2 class="text-xl font-extrabold text-white uppercase mb-0 ml-2">Madaniy hayot</h2>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Right: Login form -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 bg-default">
-      <div class="w-full max-w-md">
-        <div class="flex items-center gap-3 mb-2 lg:hidden">
-          <img :src="logoNoText" alt="Logo" class="h-10" />
+      <!-- Right: Login form -->
+      <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-md px-4">
+          <h2 class="text-3xl font-extrabold text-highlighted mb-1">Madaniyat vazirligi Arxiv tizimi</h2>
+          <p class="text-muted mb-10">O'zbekiston Respublikasi Madaniyat vazirligi Arxiv tizimi</p>
+
+          <UForm :schema="schema" :state="state" class="space-y-5" @submit="handleLogin">
+            <UFormField label="Foydalanuvchi nomi" name="username" required>
+              <UInput
+                v-model="state.username"
+                icon="i-lucide-user"
+                placeholder="admin"
+                size="lg"
+                class="w-full"
+                autofocus
+              />
+            </UFormField>
+
+            <UFormField label="Parol" name="password" required>
+              <UInput
+                v-model="state.password"
+                type="password"
+                icon="i-lucide-lock"
+                placeholder="Parolni kiriting"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UButton
+              type="submit"
+              label="Tizimga kirish"
+              icon="i-lucide-log-in"
+              size="lg"
+              block
+              :loading="loading"
+              class="mt-2 py-3"
+            />
+          </UForm>
         </div>
-        <h2 class="text-2xl font-bold text-highlighted mb-1">Arxiv tizimi</h2>
-        <p class="text-muted mb-8">Madaniyat vazirligi hujjat arxivi tizimiga kirish</p>
-
-        <UForm :schema="schema" :state="state" class="space-y-5" @submit="handleLogin">
-          <UFormField label="Foydalanuvchi nomi" name="username" required>
-            <UInput
-              v-model="state.username"
-              icon="i-lucide-user"
-              placeholder="admin"
-              size="lg"
-              autofocus
-            />
-          </UFormField>
-
-          <UFormField label="Parol" name="password" required>
-            <UInput
-              v-model="state.password"
-              type="password"
-              icon="i-lucide-lock"
-              placeholder="Parolni kiriting"
-              size="lg"
-            />
-          </UFormField>
-
-          <UButton
-            type="submit"
-            label="Tizimga kirish"
-            icon="i-lucide-log-in"
-            size="lg"
-            block
-            :loading="loading"
-            class="mt-2"
-          />
-        </UForm>
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { z } from 'zod'
-import type { CategoryResponse } from '~/types'
+import type { CategoryResponse, YearResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
 
@@ -11,17 +11,21 @@ const toast = useToast()
 const loading = ref(false)
 
 const { data: category } = await useAsyncData(`cat-edit-${catId.value}`, () => {
-  // Get from all categories list since there's no direct GET /api/categories/:id
   return apiFetch<{ items: CategoryResponse[] }>('/api/categories').then(
-    res => res.items.find(c => c.id === catId.value) || null
+    res => res.items.find(c => c.id === catId.value) || null,
   )
 })
 
+const { data: yearsData } = await useAsyncData('years-for-cat', () =>
+  apiFetch<{ items: YearResponse[] }>('/api/years?active_only=false'),
+)
+const years = computed(() => yearsData.value?.items || [])
 const schema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
+  name: z.string().min(1, 'Nom kiritilishi shart'),
+  code: z.string().min(1, 'Kod kiritilishi shart'),
   description: z.string().optional(),
   sort_order: z.coerce.number(),
+  year_ids: z.array(z.number()).min(1, 'Kamida bitta yil tanlanishi shart'),
 })
 
 const state = reactive({
@@ -29,44 +33,241 @@ const state = reactive({
   code: category.value?.code || '',
   description: category.value?.description || '',
   sort_order: category.value?.sort_order || 0,
+  year_ids: category.value?.year_ids || [] as number[],
 })
+
+// Track dirty state
+const initialState = JSON.stringify(state)
+const isDirty = computed(() => JSON.stringify(state) !== initialState)
 
 async function handleSubmit() {
   loading.value = true
   try {
     await apiFetch(`/api/categories/${catId.value}`, { method: 'PUT', body: state })
-    toast.add({ title: 'Muvaffaqiyat', description: 'Kategoriya yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
+    toast.add({
+      title: 'Muvaffaqiyat',
+      description: 'Nomenklatura yangilandi',
+      color: 'success',
+      icon: 'i-lucide-check-circle',
+    })
     navigateTo('/admin/categories')
-  } catch (error: any) {
-    toast.add({ title: 'Xatolik', description: error?.data?.detail || 'Yangilab bo\'lmadi', color: 'error', icon: 'i-lucide-alert-circle' })
-  } finally {
+  }
+  catch (error: any) {
+    toast.add({
+      title: 'Xatolik',
+      description: error?.data?.detail || 'Yangilab bo\'lmadi',
+      color: 'error',
+      icon: 'i-lucide-alert-circle',
+    })
+  }
+  finally {
     loading.value = false
   }
+}
+
+function formatDate(date?: string | null) {
+  if (!date) return '—'
+  return new Date(date).toLocaleDateString('uz-UZ', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
 }
 </script>
 
 <template>
-  <PagePanel :title="`Tahrirlash: ${category?.name}`">
+  <PagePanel :title="`Tahrirlash: ${category?.name || ''}`" icon="i-lucide-folder-pen">
     <template #headerLeft>
-      <UButton icon="i-lucide-arrow-left" variant="ghost" to="/admin/categories" />
+      <UButton
+        icon="i-lucide-arrow-left"
+        variant="ghost"
+        color="neutral"
+        to="/admin/categories"
+      />
     </template>
-    <div class="max-w-2xl mx-auto p-4 sm:p-6">
-      <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSubmit">
-        <UFormField label="Nomi" name="name" required>
-          <UInput v-model="state.name" />
-        </UFormField>
-        <UFormField label="Kod" name="code" required>
-          <UInput v-model="state.code" />
-        </UFormField>
-        <UFormField label="Tavsif" name="description">
-          <UTextarea v-model="state.description" :rows="3" />
-        </UFormField>
-        <UFormField label="Tartib raqami" name="sort_order">
-          <UInput v-model="state.sort_order" type="number" />
-        </UFormField>
-        <div class="flex justify-end gap-2 pt-4">
-          <UButton variant="ghost" label="Bekor qilish" to="/admin/categories" />
-          <UButton type="submit" label="Saqlash" icon="i-lucide-save" :loading="loading" />
+
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <!-- Hero header -->
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-4 min-w-0">
+          <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-50 dark:bg-primary-950 ring-1 ring-primary-200 dark:ring-primary-900 shrink-0">
+            <UIcon name="i-lucide-folder-pen" class="w-7 h-7 text-primary-600 dark:text-primary-400" />
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-2xl font-semibold text-highlighted truncate">
+              {{ category?.name || 'Nomenklatura' }}
+            </h1>
+            <p class="text-sm text-muted mt-1">
+              Nomenklatura ma'lumotlarini yangilang va saqlang.
+            </p>
+          </div>
+        </div>
+
+        <UBadge
+          v-if="isDirty"
+          label="O'zgartirildi"
+          variant="subtle"
+          color="warning"
+          icon="i-lucide-circle-dot"
+          size="sm"
+          class="shrink-0"
+        />
+      </div>
+
+      <!-- Meta info strip -->
+      <div
+        v-if="category"
+        class="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 rounded-xl bg-elevated/40 border border-default text-xs"
+      >
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-fingerprint" class="w-3.5 h-3.5 text-muted" />
+          <span class="text-muted">ID:</span>
+          <span class="font-mono text-highlighted">{{ catId.slice(0, 8) }}</span>
+        </div>
+        <div v-if="category.created_at" class="flex items-center gap-2">
+          <UIcon name="i-lucide-calendar-plus" class="w-3.5 h-3.5 text-muted" />
+          <span class="text-muted">Yaratilgan:</span>
+          <span class="text-highlighted">{{ formatDate(category.created_at) }}</span>
+        </div>
+        <div v-if="category.updated_at" class="flex items-center gap-2">
+          <UIcon name="i-lucide-calendar-clock" class="w-3.5 h-3.5 text-muted" />
+          <span class="text-muted">Yangilangan:</span>
+          <span class="text-highlighted">{{ formatDate(category.updated_at) }}</span>
+        </div>
+      </div>
+
+      <UForm
+        :schema="schema"
+        :state="state"
+        class="space-y-6"
+        @submit="handleSubmit"
+      >
+        <!-- Main info card -->
+        <UCard :ui="{ header: 'border-b border-default', body: 'space-y-5' }">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-info" class="w-4 h-4 text-muted" />
+              <h2 class="text-sm font-semibold text-highlighted">
+                Asosiy ma'lumotlar
+              </h2>
+            </div>
+          </template>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <UFormField
+              label="Nomi"
+              name="name"
+              required
+              help="Foydalanuvchilarga ko'rinadigan nom"
+            >
+              <UInput
+                v-model="state.name"
+                icon="i-lucide-folder"
+                placeholder="Buyruqlar"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField
+              label="Kod"
+              name="code"
+              required
+            >
+              <UInput
+                v-model="state.code"
+                icon="i-lucide-hash"
+                placeholder="buyruqlar"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField
+              label="Yillar"
+              name="year_ids"
+              required
+              help="Bir yoki bir nechta yil tanlang"
+              class="md:col-span-2"
+            >
+              <div class="flex flex-wrap gap-2">
+                <UButton
+                  v-for="y in years"
+                  :key="y.id"
+                  :label="String(y.value)"
+                  :variant="state.year_ids.includes(y.id) ? 'solid' : 'outline'"
+                  :color="state.year_ids.includes(y.id) ? 'primary' : 'neutral'"
+                  size="sm"
+                  @click="state.year_ids.includes(y.id) ? state.year_ids = state.year_ids.filter(id => id !== y.id) : state.year_ids.push(y.id)"
+                />
+              </div>
+            </UFormField>
+          </div>
+
+          <UFormField
+            label="Tavsif"
+            name="description"
+            help="Ixtiyoriy — nomenklatura maqsadini qisqacha tushuntiring"
+          >
+            <UTextarea
+              v-model="state.description"
+              :rows="4"
+              placeholder="Nomenklatura haqida qisqacha ma'lumot..."
+              class="w-full"
+            />
+          </UFormField>
+        </UCard>
+
+        <!-- Settings card -->
+        <UCard :ui="{ header: 'border-b border-default' }">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-settings-2" class="w-4 h-4 text-muted" />
+              <h2 class="text-sm font-semibold text-highlighted">
+                Sozlamalar
+              </h2>
+            </div>
+          </template>
+
+          <UFormField
+            label="Tartib raqami"
+            name="sort_order"
+            help="Ro'yxatda ko'rinish tartibi — kichik raqam birinchi chiqadi"
+          >
+            <UInput
+              v-model="state.sort_order"
+              type="number"
+              icon="i-lucide-arrow-up-down"
+              class="w-40"
+              size="lg"
+            />
+          </UFormField>
+        </UCard>
+
+        <!-- Sticky action bar -->
+        <div class="flex items-center justify-between gap-3 p-4 rounded-xl bg-elevated/50 border border-default backdrop-blur sticky bottom-4 z-10">
+          <p v-if="isDirty" class="text-xs text-muted hidden sm:flex items-center gap-1.5">
+            <UIcon name="i-lucide-info" class="w-3.5 h-3.5" />
+            Saqlanmagan o'zgarishlar mavjud
+          </p>
+          <span v-else class="hidden sm:block" />
+
+          <div class="flex items-center gap-3 ml-auto">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              label="Bekor qilish"
+              to="/admin/categories"
+              :disabled="loading"
+            />
+            <UButton
+              type="submit"
+              label="O'zgarishlarni saqlash"
+              icon="i-lucide-save"
+              :loading="loading"
+              :disabled="!isDirty"
+            />
+          </div>
         </div>
       </UForm>
     </div>

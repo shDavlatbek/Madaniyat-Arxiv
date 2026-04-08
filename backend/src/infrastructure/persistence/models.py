@@ -52,7 +52,18 @@ class YearModel(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
-    year_categories: Mapped[list["YearCategoryModel"]] = relationship(back_populates="year", cascade="all, delete-orphan")
+
+class YearCategoryModel(Base):
+    __tablename__ = "year_categories"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    year_id: Mapped[int] = mapped_column(Integer, ForeignKey("years.id", ondelete="CASCADE"), nullable=False)
+    category_id: Mapped[uuid.UUID] = mapped_column(GUID(), ForeignKey("categories.id", ondelete="CASCADE"), nullable=False)
+
+    year: Mapped["YearModel"] = relationship()
+    category: Mapped["CategoryModel"] = relationship(back_populates="year_categories")
+
+    __table_args__ = (UniqueConstraint("year_id", "category_id"),)
 
 
 class CategoryModel(Base):
@@ -68,19 +79,6 @@ class CategoryModel(Base):
 
     fields: Mapped[list["CategoryFieldModel"]] = relationship(back_populates="category", cascade="all, delete-orphan", order_by="CategoryFieldModel.sort_order")
     year_categories: Mapped[list["YearCategoryModel"]] = relationship(back_populates="category", cascade="all, delete-orphan")
-
-
-class YearCategoryModel(Base):
-    __tablename__ = "year_categories"
-
-    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
-    year_id: Mapped[int] = mapped_column(Integer, ForeignKey("years.id", ondelete="CASCADE"), nullable=False)
-    category_id: Mapped[uuid.UUID] = mapped_column(GUID(), ForeignKey("categories.id", ondelete="CASCADE"), nullable=False)
-
-    year: Mapped["YearModel"] = relationship(back_populates="year_categories")
-    category: Mapped["CategoryModel"] = relationship(back_populates="year_categories")
-
-    __table_args__ = (UniqueConstraint("year_id", "category_id"),)
 
 
 class CategoryFieldModel(Base):
@@ -101,6 +99,20 @@ class CategoryFieldModel(Base):
     category: Mapped["CategoryModel"] = relationship(back_populates="fields")
 
     __table_args__ = (UniqueConstraint("category_id", "name"),)
+
+
+class DefaultFieldModel(Base):
+    __tablename__ = "default_fields"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    label: Mapped[str] = mapped_column(String(255), nullable=False)
+    field_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    is_required: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    options: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    placeholder: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
 
 class DocumentModel(Base):

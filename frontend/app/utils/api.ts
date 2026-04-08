@@ -6,10 +6,9 @@ export const useApi = () => {
     baseURL: config.public.apiBase as string,
     onRequest({ options }) {
       if (token.value) {
-        options.headers = {
-          ...options.headers,
-          Authorization: `Bearer ${token.value}`,
-        }
+        const headers = new Headers(options.headers as HeadersInit)
+        headers.set('Authorization', `Bearer ${token.value}`)
+        options.headers = headers
       }
     },
     onResponseError({ response }) {

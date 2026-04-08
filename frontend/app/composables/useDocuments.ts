@@ -7,15 +7,23 @@ export const useDocuments = () => {
     year_id?: number
     category_id?: string
     search?: string
+    date_from?: string
+    date_to?: string
     page?: number
     page_size?: number
+    field_filters?: Record<string, string>
   }) {
     const query = new URLSearchParams()
     if (params.year_id) query.set('year_id', String(params.year_id))
     if (params.category_id) query.set('category_id', params.category_id)
     if (params.search) query.set('search', params.search)
+    if (params.date_from) query.set('date_from', params.date_from)
+    if (params.date_to) query.set('date_to', params.date_to)
     if (params.page) query.set('page', String(params.page))
     if (params.page_size) query.set('page_size', String(params.page_size))
+    if (params.field_filters && Object.keys(params.field_filters).length > 0) {
+      query.set('field_filters', JSON.stringify(params.field_filters))
+    }
 
     return apiFetch<PaginatedResponse<DocumentResponse>>(`/api/documents?${query.toString()}`)
   }

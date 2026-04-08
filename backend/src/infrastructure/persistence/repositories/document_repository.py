@@ -40,6 +40,14 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             stmt = stmt.where(DocumentModel.category_id == params.category_id)
             count_stmt = count_stmt.where(DocumentModel.category_id == params.category_id)
 
+        if params.date_from:
+            stmt = stmt.where(DocumentModel.date >= params.date_from)
+            count_stmt = count_stmt.where(DocumentModel.date >= params.date_from)
+
+        if params.date_to:
+            stmt = stmt.where(DocumentModel.date <= params.date_to)
+            count_stmt = count_stmt.where(DocumentModel.date <= params.date_to)
+
         if params.search:
             search_filter = or_(
                 DocumentModel.title.ilike(f"%{params.search}%"),

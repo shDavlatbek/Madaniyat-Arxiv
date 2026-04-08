@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 from src.domain.year.entity import Year
 from src.domain.year.repository import YearRepository
 from src.infrastructure.persistence.mappers.year_mapper import YearMapper
-from src.infrastructure.persistence.models import YearCategoryModel, YearModel
+from src.infrastructure.persistence.models import YearModel
 
 
 class SqlAlchemyYearRepository(YearRepository):

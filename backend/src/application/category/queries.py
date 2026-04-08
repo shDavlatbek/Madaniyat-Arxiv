@@ -17,3 +17,8 @@ class ListAllCategoriesQuery:
 @dataclass
 class GetCategoryFieldsQuery:
     category_id: uuid.UUID
+
+
+@dataclass
+class ListDefaultFieldsQuery:
+    pass

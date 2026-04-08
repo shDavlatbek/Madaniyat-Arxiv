@@ -105,6 +105,8 @@ class DocumentQueryHandler:
             year_id=query.year_id,
             category_id=query.category_id,
             search=query.search,
+            date_from=query.date_from,
+            date_to=query.date_to,
             field_filters=query.field_filters if query.field_filters else None,
             page=query.page,
             page_size=query.page_size,
