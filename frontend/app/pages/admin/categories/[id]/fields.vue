@@ -1,0 +1,196 @@
+<script setup lang="ts">
+import { z } from 'zod'
+import type { CategoryFieldResponse, CategoryResponse } from '~/types'
+
+definePageMeta({ layout: 'dashboard' })
+
+const route = useRoute()
+const catId = computed(() => route.params.id as string)
+const { apiFetch } = useApi()
+const toast = useToast()
+
+// Category info
+const { data: category } = await useAsyncData(`cat-fields-info-${catId.value}`, () =>
+  apiFetch<{ items: CategoryResponse[] }>('/api/categories').then(
+    res => res.items.find(c => c.id === catId.value) || null
+  )
+)
+
+// Fields
+const { data: fields, refresh } = await useAsyncData(`cat-fields-${catId.value}`, () =>
+  apiFetch<CategoryFieldResponse[]>(`/api/categories/${catId.value}/fields`)
+)
+
+const columns = [
+  { key: 'label', label: 'Label' },
+  { key: 'name', label: 'Nom (key)' },
+  { key: 'field_type', label: 'Tur' },
+  { key: 'is_required', label: 'Majburiy' },
+  { key: 'sort_order', label: 'Tartib' },
+  { key: 'actions', label: '' },
+]
+
+// Add/Edit modal
+const modalOpen = ref(false)
+const editingField = ref<CategoryFieldResponse | null>(null)
+
+const fieldTypes = ['text', 'number', 'date', 'textarea', 'select', 'file']
+
+const schema = z.object({
+  name: z.string().min(1),
+  label: z.string().min(1),
+  field_type: z.string(),
+  is_required: z.boolean(),
+  sort_order: z.coerce.number(),
+  placeholder: z.string().optional(),
+})
+
+const state = reactive({
+  name: '',
+  label: '',
+  field_type: 'text',
+  is_required: false,
+  sort_order: 0,
+  placeholder: '',
+  options: '' as string,
+})
+
+function openCreate() {
+  editingField.value = null
+  Object.assign(state, { name: '', label: '', field_type: 'text', is_required: false, sort_order: 0, placeholder: '', options: '' })
+  modalOpen.value = true
+}
+
+function openEdit(field: CategoryFieldResponse) {
+  editingField.value = field
+  Object.assign(state, {
+    name: field.name,
+    label: field.label,
+    field_type: field.field_type,
+    is_required: field.is_required,
+    sort_order: field.sort_order,
+    placeholder: field.placeholder || '',
+    options: field.options?.join(', ') || '',
+  })
+  modalOpen.value = true
+}
+
+async function handleSave() {
+  const body: Record<string, any> = {
+    ...state,
+    options: state.field_type === 'select' && state.options
+      ? state.options.split(',').map(s => s.trim()).filter(Boolean)
+      : null,
+  }
+
+  try {
+    if (editingField.value) {
+      await apiFetch(`/api/categories/${catId.value}/fields/${editingField.value.id}`, { method: 'PUT', body })
+      toast.add({ title: 'Muvaffaqiyat', description: 'Maydon yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
+    } else {
+      await apiFetch(`/api/categories/${catId.value}/fields`, { method: 'POST', body })
+      toast.add({ title: 'Muvaffaqiyat', description: 'Maydon qo\'shildi', color: 'success', icon: 'i-lucide-check-circle' })
+    }
+    modalOpen.value = false
+    refresh()
+  } catch (error: any) {
+    toast.add({ title: 'Xatolik', description: error?.data?.detail || 'Xatolik yuz berdi', color: 'error', icon: 'i-lucide-alert-circle' })
+  }
+}
+
+const deleteOpen = ref(false)
+const deleteTarget = ref<CategoryFieldResponse | null>(null)
+
+async function handleDelete() {
+  if (!deleteTarget.value) return
+  try {
+    await apiFetch(`/api/categories/${catId.value}/fields/${deleteTarget.value.id}`, { method: 'DELETE' })
+    toast.add({ title: 'Muvaffaqiyat', description: 'Maydon o\'chirildi', color: 'success', icon: 'i-lucide-check-circle' })
+    deleteOpen.value = false
+    refresh()
+  } catch {
+    toast.add({ title: 'Xatolik', description: 'O\'chirib bo\'lmadi', color: 'error', icon: 'i-lucide-alert-circle' })
+  }
+}
+</script>
+
+<template>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar :title="`${category?.name || ''} - Maydonlar`">
+        <template #left>
+          <UButton icon="i-lucide-arrow-left" variant="ghost" to="/admin/categories" />
+        </template>
+        <template #right>
+          <UButton icon="i-lucide-plus" label="Yangi maydon" @click="openCreate" />
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <UTable :data="fields || []" :columns="columns">
+        <template #is_required-cell="{ row }">
+          <UBadge :label="row.is_required ? 'Ha' : 'Yo\'q'" :color="row.is_required ? 'warning' : 'neutral'" variant="subtle" />
+        </template>
+        <template #field_type-cell="{ row }">
+          <UBadge :label="row.field_type" variant="subtle" />
+        </template>
+        <template #actions-cell="{ row }">
+          <div class="flex gap-1">
+            <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEdit(row)" />
+            <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click="deleteTarget = row; deleteOpen = true" />
+          </div>
+        </template>
+      </UTable>
+
+      <div v-if="!fields?.length" class="flex items-center justify-center p-12">
+        <UEmpty icon="i-lucide-layers" title="Maydonlar yo'q" description="Bu kategoriya uchun qo'shimcha maydonlar qo'shilmagan" />
+      </div>
+    </template>
+  </UDashboardPanel>
+
+  <!-- Add/Edit modal -->
+  <UModal v-model:open="modalOpen" :title="editingField ? 'Maydonni tahrirlash' : 'Yangi maydon'">
+    <template #body>
+      <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSave">
+        <UFormField label="Label (ko'rinadigan nom)" name="label" required>
+          <UInput v-model="state.label" placeholder="Ro'yxat raqami" />
+        </UFormField>
+        <UFormField label="Nom (key)" name="name" required>
+          <UInput v-model="state.name" placeholder="registration_number" :disabled="!!editingField" />
+        </UFormField>
+        <UFormField label="Tur" name="field_type">
+          <USelect v-model="state.field_type" :items="fieldTypes" />
+        </UFormField>
+        <UFormField v-if="state.field_type === 'select'" label="Variantlar (vergul bilan)" name="options">
+          <UInput v-model="state.options" placeholder="variant1, variant2, variant3" />
+        </UFormField>
+        <UFormField label="Placeholder" name="placeholder">
+          <UInput v-model="state.placeholder" />
+        </UFormField>
+        <div class="flex gap-4">
+          <UFormField label="Majburiy" name="is_required">
+            <USwitch v-model="state.is_required" />
+          </UFormField>
+          <UFormField label="Tartib raqami" name="sort_order">
+            <UInput v-model="state.sort_order" type="number" class="w-24" />
+          </UFormField>
+        </div>
+        <div class="flex justify-end gap-2">
+          <UButton variant="ghost" label="Bekor qilish" @click="modalOpen = false" />
+          <UButton type="submit" :label="editingField ? 'Saqlash' : 'Qo\'shish'" icon="i-lucide-save" />
+        </div>
+      </UForm>
+    </template>
+  </UModal>
+
+  <!-- Delete modal -->
+  <UModal v-model:open="deleteOpen" title="Maydonni o'chirish" description="Bu maydon barcha hujjatlardan ham o'chiriladi.">
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="ghost" label="Bekor qilish" @click="deleteOpen = false" />
+        <UButton color="error" label="O'chirish" icon="i-lucide-trash-2" @click="handleDelete" />
+      </div>
+    </template>
+  </UModal>
+</template>

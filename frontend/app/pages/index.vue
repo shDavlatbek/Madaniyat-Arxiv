@@ -1,7 +1,9 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
+definePageMeta({ layout: false })
 
-navigateTo('/archive', { replace: true })
+if (import.meta.client) {
+  navigateTo('/archive', { replace: true })
+}
 </script>
 
 <template>
