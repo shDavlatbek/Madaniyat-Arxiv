@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --color-madaniyat-50: #eff4fb;
+  --color-madaniyat-100: #d6e1f5;
+  --color-madaniyat-200: #adc3eb;
+  --color-madaniyat-300: #84a5e0;
+  --color-madaniyat-400: #5b87d6;
+  --color-madaniyat-500: #3269cc;
+  --color-madaniyat-600: #1a53b3;
+  --color-madaniyat-700: #043b87;
+  --color-madaniyat-800: #032d66;
+  --color-madaniyat-900: #021f45;
+  --color-madaniyat-950: #011124;
+}
+
+:root {
+  --ui-radius: 0.375rem;
+  --ui-primary: var(--color-madaniyat-600);
+}
+
+.dark {
+  --ui-primary: var(--color-madaniyat-400);
+}
