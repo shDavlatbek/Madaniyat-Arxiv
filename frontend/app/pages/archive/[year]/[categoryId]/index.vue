@@ -67,77 +67,68 @@ async function handleDelete() {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar :title="catData?.name || 'Hujjatlar'">
-        <template #left>
-          <UButton icon="i-lucide-arrow-left" variant="ghost" :to="`/archive/${year}`" />
-        </template>
-        <template #right>
-          <UButton
-            icon="i-lucide-plus"
-            label="Yangi hujjat"
-            :to="`/archive/${year}/${categoryId}/create`"
-          />
-        </template>
-      </UDashboardNavbar>
-
-      <UDashboardToolbar>
-        <template #left>
-          <UInput
-            v-model="search"
-            icon="i-lucide-search"
-            placeholder="Qidirish..."
-            class="w-64"
-          />
-        </template>
-        <template #right>
-          <UBadge :label="`${total} hujjat`" variant="subtle" />
-        </template>
-      </UDashboardToolbar>
+  <PagePanel :title="catData?.name || 'Hujjatlar'">
+    <template #headerLeft>
+      <UButton icon="i-lucide-arrow-left" variant="ghost" :to="`/archive/${year}`" />
     </template>
-
-    <template #body>
-      <UTable
-        :data="documents"
-        :columns="columns"
-        :loading="status === 'pending'"
-        class="w-full"
-      >
-        <template #document_number-cell="{ row }">
-          <NuxtLink :to="`/archive/${year}/${categoryId}/${row.id}`" class="font-mono text-primary hover:underline">
-            {{ row.document_number }}
-          </NuxtLink>
-        </template>
-        <template #title-cell="{ row }">
-          <NuxtLink :to="`/archive/${year}/${categoryId}/${row.id}`" class="hover:underline">
-            {{ row.title }}
-          </NuxtLink>
-        </template>
-        <template #actions-cell="{ row }">
-          <UDropdownMenu :items="[
-            [
-              { label: 'Ko\'rish', icon: 'i-lucide-eye', onSelect: () => navigateTo(`/archive/${year}/${categoryId}/${row.id}`) },
-              { label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/archive/${year}/${categoryId}/${row.id}/edit`) },
-            ],
-            [
-              { label: 'O\'chirish', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => confirmDelete(row) },
-            ],
-          ]">
-            <UButton icon="i-lucide-ellipsis-vertical" variant="ghost" size="xs" />
-          </UDropdownMenu>
-        </template>
-      </UTable>
-
-      <div v-if="total > 20" class="flex justify-center p-4">
-        <UPagination v-model:page="page" :total="total" :items-per-page="20" />
-      </div>
-
-      <div v-if="!documents.length && status !== 'pending'" class="flex items-center justify-center p-12">
-        <UEmpty icon="i-lucide-file-x" title="Hujjatlar topilmadi" description="Bu kategoriyada hujjatlar mavjud emas" />
+    <template #headerRight>
+      <UButton
+        icon="i-lucide-plus"
+        label="Yangi hujjat"
+        :to="`/archive/${year}/${categoryId}/create`"
+      />
+    </template>
+    <template #toolbar>
+      <UInput
+        v-model="search"
+        icon="i-lucide-search"
+        placeholder="Qidirish..."
+        class="w-64"
+      />
+      <div class="ml-auto flex items-center gap-2">
+        <UBadge :label="`${total} hujjat`" variant="subtle" />
       </div>
     </template>
-  </UDashboardPanel>
+
+    <UTable
+      :data="documents"
+      :columns="columns"
+      :loading="status === 'pending'"
+      class="w-full"
+    >
+      <template #document_number-cell="{ row }">
+        <NuxtLink :to="`/archive/${year}/${categoryId}/${row.id}`" class="font-mono text-primary hover:underline">
+          {{ row.document_number }}
+        </NuxtLink>
+      </template>
+      <template #title-cell="{ row }">
+        <NuxtLink :to="`/archive/${year}/${categoryId}/${row.id}`" class="hover:underline">
+          {{ row.title }}
+        </NuxtLink>
+      </template>
+      <template #actions-cell="{ row }">
+        <UDropdownMenu :items="[
+          [
+            { label: 'Ko\'rish', icon: 'i-lucide-eye', onSelect: () => navigateTo(`/archive/${year}/${categoryId}/${row.id}`) },
+            { label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/archive/${year}/${categoryId}/${row.id}/edit`) },
+          ],
+          [
+            { label: 'O\'chirish', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => confirmDelete(row) },
+          ],
+        ]">
+          <UButton icon="i-lucide-ellipsis-vertical" variant="ghost" size="xs" />
+        </UDropdownMenu>
+      </template>
+    </UTable>
+
+    <div v-if="total > 20" class="flex justify-center p-4">
+      <UPagination v-model:page="page" :total="total" :items-per-page="20" />
+    </div>
+
+    <div v-if="!documents.length && status !== 'pending'" class="flex items-center justify-center p-12">
+      <EmptyState icon="i-lucide-file-x" title="Hujjatlar topilmadi" description="Bu kategoriyada hujjatlar mavjud emas" />
+    </div>
+  </PagePanel>
 
   <!-- Delete confirmation -->
   <UModal v-model:open="deleteOpen" title="Hujjatni o'chirish" description="Haqiqatan ham bu hujjatni o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi.">

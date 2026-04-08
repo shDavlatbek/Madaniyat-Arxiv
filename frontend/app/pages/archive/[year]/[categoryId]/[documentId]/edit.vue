@@ -23,24 +23,18 @@ async function handleSubmit(data: Record<string, any>) {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Hujjatni tahrirlash">
-        <template #left>
-          <UButton icon="i-lucide-arrow-left" variant="ghost" @click="$router.back()" />
-        </template>
-      </UDashboardNavbar>
+  <PagePanel title="Hujjatni tahrirlash">
+    <template #headerLeft>
+      <UButton icon="i-lucide-arrow-left" variant="ghost" @click="$router.back()" />
     </template>
 
-    <template #body>
-      <div class="max-w-4xl mx-auto p-4 sm:p-6">
-        <DocumentForm
-          v-if="doc"
-          :category-id="categoryId"
-          :initial-data="doc"
-          @submit="handleSubmit"
-        />
-      </div>
-    </template>
-  </UDashboardPanel>
+    <div class="max-w-4xl mx-auto p-4 sm:p-6">
+      <DocumentForm
+        v-if="doc"
+        :category-id="categoryId"
+        :initial-data="doc"
+        @submit="handleSubmit"
+      />
+    </div>
+  </PagePanel>
 </template>

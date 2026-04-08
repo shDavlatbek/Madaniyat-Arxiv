@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-from passlib.context import CryptContext
-
 from src.domain.shared.errors import NotFoundError, ValidationError
 from src.domain.user.entity import User
 from src.domain.user.repository import UserRepository
 from src.domain.user.value_objects import UserRole
+from src.infrastructure.auth.password_service import hash_password
 
 from .commands import ChangePasswordCommand, CreateUserCommand, DeleteUserCommand, UpdateUserCommand
 from .queries import GetUserQuery, ListUsersQuery
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UserCommandHandler:
@@ -26,7 +23,7 @@ class UserCommandHandler:
             username=command.username,
             name=command.name,
             email=command.email,
-            hashed_password=pwd_context.hash(command.password),
+            hashed_password=hash_password(command.password),
             role=UserRole(command.role),
             is_active=command.is_active,
         )
@@ -48,7 +45,7 @@ class UserCommandHandler:
         user = await self._user_repo.find_by_id(command.user_id)
         if not user:
             raise NotFoundError("User", str(command.user_id))
-        user.change_password(pwd_context.hash(command.new_password))
+        user.change_password(hash_password(command.new_password))
         return await self._user_repo.save(user)
 
 

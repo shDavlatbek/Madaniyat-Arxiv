@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 import uuid
-from datetime import date, datetime
+import datetime as dt
 
 from pydantic import BaseModel, Field
 
@@ -11,7 +9,7 @@ class CreateDocumentRequest(BaseModel):
     category_id: uuid.UUID
     title: str = Field(min_length=1, max_length=500)
     document_number: str = Field(min_length=1, max_length=100)
-    date: date
+    date: dt.date
     short_desc: str | None = None
     target: str | None = None
     pages: int | None = Field(default=None, ge=0)
@@ -22,7 +20,7 @@ class CreateDocumentRequest(BaseModel):
 class UpdateDocumentRequest(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=500)
     document_number: str | None = Field(default=None, min_length=1, max_length=100)
-    date: date | None = None
+    date: dt.date | None = None
     short_desc: str | None = None
     target: str | None = None
     pages: int | None = Field(default=None, ge=0)
@@ -41,7 +39,7 @@ class DocumentResponse(BaseModel):
     category_id: uuid.UUID
     title: str
     document_number: str
-    date: date
+    date: dt.date
     short_desc: str | None
     target: str | None
     pages: int | None
@@ -49,8 +47,8 @@ class DocumentResponse(BaseModel):
     signer: str | None
     created_by: uuid.UUID | None
     field_values: list[DocumentFieldValueResponse]
-    created_at: datetime
-    updated_at: datetime
+    created_at: dt.datetime
+    updated_at: dt.datetime
 
 
 class DocumentListResponse(BaseModel):

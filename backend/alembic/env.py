@@ -2,7 +2,7 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import pool
+from sqlalchemy import pool, create_engine
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.infrastructure.config import settings
@@ -17,6 +17,10 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 
+def is_sqlite():
+    return settings.database_url.startswith("sqlite")
+
+
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -24,18 +28,33 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        render_as_batch=is_sqlite(),
     )
     with context.begin_transaction():
         context.run_migrations()
 
 
 def do_run_migrations(connection):
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        render_as_batch=is_sqlite(),
+    )
     with context.begin_transaction():
         context.run_migrations()
 
 
+def run_migrations_online_sync() -> None:
+    """Run migrations synchronously (for SQLite)."""
+    url = settings.database_url.replace("+aiosqlite", "")
+    connectable = create_engine(url, poolclass=pool.NullPool)
+    with connectable.connect() as connection:
+        do_run_migrations(connection)
+    connectable.dispose()
+
+
 async def run_async_migrations() -> None:
+    """Run migrations asynchronously (for PostgreSQL)."""
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -47,7 +66,10 @@ async def run_async_migrations() -> None:
 
 
 def run_migrations_online() -> None:
-    asyncio.run(run_async_migrations())
+    if is_sqlite():
+        run_migrations_online_sync()
+    else:
+        asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():

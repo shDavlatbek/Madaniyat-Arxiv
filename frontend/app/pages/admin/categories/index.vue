@@ -36,39 +36,32 @@ async function handleDelete() {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Kategoriyalar">
-        <template #right>
-          <UButton icon="i-lucide-plus" label="Yangi kategoriya" to="/admin/categories/create" />
-        </template>
-      </UDashboardNavbar>
+  <PagePanel title="Kategoriyalar">
+    <template #headerRight>
+      <UButton icon="i-lucide-plus" label="Yangi kategoriya" to="/admin/categories/create" />
     </template>
-
-    <template #body>
-      <UTable :data="categories" :columns="columns" :loading="status === 'pending'">
-        <template #name-cell="{ row }">
-          <span class="font-semibold">{{ row.name }}</span>
-        </template>
-        <template #fields_count-cell="{ row }">
-          <UBadge :label="`${row.fields?.length || 0} maydon`" variant="subtle" />
-        </template>
-        <template #actions-cell="{ row }">
-          <UDropdownMenu :items="[
-            [
-              { label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/admin/categories/${row.id}/edit`) },
-              { label: 'Maydonlar', icon: 'i-lucide-layers', onSelect: () => navigateTo(`/admin/categories/${row.id}/fields`) },
-            ],
-            [
-              { label: 'O\'chirish', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => { deleteTarget = row; deleteOpen = true } },
-            ],
-          ]">
-            <UButton icon="i-lucide-ellipsis-vertical" variant="ghost" size="xs" />
-          </UDropdownMenu>
-        </template>
-      </UTable>
-    </template>
-  </UDashboardPanel>
+    <UTable :data="categories" :columns="columns" :loading="status === 'pending'">
+      <template #name-cell="{ row }">
+        <span class="font-semibold">{{ row.name }}</span>
+      </template>
+      <template #fields_count-cell="{ row }">
+        <UBadge :label="`${row.fields?.length || 0} maydon`" variant="subtle" />
+      </template>
+      <template #actions-cell="{ row }">
+        <UDropdownMenu :items="[
+          [
+            { label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/admin/categories/${row.id}/edit`) },
+            { label: 'Maydonlar', icon: 'i-lucide-layers', onSelect: () => navigateTo(`/admin/categories/${row.id}/fields`) },
+          ],
+          [
+            { label: 'O\'chirish', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => { deleteTarget = row; deleteOpen = true } },
+          ],
+        ]">
+          <UButton icon="i-lucide-ellipsis-vertical" variant="ghost" size="xs" />
+        </UDropdownMenu>
+      </template>
+    </UTable>
+  </PagePanel>
 
   <UModal v-model:open="deleteOpen" title="Kategoriyani o'chirish" description="Barcha bog'liq maydonlar ham o'chiriladi.">
     <template #footer>

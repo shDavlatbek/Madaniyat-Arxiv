@@ -115,39 +115,32 @@ async function handleDelete() {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar :title="`${category?.name || ''} - Maydonlar`">
-        <template #left>
-          <UButton icon="i-lucide-arrow-left" variant="ghost" to="/admin/categories" />
-        </template>
-        <template #right>
-          <UButton icon="i-lucide-plus" label="Yangi maydon" @click="openCreate" />
-        </template>
-      </UDashboardNavbar>
+  <PagePanel :title="`${category?.name || ''} - Maydonlar`">
+    <template #headerLeft>
+      <UButton icon="i-lucide-arrow-left" variant="ghost" to="/admin/categories" />
     </template>
-
-    <template #body>
-      <UTable :data="fields || []" :columns="columns">
-        <template #is_required-cell="{ row }">
-          <UBadge :label="row.is_required ? 'Ha' : 'Yo\'q'" :color="row.is_required ? 'warning' : 'neutral'" variant="subtle" />
-        </template>
-        <template #field_type-cell="{ row }">
-          <UBadge :label="row.field_type" variant="subtle" />
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex gap-1">
-            <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEdit(row)" />
-            <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click="deleteTarget = row; deleteOpen = true" />
-          </div>
-        </template>
-      </UTable>
-
-      <div v-if="!fields?.length" class="flex items-center justify-center p-12">
-        <UEmpty icon="i-lucide-layers" title="Maydonlar yo'q" description="Bu kategoriya uchun qo'shimcha maydonlar qo'shilmagan" />
-      </div>
+    <template #headerRight>
+      <UButton icon="i-lucide-plus" label="Yangi maydon" @click="openCreate" />
     </template>
-  </UDashboardPanel>
+    <UTable :data="fields || []" :columns="columns">
+      <template #is_required-cell="{ row }">
+        <UBadge :label="row.is_required ? 'Ha' : 'Yo\'q'" :color="row.is_required ? 'warning' : 'neutral'" variant="subtle" />
+      </template>
+      <template #field_type-cell="{ row }">
+        <UBadge :label="row.field_type" variant="subtle" />
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex gap-1">
+          <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEdit(row)" />
+          <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click="deleteTarget = row; deleteOpen = true" />
+        </div>
+      </template>
+    </UTable>
+
+    <div v-if="!fields?.length" class="flex items-center justify-center p-12">
+      <EmptyState icon="i-lucide-layers" title="Maydonlar yo'q" description="Bu kategoriya uchun qo'shimcha maydonlar qo'shilmagan" />
+    </div>
+  </PagePanel>
 
   <!-- Add/Edit modal -->
   <UModal v-model:open="modalOpen" :title="editingField ? 'Maydonni tahrirlash' : 'Yangi maydon'">

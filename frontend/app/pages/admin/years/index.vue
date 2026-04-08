@@ -72,29 +72,22 @@ async function handleDelete() {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Yillar">
-        <template #right>
-          <UButton icon="i-lucide-plus" label="Yangi yil" @click="openCreate" />
-        </template>
-      </UDashboardNavbar>
+  <PagePanel title="Yillar">
+    <template #headerRight>
+      <UButton icon="i-lucide-plus" label="Yangi yil" @click="openCreate" />
     </template>
-
-    <template #body>
-      <UTable :data="years" :columns="columns" :loading="status === 'pending'">
-        <template #is_active-cell="{ row }">
-          <UBadge :label="row.is_active ? 'Faol' : 'Nofaol'" :color="row.is_active ? 'success' : 'error'" variant="subtle" />
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex gap-1">
-            <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEdit(row)" />
-            <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click="deleteTarget = row; deleteOpen = true" />
-          </div>
-        </template>
-      </UTable>
-    </template>
-  </UDashboardPanel>
+    <UTable :data="years" :columns="columns" :loading="status === 'pending'">
+      <template #is_active-cell="{ row }">
+        <UBadge :label="row.is_active ? 'Faol' : 'Nofaol'" :color="row.is_active ? 'success' : 'error'" variant="subtle" />
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex gap-1">
+          <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEdit(row)" />
+          <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click="deleteTarget = row; deleteOpen = true" />
+        </div>
+      </template>
+    </UTable>
+  </PagePanel>
 
   <!-- Create/Edit modal -->
   <UModal v-model:open="modalOpen" :title="editingYear ? 'Yilni tahrirlash' : 'Yangi yil'">

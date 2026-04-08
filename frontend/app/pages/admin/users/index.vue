@@ -48,42 +48,33 @@ async function handleDelete() {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Foydalanuvchilar">
-        <template #right>
-          <UButton icon="i-lucide-plus" label="Yangi foydalanuvchi" to="/admin/users/create" />
-        </template>
-      </UDashboardNavbar>
-      <UDashboardToolbar>
-        <template #left>
-          <UInput v-model="search" icon="i-lucide-search" placeholder="Qidirish..." class="w-64" />
-        </template>
-      </UDashboardToolbar>
+  <PagePanel title="Foydalanuvchilar">
+    <template #headerRight>
+      <UButton icon="i-lucide-plus" label="Yangi foydalanuvchi" to="/admin/users/create" />
     </template>
-
-    <template #body>
-      <UTable :data="users" :columns="columns" :loading="status === 'pending'">
-        <template #is_active-cell="{ row }">
-          <UBadge :label="row.is_active ? 'Faol' : 'Nofaol'" :color="row.is_active ? 'success' : 'error'" variant="subtle" />
-        </template>
-        <template #role-cell="{ row }">
-          <UBadge :label="row.role" variant="subtle" />
-        </template>
-        <template #actions-cell="{ row }">
-          <UDropdownMenu :items="[
-            [{ label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/admin/users/${row.id}/edit`) }],
-            [{ label: 'O\'chirish', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => confirmDelete(row) }],
-          ]">
-            <UButton icon="i-lucide-ellipsis-vertical" variant="ghost" size="xs" />
-          </UDropdownMenu>
-        </template>
-      </UTable>
-      <div v-if="total > 20" class="flex justify-center p-4">
-        <UPagination v-model:page="page" :total="total" :items-per-page="20" />
-      </div>
+    <template #toolbar>
+      <UInput v-model="search" icon="i-lucide-search" placeholder="Qidirish..." class="w-64" />
     </template>
-  </UDashboardPanel>
+    <UTable :data="users" :columns="columns" :loading="status === 'pending'">
+      <template #is_active-cell="{ row }">
+        <UBadge :label="row.is_active ? 'Faol' : 'Nofaol'" :color="row.is_active ? 'success' : 'error'" variant="subtle" />
+      </template>
+      <template #role-cell="{ row }">
+        <UBadge :label="row.role" variant="subtle" />
+      </template>
+      <template #actions-cell="{ row }">
+        <UDropdownMenu :items="[
+          [{ label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/admin/users/${row.id}/edit`) }],
+          [{ label: 'O\'chirish', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => confirmDelete(row) }],
+        ]">
+          <UButton icon="i-lucide-ellipsis-vertical" variant="ghost" size="xs" />
+        </UDropdownMenu>
+      </template>
+    </UTable>
+    <div v-if="total > 20" class="flex justify-center p-4">
+      <UPagination v-model:page="page" :total="total" :items-per-page="20" />
+    </div>
+  </PagePanel>
 
   <UModal v-model:open="deleteOpen" title="Foydalanuvchini o'chirish" description="Bu amalni qaytarib bo'lmaydi.">
     <template #footer>
