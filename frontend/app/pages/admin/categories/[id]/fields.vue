@@ -22,12 +22,12 @@ const { data: fields, refresh } = await useAsyncData(`cat-fields-${catId.value}`
 )
 
 const columns = [
-  { key: 'label', label: 'Label' },
-  { key: 'name', label: 'Nom (key)' },
-  { key: 'field_type', label: 'Tur' },
-  { key: 'is_required', label: 'Majburiy' },
-  { key: 'sort_order', label: 'Tartib' },
-  { key: 'actions', label: '' },
+  { accessorKey: 'label', header: 'Label' },
+  { accessorKey: 'name', header: 'Nom (key)' },
+  { accessorKey: 'field_type', header: 'Tur' },
+  { accessorKey: 'is_required', header: 'Majburiy' },
+  { accessorKey: 'sort_order', header: 'Tartib' },
+  { id: 'actions', header: '' },
 ]
 
 // Add/Edit modal

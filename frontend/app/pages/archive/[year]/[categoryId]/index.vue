@@ -41,11 +41,11 @@ const documents = computed(() => docsData.value?.items || [])
 const total = computed(() => docsData.value?.total || 0)
 
 const columns = [
-  { key: 'document_number', label: 'Raqam' },
-  { key: 'title', label: 'Sarlavha' },
-  { key: 'date', label: 'Sana' },
-  { key: 'signer', label: 'Imzo' },
-  { key: 'actions', label: '' },
+  { accessorKey: 'document_number', header: 'Raqam' },
+  { accessorKey: 'title', header: 'Sarlavha' },
+  { accessorKey: 'date', header: 'Sana' },
+  { accessorKey: 'signer', header: 'Imzo' },
+  { id: 'actions', header: '' },
 ]
 
 function confirmDelete(doc: DocumentResponse) {

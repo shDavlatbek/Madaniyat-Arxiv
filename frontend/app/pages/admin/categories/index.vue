@@ -13,10 +13,10 @@ const { data: catsData, status, refresh } = await useAsyncData('admin-categories
 const categories = computed(() => catsData.value?.items || [])
 
 const columns = [
-  { key: 'name', label: 'Nomi' },
-  { key: 'code', label: 'Kod' },
-  { key: 'fields_count', label: 'Maydonlar' },
-  { key: 'actions', label: '' },
+  { accessorKey: 'name', header: 'Nomi' },
+  { accessorKey: 'code', header: 'Kod' },
+  { accessorKey: 'fields_count', header: 'Maydonlar' },
+  { id: 'actions', header: '' },
 ]
 
 const deleteOpen = ref(false)

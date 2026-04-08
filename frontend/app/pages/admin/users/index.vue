@@ -22,11 +22,11 @@ const users = computed(() => data.value?.items || [])
 const total = computed(() => data.value?.total || 0)
 
 const columns = [
-  { key: 'username', label: 'Login' },
-  { key: 'name', label: 'Ism' },
-  { key: 'role', label: 'Rol' },
-  { key: 'is_active', label: 'Holat' },
-  { key: 'actions', label: '' },
+  { accessorKey: 'username', header: 'Login' },
+  { accessorKey: 'name', header: 'Ism' },
+  { accessorKey: 'role', header: 'Rol' },
+  { accessorKey: 'is_active', header: 'Holat' },
+  { id: 'actions', header: '' },
 ]
 
 function confirmDelete(user: UserResponse) {

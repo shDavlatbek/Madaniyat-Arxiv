@@ -14,9 +14,9 @@ const { data: yearsData, status, refresh } = await useAsyncData('admin-years', (
 const years = computed(() => yearsData.value?.items || [])
 
 const columns = [
-  { key: 'value', label: 'Yil' },
-  { key: 'is_active', label: 'Holat' },
-  { key: 'actions', label: '' },
+  { accessorKey: 'value', header: 'Yil' },
+  { accessorKey: 'is_active', header: 'Holat' },
+  { id: 'actions', header: '' },
 ]
 
 // Create/Edit modal

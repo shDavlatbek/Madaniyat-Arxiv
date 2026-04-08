@@ -13,4 +13,9 @@ export default defineNuxtConfig({
   },
 
   devtools: { enabled: true },
+  colorMode: {
+    preference: 'light', // default = light
+    fallback: 'light',   // fallback if system unknown
+    classSuffix: ''      // important for Nuxt UI
+  }
 })
