@@ -1,3 +1,4 @@
+import re
 import uuid
 
 from fastapi import APIRouter, Depends
@@ -36,6 +37,14 @@ from src.domain.category.entity import Category, CategoryField, DefaultField
 from src.domain.user.entity import User
 
 router = APIRouter(tags=["categories"])
+
+
+def _slugify(text: str) -> str:
+    """Generate a URL/key-safe slug from text."""
+    text = text.lower().strip()
+    text = re.sub(r'[^\w\s-]', '', text)
+    text = re.sub(r'[\s-]+', '_', text)
+    return text
 
 
 def _field_to_response(f: CategoryField) -> CategoryFieldResponse:
@@ -89,7 +98,7 @@ async def create_category(
     _: User = Depends(require_admin),
 ):
     category = await handler.create(CreateCategoryCommand(
-        name=request.name, code=request.code, description=request.description,
+        name=request.name, code=_slugify(request.name), description=request.description,
         sort_order=request.sort_order, year_id=request.year_id,
     ))
     return _to_response(category)
@@ -103,7 +112,8 @@ async def update_category(
     _: User = Depends(require_admin),
 ):
     category = await handler.update(UpdateCategoryCommand(
-        category_id=category_id, name=request.name, code=request.code,
+        category_id=category_id, name=request.name,
+        code=_slugify(request.name) if request.name else None,
         description=request.description, sort_order=request.sort_order,
         year_id=request.year_id,
     ))
@@ -150,7 +160,7 @@ async def add_field(
     _: User = Depends(require_admin),
 ):
     field = await handler.add_field(AddFieldCommand(
-        category_id=category_id, name=request.name, label=request.label,
+        category_id=category_id, name=_slugify(request.label), label=request.label,
         field_type=request.field_type, is_required=request.is_required,
         sort_order=request.sort_order, options=request.options,
         placeholder=request.placeholder, validation=request.validation,
@@ -202,7 +212,7 @@ async def create_default_field(
     _: User = Depends(require_admin),
 ):
     field = await handler.create_default_field(CreateDefaultFieldCommand(
-        name=request.name, label=request.label, field_type=request.field_type,
+        name=_slugify(request.label), label=request.label, field_type=request.field_type,
         is_required=request.is_required, sort_order=request.sort_order,
         options=request.options, placeholder=request.placeholder,
     ))

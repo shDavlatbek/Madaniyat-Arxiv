@@ -23,7 +23,6 @@ const years = computed(() => yearsData.value?.items || [])
 const yearItems = computed(() => years.value.map(y => ({ label: String(y.value), value: y.id })))
 const schema = z.object({
   name: z.string().min(1, 'Nom kiritilishi shart'),
-  code: z.string().min(1, 'Kod kiritilishi shart'),
   description: z.string().optional(),
   sort_order: z.coerce.number(),
   year_id: z.number({ required_error: 'Yil tanlanishi shart' }),
@@ -31,7 +30,6 @@ const schema = z.object({
 
 const state = reactive({
   name: category.value?.name || '',
-  code: category.value?.code || '',
   description: category.value?.description || '',
   sort_order: category.value?.sort_order || 0,
   year_id: category.value?.year_id || undefined as number | undefined,
@@ -171,24 +169,9 @@ function formatDate(date?: string | null) {
             </UFormField>
 
             <UFormField
-              label="Kod"
-              name="code"
-              required
-            >
-              <UInput
-                v-model="state.code"
-                icon="i-lucide-hash"
-                placeholder="buyruqlar"
-                size="lg"
-                class="w-full"
-              />
-            </UFormField>
-
-            <UFormField
               label="Yil"
               name="year_id"
               required
-              class="md:col-span-2"
             >
               <USelect
                 v-model="state.year_id"

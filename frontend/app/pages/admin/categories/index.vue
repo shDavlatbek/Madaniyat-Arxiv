@@ -40,7 +40,6 @@ const categories = computed(() => {
 
 const columns = [
   { accessorKey: 'name', header: 'Nomi' },
-  { accessorKey: 'code', header: 'Kod' },
   { id: 'year', header: 'Yil' },
   { id: 'fields_count', header: 'Maydonlar' },
   { id: 'actions', header: '' },
@@ -115,9 +114,6 @@ async function handleDelete() {
           <UIcon name="i-lucide-folder" class="text-primary shrink-0" />
           <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
         </div>
-      </template>
-      <template #code-cell="{ row }">
-        <UBadge :label="row.original.code" variant="subtle" color="neutral" />
       </template>
       <template #year-cell="{ row }">
         <span class="font-medium">{{ getYearValue(row.original.year_id) }}</span>

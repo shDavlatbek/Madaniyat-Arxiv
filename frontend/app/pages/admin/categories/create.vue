@@ -15,7 +15,6 @@ const years = computed(() => yearsData.value?.items || [])
 const yearItems = computed(() => years.value.map(y => ({ label: String(y.value), value: y.id })))
 const schema = z.object({
   name: z.string().min(1, 'Nom kiritilishi shart'),
-  code: z.string().min(1, 'Kod kiritilishi shart'),
   description: z.string().optional(),
   sort_order: z.coerce.number().default(0),
   year_id: z.number({ required_error: 'Yil tanlanishi shart' }),
@@ -23,26 +22,10 @@ const schema = z.object({
 
 const state = reactive({
   name: '',
-  code: '',
   description: '',
   sort_order: 0,
   year_id: undefined as number | undefined,
 })
-
-// Auto-generate code slug from name
-watch(() => state.name, (val) => {
-  if (!state.code || state.code === slugify(state.name.slice(0, -1))) {
-    state.code = slugify(val)
-  }
-})
-
-function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-}
 
 async function handleSubmit() {
   loading.value = true
@@ -133,24 +116,9 @@ async function handleSubmit() {
             </UFormField>
 
             <UFormField
-              label="Kod"
-              name="code"
-              required
-            >
-              <UInput
-                v-model="state.code"
-                placeholder="buyruqlar"
-                icon="i-lucide-hash"
-                size="lg"
-                class="w-full"
-              />
-            </UFormField>
-
-            <UFormField
               label="Yil"
               name="year_id"
               required
-              class="md:col-span-2"
             >
               <USelect
                 v-model="state.year_id"

@@ -23,7 +23,6 @@ const { data: fields, refresh } = await useAsyncData(`cat-fields-${catId.value}`
 
 const columns = [
   { accessorKey: 'label', header: 'Label' },
-  { accessorKey: 'name', header: 'Nom (key)' },
   { accessorKey: 'field_type', header: 'Tur' },
   { accessorKey: 'is_required', header: 'Majburiy' },
   { accessorKey: 'sort_order', header: 'Tartib' },
@@ -37,7 +36,6 @@ const editingField = ref<CategoryFieldResponse | null>(null)
 const fieldTypes = ['text', 'number', 'date', 'textarea', 'select', 'file']
 
 const schema = z.object({
-  name: z.string().min(1),
   label: z.string().min(1),
   field_type: z.string(),
   is_required: z.boolean(),
@@ -46,7 +44,6 @@ const schema = z.object({
 })
 
 const state = reactive({
-  name: '',
   label: '',
   field_type: 'text',
   is_required: false,
@@ -57,14 +54,13 @@ const state = reactive({
 
 function openCreate() {
   editingField.value = null
-  Object.assign(state, { name: '', label: '', field_type: 'text', is_required: false, sort_order: 0, placeholder: '', options: '' })
+  Object.assign(state, { label: '', field_type: 'text', is_required: false, sort_order: 0, placeholder: '', options: '' })
   modalOpen.value = true
 }
 
 function openEdit(field: CategoryFieldResponse) {
   editingField.value = field
   Object.assign(state, {
-    name: field.name,
     label: field.label,
     field_type: field.field_type,
     is_required: field.is_required,
@@ -126,9 +122,6 @@ async function handleDelete() {
       <template #label-cell="{ row }">
         <span class="font-semibold text-highlighted">{{ row.original.label }}</span>
       </template>
-      <template #name-cell="{ row }">
-        <code class="text-xs bg-elevated px-1.5 py-0.5 rounded font-mono">{{ row.original.name }}</code>
-      </template>
       <template #is_required-cell="{ row }">
         <UBadge :label="row.original.is_required ? 'Ha' : 'Yo\'q'" :color="row.original.is_required ? 'warning' : 'neutral'" variant="subtle" />
       </template>
@@ -152,11 +145,8 @@ async function handleDelete() {
   <UModal v-model:open="modalOpen" :title="editingField ? 'Maydonni tahrirlash' : 'Yangi maydon'">
     <template #body>
       <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSave">
-        <UFormField label="Label (ko'rinadigan nom)" name="label" required>
+        <UFormField label="Label" name="label" required>
           <UInput v-model="state.label" placeholder="Ro'yxat raqami" />
-        </UFormField>
-        <UFormField label="Nom (key)" name="name" required>
-          <UInput v-model="state.name" placeholder="registration_number" :disabled="!!editingField" />
         </UFormField>
         <UFormField label="Tur" name="field_type">
           <USelect v-model="state.field_type" :items="fieldTypes" />
