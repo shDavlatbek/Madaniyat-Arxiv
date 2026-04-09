@@ -23,13 +23,16 @@ const columns = [
 const modalOpen = ref(false)
 const editingYear = ref<YearResponse | null>(null)
 const schema = z.object({ value: z.coerce.number().min(1900).max(2100), is_active: z.boolean() })
-const state = reactive({ value: new Date().getFullYear(), is_active: true, import_from_year_id: null as number | null })
+const state = reactive({ value: new Date().getFullYear(), is_active: true })
+const importFromYearId = ref<number | undefined>(undefined)
+
+const yearItems = computed(() => years.value.map(y => ({ label: `${y.value} yildan`, value: y.id })))
 
 function openCreate() {
   editingYear.value = null
   state.value = new Date().getFullYear()
   state.is_active = true
-  state.import_from_year_id = null
+  importFromYearId.value = undefined
   modalOpen.value = true
 }
 
@@ -46,7 +49,10 @@ async function handleSave() {
       await apiFetch(`/api/years/${editingYear.value.id}`, { method: 'PUT', body: state })
       toast.add({ title: 'Muvaffaqiyat', description: 'Yil yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
     } else {
-      await apiFetch('/api/years', { method: 'POST', body: state })
+      await apiFetch('/api/years', {
+        method: 'POST',
+        body: { ...state, import_from_year_id: importFromYearId.value || null },
+      })
       toast.add({ title: 'Muvaffaqiyat', description: 'Yil yaratildi', color: 'success', icon: 'i-lucide-check-circle' })
     }
     modalOpen.value = false
@@ -87,8 +93,8 @@ async function handleDelete() {
       </template>
       <template #actions-cell="{ row }">
         <div class="flex gap-1 justify-end">
-          <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click="openEdit(row.original)" />
-          <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click="deleteTarget = row.original; deleteOpen = true" />
+          <UButton icon="i-lucide-pencil" variant="ghost" size="xs" @click.stop="openEdit(row.original)" />
+          <UButton icon="i-lucide-trash-2" variant="ghost" size="xs" color="error" @click.stop="deleteTarget = row.original; deleteOpen = true" />
         </div>
       </template>
     </UTable>
@@ -112,25 +118,14 @@ async function handleDelete() {
           </div>
         </UFormField>
         <!-- Import categories from another year (only on create) -->
-        <UFormField v-if="!editingYear" label="Nomenklaturalarni import qilish" help="Mavjud yildan nomenklaturalarni nusxalash">
-          <div class="flex flex-wrap gap-2">
-            <UButton
-              label="Import qilmaslik"
-              :variant="!state.import_from_year_id ? 'solid' : 'outline'"
-              :color="!state.import_from_year_id ? 'neutral' : 'neutral'"
-              size="sm"
-              @click="state.import_from_year_id = null"
-            />
-            <UButton
-              v-for="y in years"
-              :key="y.id"
-              :label="`${y.value} yildan`"
-              :variant="state.import_from_year_id === y.id ? 'solid' : 'outline'"
-              :color="state.import_from_year_id === y.id ? 'primary' : 'neutral'"
-              size="sm"
-              @click="state.import_from_year_id = y.id"
-            />
-          </div>
+        <UFormField v-if="!editingYear && years.length" label="Nomenklaturalarni import qilish" help="Mavjud yildan nomenklaturalarni nusxalash">
+          <USelect
+            v-model="importFromYearId"
+            :items="yearItems"
+            placeholder="Import qilmaslik"
+            icon="i-lucide-copy"
+            size="lg"
+          />
         </UFormField>
         <div class="flex justify-end gap-3 pt-2">
           <UButton variant="outline" label="Bekor qilish" @click="modalOpen = false" />

@@ -9,7 +9,7 @@ from src.domain.category.repository import CategoryRepository
 from src.domain.category.value_objects import FieldType
 from src.domain.shared.errors import NotFoundError
 from src.infrastructure.persistence.mappers.category_mapper import CategoryFieldMapper, CategoryMapper, DefaultFieldMapper
-from src.infrastructure.persistence.models import CategoryFieldModel, CategoryModel, DefaultFieldModel, YearCategoryModel, YearModel
+from src.infrastructure.persistence.models import CategoryFieldModel, CategoryModel, DefaultFieldModel, YearModel
 
 
 class SqlAlchemyCategoryRepository(CategoryRepository):
@@ -20,7 +20,7 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
         stmt = (
             select(CategoryModel)
             .where(CategoryModel.id == category_id)
-            .options(selectinload(CategoryModel.fields), selectinload(CategoryModel.year_categories))
+            .options(selectinload(CategoryModel.fields))
         )
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
@@ -29,7 +29,7 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
     async def find_all(self) -> list[Category]:
         stmt = (
             select(CategoryModel)
-            .options(selectinload(CategoryModel.fields), selectinload(CategoryModel.year_categories))
+            .options(selectinload(CategoryModel.fields))
             .order_by(CategoryModel.sort_order)
         )
         result = await self._session.execute(stmt)
@@ -39,10 +39,9 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
         # year_id param is actually the year VALUE (e.g. 2020), not the DB primary key
         stmt = (
             select(CategoryModel)
-            .join(YearCategoryModel, YearCategoryModel.category_id == CategoryModel.id)
-            .join(YearModel, YearModel.id == YearCategoryModel.year_id)
+            .join(YearModel, YearModel.id == CategoryModel.year_id)
             .where(YearModel.value == year_id)
-            .options(selectinload(CategoryModel.fields), selectinload(CategoryModel.year_categories))
+            .options(selectinload(CategoryModel.fields))
             .order_by(CategoryModel.sort_order)
         )
         result = await self._session.execute(stmt)
@@ -52,7 +51,7 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
         existing_stmt = (
             select(CategoryModel)
             .where(CategoryModel.id == category.id)
-            .options(selectinload(CategoryModel.fields), selectinload(CategoryModel.year_categories))
+            .options(selectinload(CategoryModel.fields))
         )
         existing_result = await self._session.execute(existing_stmt)
         existing = existing_result.scalar_one_or_none()
@@ -65,28 +64,14 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
             model = CategoryMapper.to_model(category)
             self._session.add(model)
             await self._session.flush()
-            # Reload with fields and year_categories
+            # Reload with fields
             stmt = (
                 select(CategoryModel)
                 .where(CategoryModel.id == model.id)
-                .options(selectinload(CategoryModel.fields), selectinload(CategoryModel.year_categories))
+                .options(selectinload(CategoryModel.fields))
             )
             result = await self._session.execute(stmt)
             return CategoryMapper.to_domain(result.scalar_one())
-
-    async def set_year_links(self, category_id: uuid.UUID, year_ids: list[int]) -> None:
-        # Delete existing links
-        existing = await self._session.execute(
-            select(YearCategoryModel).where(YearCategoryModel.category_id == category_id)
-        )
-        for link in existing.scalars().all():
-            await self._session.delete(link)
-        await self._session.flush()
-        # Add new links
-        for year_id in year_ids:
-            link = YearCategoryModel(year_id=year_id, category_id=category_id)
-            self._session.add(link)
-        await self._session.flush()
 
     async def delete(self, category_id: uuid.UUID) -> None:
         model = await self._session.get(CategoryModel, category_id)
@@ -94,7 +79,7 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
             await self._session.delete(model)
             await self._session.flush()
 
-    async def copy_category(self, source_id: uuid.UUID, target_year_ids: list[int]) -> Category:
+    async def copy_category(self, source_id: uuid.UUID, target_year_id: int) -> Category:
         source = await self.find_by_id(source_id)
         if not source:
             raise NotFoundError("Category", str(source_id))
@@ -103,6 +88,7 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
             code=source.code,
             description=source.description,
             sort_order=source.sort_order,
+            year_id=target_year_id,
         )
         saved = await self.save(new_cat)
         for field in source.fields:
@@ -117,7 +103,6 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
                 placeholder=field.placeholder,
             )
             await self.save_field(new_field)
-        await self.set_year_links(saved.id, target_year_ids)
         return await self.find_by_id(saved.id)
 
     async def find_field_by_id(self, field_id: uuid.UUID) -> CategoryField | None:

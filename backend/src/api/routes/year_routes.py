@@ -20,11 +20,7 @@ def _to_response(year: Year) -> YearResponse:
 
 
 @router.get("", response_model=YearListResponse)
-async def list_years(
-    active_only: bool = Query(True),
-    handler: YearQueryHandler = Depends(get_year_query_handler),
-    _: User = Depends(get_current_user),
-):
+async def list_years(active_only: bool = Query(True), handler: YearQueryHandler = Depends(get_year_query_handler), _: User = Depends(get_current_user)):
     years = await handler.list_years(ListYearsQuery(active_only=active_only))
     return YearListResponse(items=[_to_response(y) for y in years])
 
@@ -33,40 +29,29 @@ async def list_years(
 async def create_year(
     request: CreateYearRequest,
     handler: YearCommandHandler = Depends(get_year_command_handler),
-    cat_query_handler: CategoryQueryHandler = Depends(get_category_query_handler),
-    cat_cmd_handler: CategoryCommandHandler = Depends(get_category_command_handler),
+    year_query: YearQueryHandler = Depends(get_year_query_handler),
+    cat_query: CategoryQueryHandler = Depends(get_category_query_handler),
+    cat_cmd: CategoryCommandHandler = Depends(get_category_command_handler),
     _: User = Depends(require_admin),
 ):
     year = await handler.create(CreateYearCommand(value=request.value, is_active=request.is_active))
-
-    # Import categories from another year if requested
+    # Copy categories from source year
     if request.import_from_year_id is not None:
-        source_categories = await cat_query_handler.list_by_year(
-            ListCategoriesByYearQuery(year_id=request.import_from_year_id)
-        )
-        for cat in source_categories:
-            await cat_cmd_handler.copy_category(
-                CopyCategoryCommand(source_category_id=cat.id, target_year_ids=[year.id])
-            )
-
+        all_years = await year_query.list_years(ListYearsQuery(active_only=False))
+        source = next((y for y in all_years if y.id == request.import_from_year_id), None)
+        if source:
+            cats = await cat_query.list_by_year(ListCategoriesByYearQuery(year_id=source.value))
+            for cat in cats:
+                await cat_cmd.copy_category(CopyCategoryCommand(source_category_id=cat.id, target_year_id=year.id))
     return _to_response(year)
 
 
 @router.put("/{year_id}", response_model=YearResponse)
-async def update_year(
-    year_id: int,
-    request: UpdateYearRequest,
-    handler: YearCommandHandler = Depends(get_year_command_handler),
-    _: User = Depends(require_admin),
-):
+async def update_year(year_id: int, request: UpdateYearRequest, handler: YearCommandHandler = Depends(get_year_command_handler), _: User = Depends(require_admin)):
     year = await handler.update(UpdateYearCommand(year_id=year_id, value=request.value, is_active=request.is_active))
     return _to_response(year)
 
 
 @router.delete("/{year_id}", status_code=204)
-async def delete_year(
-    year_id: int,
-    handler: YearCommandHandler = Depends(get_year_command_handler),
-    _: User = Depends(require_admin),
-):
+async def delete_year(year_id: int, handler: YearCommandHandler = Depends(get_year_command_handler), _: User = Depends(require_admin)):
     await handler.delete(DeleteYearCommand(year_id=year_id))

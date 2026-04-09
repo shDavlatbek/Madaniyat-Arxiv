@@ -12,12 +12,13 @@ const { data: yearsData } = await useAsyncData('years-for-cat', () =>
   apiFetch<{ items: YearResponse[] }>('/api/years?active_only=false'),
 )
 const years = computed(() => yearsData.value?.items || [])
+const yearItems = computed(() => years.value.map(y => ({ label: String(y.value), value: y.id })))
 const schema = z.object({
   name: z.string().min(1, 'Nom kiritilishi shart'),
   code: z.string().min(1, 'Kod kiritilishi shart'),
   description: z.string().optional(),
   sort_order: z.coerce.number().default(0),
-  year_ids: z.array(z.number()).min(1, 'Kamida bitta yil tanlanishi shart'),
+  year_id: z.number({ required_error: 'Yil tanlanishi shart' }),
 })
 
 const state = reactive({
@@ -25,7 +26,7 @@ const state = reactive({
   code: '',
   description: '',
   sort_order: 0,
-  year_ids: [] as number[],
+  year_id: undefined as number | undefined,
 })
 
 // Auto-generate code slug from name
@@ -146,23 +147,19 @@ async function handleSubmit() {
             </UFormField>
 
             <UFormField
-              label="Yillar"
-              name="year_ids"
+              label="Yil"
+              name="year_id"
               required
-              help="Bir yoki bir nechta yil tanlang"
               class="md:col-span-2"
             >
-              <div class="flex flex-wrap gap-2">
-                <UButton
-                  v-for="year in years"
-                  :key="year.id"
-                  :label="String(year.value)"
-                  :variant="state.year_ids.includes(year.id) ? 'solid' : 'outline'"
-                  :color="state.year_ids.includes(year.id) ? 'primary' : 'neutral'"
-                  size="sm"
-                  @click="state.year_ids.includes(year.id) ? state.year_ids = state.year_ids.filter(id => id !== year.id) : state.year_ids.push(year.id)"
-                />
-              </div>
+              <USelect
+                v-model="state.year_id"
+                :items="yearItems"
+                placeholder="Yilni tanlang"
+                icon="i-lucide-calendar"
+                size="lg"
+                class="w-full"
+              />
             </UFormField>
           </div>
 

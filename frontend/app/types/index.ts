@@ -37,7 +37,7 @@ export interface CategoryResponse {
   code: string
   description: string | null
   sort_order: number
-  year_ids: number[]
+  year_id: number | null
   fields: CategoryFieldResponse[]
   created_at: string
   updated_at: string
@@ -56,7 +56,6 @@ export interface DocumentResponse {
   document_number: string
   date: string
   short_desc: string | null
-  target: string | null
   pages: number | null
   file_path: string | null
   signer: string | null

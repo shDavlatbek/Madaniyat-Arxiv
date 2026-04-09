@@ -16,7 +16,6 @@ class Document(AggregateRoot):
         document_number: str,
         date: date,
         short_desc: str | None = None,
-        target: str | None = None,
         pages: int | None = None,
         file_path: str | None = None,
         signer: str | None = None,
@@ -33,7 +32,6 @@ class Document(AggregateRoot):
         self.document_number = document_number
         self.date = date
         self.short_desc = short_desc
-        self.target = target
         self.pages = pages
         self.file_path = file_path
         self.signer = signer
@@ -42,14 +40,16 @@ class Document(AggregateRoot):
 
     def update(
         self,
+        category_id: uuid.UUID | None = None,
         title: str | None = None,
         document_number: str | None = None,
         date: date | None = None,
         short_desc: str | None = None,
-        target: str | None = None,
         pages: int | None = None,
         signer: str | None = None,
     ) -> None:
+        if category_id is not None:
+            self.category_id = category_id
         if title is not None:
             self.title = title
         if document_number is not None:
@@ -58,8 +58,6 @@ class Document(AggregateRoot):
             self.date = date
         if short_desc is not None:
             self.short_desc = short_desc
-        if target is not None:
-            self.target = target
         if pages is not None:
             self.pages = pages
         if signer is not None:

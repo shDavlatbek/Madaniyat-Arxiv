@@ -50,14 +50,13 @@ class CategoryMapper:
     @staticmethod
     def to_domain(model: CategoryModel) -> Category:
         fields = [CategoryFieldMapper.to_domain(f) for f in model.fields] if model.fields else []
-        year_ids = [yc.year_id for yc in model.year_categories] if model.year_categories else []
         return Category(
             id=model.id,
             name=model.name,
             code=model.code,
             description=model.description,
             sort_order=model.sort_order,
-            year_ids=year_ids,
+            year_id=model.year_id,
             fields=fields,
             created_at=model.created_at,
             updated_at=model.updated_at,
@@ -71,6 +70,7 @@ class CategoryMapper:
             code=entity.code,
             description=entity.description,
             sort_order=entity.sort_order,
+            year_id=entity.year_id,
         )
 
     @staticmethod
@@ -79,6 +79,7 @@ class CategoryMapper:
         model.code = entity.code
         model.description = entity.description
         model.sort_order = entity.sort_order
+        model.year_id = entity.year_id
 
 
 class DefaultFieldMapper:

@@ -31,7 +31,6 @@ def _to_response(doc: Document) -> DocumentResponse:
         document_number=doc.document_number,
         date=doc.date,
         short_desc=doc.short_desc,
-        target=doc.target,
         pages=doc.pages,
         file_path=doc.file_path,
         signer=doc.signer,
@@ -91,7 +90,6 @@ async def create_document(
         document_number=request.document_number,
         date=request.date,
         short_desc=request.short_desc,
-        target=request.target,
         pages=request.pages,
         signer=request.signer,
         created_by=current_user.id,
@@ -119,11 +117,11 @@ async def update_document(
 ):
     doc = await handler.update(UpdateDocumentCommand(
         document_id=document_id,
+        category_id=request.category_id,
         title=request.title,
         document_number=request.document_number,
         date=request.date,
         short_desc=request.short_desc,
-        target=request.target,
         pages=request.pages,
         signer=request.signer,
         dynamic_fields=request.dynamic_fields,

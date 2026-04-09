@@ -12,9 +12,10 @@
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.0",
-    "@nuxt/ui": "^3.3.7",
-    "nuxt": "^3.16.0",
+    "@nuxt/ui": "^4.6.1",
+    "nuxt": "^4.4.2",
     "pdfjs-dist": "^5.6.205",
+    "tailwindcss": "^4.2.2",
     "vue": "^3.5.0",
     "vue-router": "^4.5.0",
     "zod": "^3.24.0"

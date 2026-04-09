@@ -11,18 +11,17 @@ class CreateDocumentRequest(BaseModel):
     document_number: str = Field(min_length=1, max_length=100)
     date: dt.date
     short_desc: str | None = None
-    target: str | None = None
     pages: int | None = Field(default=None, ge=0)
     signer: str | None = None
     dynamic_fields: dict[str, str] = Field(default_factory=dict)
 
 
 class UpdateDocumentRequest(BaseModel):
+    category_id: uuid.UUID | None = None
     title: str | None = Field(default=None, min_length=1, max_length=500)
     document_number: str | None = Field(default=None, min_length=1, max_length=100)
     date: dt.date | None = None
     short_desc: str | None = None
-    target: str | None = None
     pages: int | None = Field(default=None, ge=0)
     signer: str | None = None
     dynamic_fields: dict[str, str] | None = None
@@ -41,7 +40,6 @@ class DocumentResponse(BaseModel):
     document_number: str
     date: dt.date
     short_desc: str | None
-    target: str | None
     pages: int | None
     file_path: str | None
     signer: str | None

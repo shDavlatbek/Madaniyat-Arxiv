@@ -156,30 +156,26 @@ async function handleDelete() {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <p class="text-xs text-muted uppercase tracking-wide mb-1">Hujjat raqami</p>
-                <p class="font-mono font-semibold text-highlighted text-base">{{ doc.document_number }}</p>
+                <p class="text-highlighted font-semibold mb-1">Hujjat raqami</p>
+                <p class="text-sm">{{ doc.document_number }}</p>
               </div>
               <div>
-                <p class="text-xs text-muted uppercase tracking-wide mb-1">Sana</p>
-                <p class="text-highlighted">{{ doc.date }}</p>
+                <p class="text-highlighted font-semibold mb-1">Sana</p>
+                <p class="text-sm">{{ doc.date ? doc.date.split('-').reverse().join('.') : '-' }}</p>
               </div>
               <div>
-                <p class="text-xs text-muted uppercase tracking-wide mb-1">Imzo qo'ygan shaxs</p>
-                <p class="text-highlighted">{{ doc.signer || '-' }}</p>
+                <p class="text-highlighted font-semibold mb-1">Imzo qo'ygan shaxs</p>
+                <p class="text-sm">{{ doc.signer || '-' }}</p>
               </div>
               <div>
-                <p class="text-xs text-muted uppercase tracking-wide mb-1">Kimga</p>
-                <p class="text-highlighted">{{ doc.target || '-' }}</p>
-              </div>
-              <div>
-                <p class="text-xs text-muted uppercase tracking-wide mb-1">Sahifalar</p>
-                <p class="text-highlighted">{{ doc.pages || '-' }}</p>
+                <p class="text-highlighted font-semibold mb-1">Sahifalar</p>
+                <p class="text-sm">{{ doc.pages || '-' }}</p>
               </div>
             </div>
 
             <div v-if="doc.short_desc" class="mt-4 pt-4 border-t border-default">
-              <p class="text-xs text-muted uppercase tracking-wide mb-1">Qisqacha tavsif</p>
-              <p class="text-highlighted mt-1">{{ doc.short_desc }}</p>
+              <p class="text-highlighted font-semibold mb-1">Qisqacha tavsif</p>
+              <p class="text-sm">{{ doc.short_desc }}</p>
             </div>
           </UCard>
 
@@ -194,8 +190,8 @@ async function handleDelete() {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div v-for="field in fields" :key="field.id">
-                <p class="text-xs text-muted uppercase tracking-wide mb-1">{{ field.label }}</p>
-                <p class="text-highlighted">{{ getFieldValue(field.id) }}</p>
+                <p class="text-highlighted font-semibold mb-1">{{ field.label }}</p>
+                <p class="text-sm">{{ getFieldValue(field.id) }}</p>
               </div>
             </div>
           </UCard>

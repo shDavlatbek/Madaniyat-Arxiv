@@ -49,7 +49,7 @@ def _field_to_response(f: CategoryField) -> CategoryFieldResponse:
 def _to_response(cat: Category) -> CategoryResponse:
     return CategoryResponse(
         id=cat.id, name=cat.name, code=cat.code, description=cat.description,
-        sort_order=cat.sort_order, year_ids=cat.year_ids,
+        sort_order=cat.sort_order, year_id=cat.year_id,
         fields=[_field_to_response(f) for f in cat.fields],
         created_at=cat.created_at, updated_at=cat.updated_at,
     )
@@ -90,7 +90,7 @@ async def create_category(
 ):
     category = await handler.create(CreateCategoryCommand(
         name=request.name, code=request.code, description=request.description,
-        sort_order=request.sort_order, year_ids=request.year_ids,
+        sort_order=request.sort_order, year_id=request.year_id,
     ))
     return _to_response(category)
 
@@ -127,7 +127,7 @@ async def copy_category(
     _: User = Depends(require_admin),
 ):
     category = await handler.copy_category(CopyCategoryCommand(
-        source_category_id=category_id, target_year_ids=request.target_year_ids,
+        source_category_id=category_id, target_year_id=request.target_year_id,
     ))
     return _to_response(category)
 

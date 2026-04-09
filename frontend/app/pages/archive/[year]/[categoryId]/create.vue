@@ -50,7 +50,7 @@ async function handleSubmit(data: Record<string, any>, file?: File) {
       <UBadge v-if="currentCategory" :label="currentCategory.name" variant="subtle" icon="i-lucide-folder" />
     </template>
 
-    <div class="max-w-4xl mx-auto p-6 sm:p-8">
+    <div class="p-6">
       <!-- Category selector if we want to change -->
       <div v-if="categories.length > 1" class="mb-6 flex items-center gap-3">
         <span class="text-sm text-muted">Nomenklatura:</span>
@@ -67,7 +67,7 @@ async function handleSubmit(data: Record<string, any>, file?: File) {
         </div>
       </div>
 
-      <DocumentForm :category-id="categoryId" @submit="handleSubmit" />
+      <DocumentForm :category-id="categoryId" :default-year="year" @submit="handleSubmit" />
     </div>
   </PagePanel>
 </template>

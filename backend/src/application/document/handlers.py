@@ -35,7 +35,6 @@ class DocumentCommandHandler:
             document_number=command.document_number,
             date=command.date,
             short_desc=command.short_desc,
-            target=command.target,
             pages=command.pages,
             signer=command.signer,
             created_by=command.created_by,
@@ -49,11 +48,11 @@ class DocumentCommandHandler:
             raise DocumentNotFoundError(str(command.document_id))
 
         document.update(
+            category_id=command.category_id,
             title=command.title,
             document_number=command.document_number,
             date=command.date,
             short_desc=command.short_desc,
-            target=command.target,
             pages=command.pages,
             signer=command.signer,
         )

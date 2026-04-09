@@ -30,6 +30,7 @@ class CategoryCommandHandler:
             code=command.code,
             description=command.description,
             sort_order=command.sort_order,
+            year_id=command.year_id,
         )
         saved = await self._category_repo.save(category)
 
@@ -48,10 +49,7 @@ class CategoryCommandHandler:
             )
             await self._category_repo.save_field(new_field)
 
-        # Set year links
-        await self._category_repo.set_year_links(saved.id, command.year_ids)
-
-        # Re-fetch to get fields and year links
+        # Re-fetch to get fields
         saved = await self._category_repo.find_by_id(saved.id)
 
         return saved
@@ -65,12 +63,9 @@ class CategoryCommandHandler:
             code=command.code,
             description=command.description,
             sort_order=command.sort_order,
-            year_ids=command.year_ids,
+            year_id=command.year_id,
         )
         saved = await self._category_repo.save(category)
-        if command.year_ids is not None:
-            await self._category_repo.set_year_links(category.id, command.year_ids)
-            saved = await self._category_repo.find_by_id(category.id)
         return saved
 
     async def delete(self, command: DeleteCategoryCommand) -> None:
@@ -111,7 +106,7 @@ class CategoryCommandHandler:
 
     async def copy_category(self, command: CopyCategoryCommand) -> Category:
         return await self._category_repo.copy_category(
-            command.source_category_id, command.target_year_ids,
+            command.source_category_id, command.target_year_id,
         )
 
     async def create_default_field(self, command: CreateDefaultFieldCommand) -> DefaultField:

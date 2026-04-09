@@ -53,19 +53,6 @@ class YearModel(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
 
-class YearCategoryModel(Base):
-    __tablename__ = "year_categories"
-
-    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
-    year_id: Mapped[int] = mapped_column(Integer, ForeignKey("years.id", ondelete="CASCADE"), nullable=False)
-    category_id: Mapped[uuid.UUID] = mapped_column(GUID(), ForeignKey("categories.id", ondelete="CASCADE"), nullable=False)
-
-    year: Mapped["YearModel"] = relationship()
-    category: Mapped["CategoryModel"] = relationship(back_populates="year_categories")
-
-    __table_args__ = (UniqueConstraint("year_id", "category_id"),)
-
-
 class CategoryModel(Base):
     __tablename__ = "categories"
 
@@ -74,11 +61,12 @@ class CategoryModel(Base):
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    year_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("years.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
     fields: Mapped[list["CategoryFieldModel"]] = relationship(back_populates="category", cascade="all, delete-orphan", order_by="CategoryFieldModel.sort_order")
-    year_categories: Mapped[list["YearCategoryModel"]] = relationship(back_populates="category", cascade="all, delete-orphan")
+    year: Mapped["YearModel"] = relationship()
 
 
 class CategoryFieldModel(Base):
@@ -125,7 +113,6 @@ class DocumentModel(Base):
     document_number: Mapped[str] = mapped_column(String(100), nullable=False)
     date: Mapped[date_type] = mapped_column(Date, nullable=False)
     short_desc: Mapped[str | None] = mapped_column(Text, nullable=True)
-    target: Mapped[str | None] = mapped_column(String(500), nullable=True)
     pages: Mapped[int | None] = mapped_column(Integer, nullable=True)
     file_path: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     signer: Mapped[str | None] = mapped_column(String(255), nullable=True)

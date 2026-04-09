@@ -25,7 +25,6 @@ class DocumentMapper:
             document_number=model.document_number,
             date=model.date,
             short_desc=model.short_desc,
-            target=model.target,
             pages=model.pages,
             file_path=model.file_path,
             signer=model.signer,
@@ -45,7 +44,6 @@ class DocumentMapper:
             document_number=entity.document_number,
             date=entity.date,
             short_desc=entity.short_desc,
-            target=entity.target,
             pages=entity.pages,
             file_path=entity.file_path,
             signer=entity.signer,
@@ -55,11 +53,11 @@ class DocumentMapper:
 
     @staticmethod
     def update_model(model: DocumentModel, entity: Document) -> None:
+        model.category_id = entity.category_id
         model.title = entity.title
         model.document_number = entity.document_number
         model.date = entity.date
         model.short_desc = entity.short_desc
-        model.target = entity.target
         model.pages = entity.pages
         model.file_path = entity.file_path
         model.signer = entity.signer

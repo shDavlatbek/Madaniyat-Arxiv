@@ -13,7 +13,6 @@ class CreateDocumentCommand:
     document_number: str
     date: date
     short_desc: str | None = None
-    target: str | None = None
     pages: int | None = None
     signer: str | None = None
     created_by: uuid.UUID | None = None
@@ -23,11 +22,11 @@ class CreateDocumentCommand:
 @dataclass
 class UpdateDocumentCommand:
     document_id: uuid.UUID
+    category_id: uuid.UUID | None = None
     title: str | None = None
     document_number: str | None = None
     date: date | None = None
     short_desc: str | None = None
-    target: str | None = None
     pages: int | None = None
     signer: str | None = None
     dynamic_fields: dict[str, str] | None = None
