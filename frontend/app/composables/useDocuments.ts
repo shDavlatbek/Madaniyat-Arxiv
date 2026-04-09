@@ -50,5 +50,19 @@ export const useDocuments = () => {
     return apiFetch<DocumentResponse>(`/api/documents/${id}/file`, { method: 'POST', body: formData })
   }
 
-  return { listDocuments, getDocument, createDocument, updateDocument, deleteDocument, uploadFile }
+  async function uploadAttachment(documentId: string, file: File, sortOrder = 0) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return apiFetch<DocumentResponse>(`/api/documents/${documentId}/attachments?sort_order=${sortOrder}`, {
+      method: 'POST', body: formData,
+    })
+  }
+
+  async function deleteAttachment(documentId: string, attachmentId: string) {
+    return apiFetch<DocumentResponse>(`/api/documents/${documentId}/attachments/${attachmentId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  return { listDocuments, getDocument, createDocument, updateDocument, deleteDocument, uploadFile, uploadAttachment, deleteAttachment }
 }

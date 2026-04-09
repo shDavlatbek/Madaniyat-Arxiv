@@ -8,7 +8,7 @@ const year = computed(() => Number(route.params.year))
 const categoryId = computed(() => route.params.categoryId as string)
 
 const { apiFetch } = useApi()
-const { createDocument, uploadFile } = useDocuments()
+const { createDocument, uploadFile, uploadAttachment } = useDocuments()
 const toast = useToast()
 
 // Fetch category name for display
@@ -19,7 +19,7 @@ const { data: categoriesData } = await useAsyncData(
 const categories = computed(() => categoriesData.value?.items || [])
 const currentCategory = computed(() => categories.value.find(c => c.id === categoryId.value))
 
-async function handleSubmit(data: Record<string, any>, file?: File) {
+async function handleSubmit(data: Record<string, any>, file?: File, attachments?: File[]) {
   try {
     const doc = await createDocument({
       ...data,
@@ -31,6 +31,15 @@ async function handleSubmit(data: Record<string, any>, file?: File) {
         await uploadFile(doc.id, file)
       } catch {
         toast.add({ title: 'Ogohlantirish', description: 'Hujjat yaratildi, lekin faylni yuklashda xatolik', color: 'warning', icon: 'i-lucide-alert-triangle' })
+      }
+    }
+    if (attachments?.length && doc?.id) {
+      for (let i = 0; i < attachments.length; i++) {
+        try {
+          await uploadAttachment(doc.id, attachments[i]!, i)
+        } catch {
+          toast.add({ title: 'Ogohlantirish', description: `Ilovani yuklab bo'lmadi: ${attachments[i]!.name}`, color: 'warning', icon: 'i-lucide-alert-triangle' })
+        }
       }
     }
     toast.add({ title: 'Muvaffaqiyat', description: 'Hujjat yaratildi', color: 'success', icon: 'i-lucide-check-circle' })

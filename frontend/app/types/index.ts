@@ -59,8 +59,13 @@ export interface DocumentResponse {
   pages: number | null
   file_path: string | null
   signer: string | null
+  archive_number: string | null
+  person_id: string | null
+  person_name: string | null
+  person_position: string | null
   created_by: string | null
   field_values: DocumentFieldValueResponse[]
+  attachments: AttachmentResponse[]
   created_at: string
   updated_at: string
 }
@@ -75,6 +80,30 @@ export interface DefaultFieldResponse {
   options: string[] | null
   placeholder: string | null
   created_at: string
+}
+
+export interface AttachmentResponse {
+  id: string
+  file_path: string
+  original_filename: string
+  sort_order: number
+  created_at: string
+}
+
+export interface PersonTenureResponse {
+  id: string
+  position: string
+  start_date: string
+  end_date: string | null
+  created_at: string
+}
+
+export interface PersonResponse {
+  id: string
+  full_name: string
+  tenures: PersonTenureResponse[]
+  created_at: string
+  updated_at: string
 }
 
 export interface PaginatedResponse<T> {

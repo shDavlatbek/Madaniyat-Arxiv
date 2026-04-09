@@ -9,8 +9,11 @@ from src.domain.document.repository import DocumentRepository, DocumentSearchPar
 from src.infrastructure.persistence.mappers.document_mapper import DocumentMapper
 from src.infrastructure.persistence.models import (
     CategoryFieldModel,
+    DocumentAttachmentModel,
     DocumentFieldValueModel,
     DocumentModel,
+    PersonModel,
+    YearModel,
 )
 
 
@@ -22,14 +25,14 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
         stmt = (
             select(DocumentModel)
             .where(DocumentModel.id == document_id)
-            .options(selectinload(DocumentModel.field_values))
+            .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
         )
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return DocumentMapper.to_domain(model) if model else None
 
     async def search(self, params: DocumentSearchParams) -> tuple[list[Document], int]:
-        stmt = select(DocumentModel).options(selectinload(DocumentModel.field_values))
+        stmt = select(DocumentModel).options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
         count_stmt = select(func.count()).select_from(DocumentModel)
 
         if params.year_id:
@@ -54,6 +57,7 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
                 DocumentModel.document_number.ilike(f"%{params.search}%"),
                 DocumentModel.short_desc.ilike(f"%{params.search}%"),
                 DocumentModel.signer.ilike(f"%{params.search}%"),
+                DocumentModel.archive_number.ilike(f"%{params.search}%"),
             )
             stmt = stmt.where(search_filter)
             count_stmt = count_stmt.where(search_filter)
@@ -96,12 +100,20 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             for fv in document.field_values:
                 fv_model = DocumentMapper.field_value_to_model(document.id, fv)
                 self._session.add(fv_model)
+            # Update attachments: delete old, insert new
+            await self._session.execute(
+                DocumentAttachmentModel.__table__.delete().where(
+                    DocumentAttachmentModel.document_id == document.id
+                )
+            )
+            for att in document.attachments:
+                self._session.add(DocumentMapper.attachment_to_model(att))
             await self._session.flush()
             # Reload
             stmt = (
                 select(DocumentModel)
                 .where(DocumentModel.id == document.id)
-                .options(selectinload(DocumentModel.field_values))
+                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
             )
             result = await self._session.execute(stmt)
             return DocumentMapper.to_domain(result.scalar_one())
@@ -112,12 +124,15 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             for fv in document.field_values:
                 fv_model = DocumentMapper.field_value_to_model(model.id, fv)
                 self._session.add(fv_model)
+            for att in document.attachments:
+                att.document_id = model.id
+                self._session.add(DocumentMapper.attachment_to_model(att))
             await self._session.flush()
             # Reload
             stmt = (
                 select(DocumentModel)
                 .where(DocumentModel.id == model.id)
-                .options(selectinload(DocumentModel.field_values))
+                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
             )
             result = await self._session.execute(stmt)
             return DocumentMapper.to_domain(result.scalar_one())

@@ -13,6 +13,8 @@ class CreateDocumentRequest(BaseModel):
     short_desc: str | None = None
     pages: int | None = Field(default=None, ge=0)
     signer: str | None = None
+    archive_number: str | None = None
+    person_id: uuid.UUID | None = None
     dynamic_fields: dict[str, str] = Field(default_factory=dict)
 
 
@@ -24,7 +26,17 @@ class UpdateDocumentRequest(BaseModel):
     short_desc: str | None = None
     pages: int | None = Field(default=None, ge=0)
     signer: str | None = None
+    archive_number: str | None = None
+    person_id: uuid.UUID | None = None
     dynamic_fields: dict[str, str] | None = None
+
+
+class AttachmentResponse(BaseModel):
+    id: uuid.UUID
+    file_path: str
+    original_filename: str
+    sort_order: int
+    created_at: dt.datetime
 
 
 class DocumentFieldValueResponse(BaseModel):
@@ -43,8 +55,13 @@ class DocumentResponse(BaseModel):
     pages: int | None
     file_path: str | None
     signer: str | None
+    archive_number: str | None
+    person_id: uuid.UUID | None
+    person_name: str | None
+    person_position: str | None
     created_by: uuid.UUID | None
     field_values: list[DocumentFieldValueResponse]
+    attachments: list[AttachmentResponse] = Field(default_factory=list)
     created_at: dt.datetime
     updated_at: dt.datetime
 

@@ -6,10 +6,12 @@ from src.domain.category.repository import CategoryRepository
 from src.domain.document.entity import Document
 from src.domain.document.errors import DocumentNotFoundError
 from src.domain.document.repository import DocumentRepository, DocumentSearchParams
-from src.domain.document.value_objects import DocumentFieldValue
+from src.domain.document.value_objects import DocumentAttachment, DocumentFieldValue
+from src.domain.shared.errors import ValidationError
+from src.domain.year.repository import YearRepository
 from src.infrastructure.file_storage.local_storage import FileStorageService
 
-from .commands import CreateDocumentCommand, DeleteDocumentCommand, UpdateDocumentCommand, UploadFileCommand
+from .commands import CreateDocumentCommand, DeleteAttachmentCommand, DeleteDocumentCommand, UpdateDocumentCommand, UploadAttachmentCommand, UploadFileCommand
 from .queries import GetDocumentQuery, ListDocumentsQuery
 
 
@@ -18,18 +20,32 @@ class DocumentCommandHandler:
         self,
         document_repo: DocumentRepository,
         category_repo: CategoryRepository,
+        year_repo: YearRepository,
         file_storage: FileStorageService,
     ):
         self._document_repo = document_repo
         self._category_repo = category_repo
+        self._year_repo = year_repo
         self._file_storage = file_storage
 
     async def create(self, command: CreateDocumentCommand) -> Document:
+        # Resolve year: command.year_id is the year VALUE (e.g. 2020), not the DB id
+        year = await self._year_repo.find_by_value(command.year_id)
+        if not year:
+            raise ValidationError(f"{command.year_id} yil topilmadi")
+
+        # Validate date falls within the year
+        if command.date and command.date.year != year.value:
+            raise ValidationError(
+                f"Hujjat sanasi {year.value} yil oralig'ida bo'lishi kerak "
+                f"({year.value}-01-01 dan {year.value}-12-31 gacha)"
+            )
+
         # Build dynamic field values
         field_values = await self._build_field_values(command.category_id, command.dynamic_fields)
 
         document = Document(
-            year_id=command.year_id,
+            year_id=year.id,  # Use the DB id, not the year value
             category_id=command.category_id,
             title=command.title,
             document_number=command.document_number,
@@ -37,6 +53,8 @@ class DocumentCommandHandler:
             short_desc=command.short_desc,
             pages=command.pages,
             signer=command.signer,
+            archive_number=command.archive_number or None,
+            person_id=command.person_id,
             created_by=command.created_by,
             field_values=field_values,
         )
@@ -47,6 +65,15 @@ class DocumentCommandHandler:
         if not document:
             raise DocumentNotFoundError(str(command.document_id))
 
+        # Validate date against document's year if date is being changed
+        if command.date is not None:
+            year = await self._year_repo.find_by_id(document.year_id)
+            if year and command.date.year != year.value:
+                raise ValidationError(
+                    f"Hujjat sanasi {year.value} yil oralig'ida bo'lishi kerak "
+                    f"({year.value}-01-01 dan {year.value}-12-31 gacha)"
+                )
+
         document.update(
             category_id=command.category_id,
             title=command.title,
@@ -55,6 +82,8 @@ class DocumentCommandHandler:
             short_desc=command.short_desc,
             pages=command.pages,
             signer=command.signer,
+            archive_number=command.archive_number if command.archive_number else None,
+            person_id=command.person_id,
         )
 
         if command.dynamic_fields is not None:
@@ -65,8 +94,11 @@ class DocumentCommandHandler:
 
     async def delete(self, command: DeleteDocumentCommand) -> None:
         document = await self._document_repo.find_by_id(command.document_id)
-        if document and document.file_path:
-            await self._file_storage.delete_file(document.file_path)
+        if document:
+            if document.file_path:
+                await self._file_storage.delete_file(document.file_path)
+            for att in document.attachments:
+                await self._file_storage.delete_file(att.file_path)
         await self._document_repo.delete(command.document_id)
 
     async def upload_file(self, command: UploadFileCommand) -> Document:
@@ -80,6 +112,34 @@ class DocumentCommandHandler:
 
         file_path = await self._file_storage.save_file(command.content, command.filename, command.document_id)
         document.set_file_path(file_path)
+        return await self._document_repo.save(document)
+
+    async def upload_attachment(self, command: UploadAttachmentCommand) -> Document:
+        document = await self._document_repo.find_by_id(command.document_id)
+        if not document:
+            raise DocumentNotFoundError(str(command.document_id))
+
+        file_path = await self._file_storage.save_file(
+            command.content, f"attachments/{command.filename}", command.document_id,
+        )
+        attachment = DocumentAttachment(
+            document_id=document.id,
+            file_path=file_path,
+            original_filename=command.filename,
+            sort_order=command.sort_order,
+        )
+        document.add_attachment(attachment)
+        return await self._document_repo.save(document)
+
+    async def delete_attachment(self, command: DeleteAttachmentCommand) -> Document:
+        document = await self._document_repo.find_by_id(command.document_id)
+        if not document:
+            raise DocumentNotFoundError(str(command.document_id))
+
+        attachment = next((a for a in document.attachments if a.id == command.attachment_id), None)
+        if attachment:
+            await self._file_storage.delete_file(attachment.file_path)
+            document.remove_attachment(command.attachment_id)
         return await self._document_repo.save(document)
 
     async def _build_field_values(self, category_id: uuid.UUID, dynamic_fields: dict[str, str]) -> list[DocumentFieldValue]:

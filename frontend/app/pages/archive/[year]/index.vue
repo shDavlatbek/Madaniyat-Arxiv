@@ -23,6 +23,7 @@ const filterTitle = ref('')
 const filterShortDesc = ref('')
 const filterSigner = ref('')
 const filterDocNumber = ref('')
+const filterArchiveNumber = ref('')
 
 // Create document modal - category selection
 const createOpen = ref(false)
@@ -78,7 +79,7 @@ watch(selectedYearFilter, () => {
 })
 
 // Reset page when any filter changes
-watch([search, dateFrom, dateTo, filterTitle, filterShortDesc, filterSigner, filterDocNumber], () => {
+watch([search, dateFrom, dateTo, filterTitle, filterShortDesc, filterSigner, filterDocNumber, filterArchiveNumber], () => {
   page.value = 1
 })
 
@@ -133,6 +134,10 @@ const documents = computed(() => {
     const q = filterDocNumber.value.toLowerCase()
     docs = docs.filter(d => d.document_number?.toLowerCase().includes(q))
   }
+  if (filterArchiveNumber.value) {
+    const q = filterArchiveNumber.value.toLowerCase()
+    docs = docs.filter(d => d.archive_number?.toLowerCase().includes(q))
+  }
   return docs
 })
 const total = computed(() => docsData.value?.total || 0)
@@ -170,6 +175,7 @@ const columns = computed(() => {
   cols.push(
     { accessorKey: 'signer', header: 'Imzo' },
     { accessorKey: 'document_number', header: 'Tartib raqami' },
+    { accessorKey: 'archive_number', header: 'Arxiv tartib raqami' },
     { accessorKey: 'date', header: 'Qabul qilingan sana' },
   )
   return cols
@@ -177,7 +183,7 @@ const columns = computed(() => {
 
 const hasActiveFilters = computed(() =>
   !!selectedCategoryId.value || !!selectedYearFilter.value || !!search.value || !!dateFrom.value || !!dateTo.value
-  || !!filterTitle.value || !!filterShortDesc.value || !!filterSigner.value || !!filterDocNumber.value
+  || !!filterTitle.value || !!filterShortDesc.value || !!filterSigner.value || !!filterDocNumber.value || !!filterArchiveNumber.value
   || Object.values(fieldFilters.value).some(v => v?.trim())
 )
 
@@ -191,6 +197,7 @@ function clearAllFilters() {
   filterShortDesc.value = ''
   filterSigner.value = ''
   filterDocNumber.value = ''
+  filterArchiveNumber.value = ''
   fieldFilters.value = {}
   page.value = 1
 }
@@ -318,11 +325,13 @@ function clearAllFilters() {
         </div>
       </template>
       <template #category_id-header>
-        <div class="flex flex-col items-center gap-2">
+        <div class="flex flex-col items-center gap-1">
           <span class="font-bold">Nomenklatura</span>
-          <USelect
+          <USelectMenu
             v-model="selectedCategoryId"
+            value-key="value"
             :items="categoryItems"
+            :search-input="{ placeholder: 'Qidirish...' }"
             placeholder="Barchasi"
             size="sm"
             class="w-full"
@@ -336,9 +345,15 @@ function clearAllFilters() {
         </div>
       </template>
       <template #document_number-header>
-        <div class="flex flex-col items-center gap-2">
+        <div class="flex flex-col items-center gap-1">
           <span class="font-bold">Tartib raqami</span>
           <UInput v-model="filterDocNumber" size="sm" placeholder="" class="w-full" />
+        </div>
+      </template>
+      <template #archive_number-header>
+        <div class="flex flex-col items-center gap-1">
+          <span class="font-bold">Arxiv tartib raqami</span>
+          <UInput v-model="filterArchiveNumber" size="sm" placeholder="" class="w-full" />
         </div>
       </template>
       <template #date-header>
@@ -370,10 +385,13 @@ function clearAllFilters() {
         <UBadge :label="getCategoryName(row.original.category_id)" variant="subtle" color="neutral" size="md" />
       </template>
       <template #signer-cell="{ row }">
-        <span class="text-base text-highlighted">{{ row.original.signer || '-' }}</span>
+        <span class="text-base text-highlighted">{{ row.original.person_name || row.original.signer || '-' }}</span>
       </template>
       <template #document_number-cell="{ row }">
         <span class="font-mono text-base text-primary font-bold">{{ row.original.document_number }}</span>
+      </template>
+      <template #archive_number-cell="{ row }">
+        <span class="font-mono text-base text-highlighted">{{ row.original.archive_number || '-' }}</span>
       </template>
       <template #date-cell="{ row }">
         <span class="text-base text-highlighted whitespace-nowrap font-medium">{{ formatDate(row.original.date) }}</span>

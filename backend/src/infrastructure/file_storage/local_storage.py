@@ -13,8 +13,8 @@ class FileStorageService:
 
     async def save_file(self, file_content: bytes, filename: str, document_id: uuid.UUID) -> str:
         dir_path = self._base_dir / str(document_id)
-        dir_path.mkdir(parents=True, exist_ok=True)
         file_path = dir_path / filename
+        file_path.parent.mkdir(parents=True, exist_ok=True)
         async with aiofiles.open(file_path, "wb") as f:
             await f.write(file_content)
         return str(file_path)

@@ -6,11 +6,13 @@ from src.infrastructure.persistence.repositories.user_repository import SqlAlche
 from src.infrastructure.persistence.repositories.year_repository import SqlAlchemyYearRepository
 from src.infrastructure.persistence.repositories.category_repository import SqlAlchemyCategoryRepository
 from src.infrastructure.persistence.repositories.document_repository import SqlAlchemyDocumentRepository
+from src.infrastructure.persistence.repositories.person_repository import SqlAlchemyPersonRepository
 from src.infrastructure.file_storage.local_storage import FileStorageService
 from src.application.user.handlers import UserCommandHandler, UserQueryHandler
 from src.application.year.handlers import YearCommandHandler, YearQueryHandler
 from src.application.category.handlers import CategoryCommandHandler, CategoryQueryHandler
 from src.application.document.handlers import DocumentCommandHandler, DocumentQueryHandler
+from src.application.person.handlers import PersonCommandHandler, PersonQueryHandler
 
 
 # User
@@ -45,9 +47,19 @@ def get_document_command_handler(session: AsyncSession = Depends(get_session)) -
     return DocumentCommandHandler(
         document_repo=SqlAlchemyDocumentRepository(session),
         category_repo=SqlAlchemyCategoryRepository(session),
+        year_repo=SqlAlchemyYearRepository(session),
         file_storage=FileStorageService(),
     )
 
 
 def get_document_query_handler(session: AsyncSession = Depends(get_session)) -> DocumentQueryHandler:
     return DocumentQueryHandler(SqlAlchemyDocumentRepository(session))
+
+
+# Person
+def get_person_command_handler(session: AsyncSession = Depends(get_session)) -> PersonCommandHandler:
+    return PersonCommandHandler(SqlAlchemyPersonRepository(session))
+
+
+def get_person_query_handler(session: AsyncSession = Depends(get_session)) -> PersonQueryHandler:
+    return PersonQueryHandler(SqlAlchemyPersonRepository(session))

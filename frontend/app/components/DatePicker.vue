@@ -1,9 +1,23 @@
 <script setup lang="ts">
 import { CalendarDate, type DateValue } from '@internationalized/date'
-defineProps<{
+const props = defineProps<{
   placeholder?: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
+  minDate?: string
+  maxDate?: string
 }>()
+
+const minValue = computed(() => {
+  if (!props.minDate) return undefined
+  const p = props.minDate.split('-')
+  return p.length === 3 ? new CalendarDate(Number(p[0]), Number(p[1]), Number(p[2])) : undefined
+})
+
+const maxValue = computed(() => {
+  if (!props.maxDate) return undefined
+  const p = props.maxDate.split('-')
+  return p.length === 3 ? new CalendarDate(Number(p[0]), Number(p[1]), Number(p[2])) : undefined
+})
 
 const model = defineModel<string>()
 const inputDate = useTemplateRef('inputDate')
@@ -38,7 +52,7 @@ function formatDate(val: DateValue | undefined) {
 </script>
 
 <template>
-  <UInputDate ref="inputDate" v-model="calendarValue" :size="size" :format="formatDate">
+  <UInputDate ref="inputDate" v-model="calendarValue" :size="size" :format="formatDate" :min-value="minValue" :max-value="maxValue">
     <template #trailing>
       <UPopover :reference="(inputDate as any)?.inputsRef?.[3]?.$el">
         <UButton
@@ -51,7 +65,7 @@ function formatDate(val: DateValue | undefined) {
         />
 
         <template #content>
-          <UCalendar v-model="calendarValue" class="p-2" />
+          <UCalendar v-model="calendarValue" :min-value="minValue" :max-value="maxValue" class="p-2" />
         </template>
       </UPopover>
     </template>
