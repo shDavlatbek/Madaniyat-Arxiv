@@ -108,11 +108,13 @@ async function handleDelete() {
         @click="search = ''; selectedYearId = undefined"
       />
     </template>
-    <UTable :data="categories" :columns="columns" :loading="status === 'pending'" @select="(row: any) => navigateTo(`/admin/categories/${row.original.id}/edit`)">
+    <UTable :data="categories" :columns="columns" :loading="status === 'pending'">
       <template #name-cell="{ row }">
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-folder" class="text-primary shrink-0" />
-          <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
+          <NuxtLink :to="`/admin/categories/${row.original.id}/edit`" class="font-semibold text-primary hover:underline">
+            {{ row.original.name }}
+          </NuxtLink>
         </div>
       </template>
       <template #year-cell="{ row }">
@@ -126,7 +128,6 @@ async function handleDelete() {
           <UDropdownMenu :items="[
             [
               { label: 'Tahrirlash', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/admin/categories/${row.original.id}/edit`) },
-              { label: 'Maydonlar', icon: 'i-lucide-layers', onSelect: () => navigateTo(`/admin/categories/${row.original.id}/fields`) },
               { label: 'Nusxa olish', icon: 'i-lucide-copy', onSelect: () => { copyTarget = row.original; copyYearId = undefined; copyOpen = true } },
             ],
             [

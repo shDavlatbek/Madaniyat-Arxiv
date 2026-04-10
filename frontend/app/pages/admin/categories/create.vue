@@ -39,47 +39,30 @@ interface TempField {
 }
 
 const tempFields = ref<TempField[]>([])
-const fieldTypes = [
-  { label: 'Tekst', value: 'text' },
-  { label: 'Raqam', value: 'number' },
-  { label: 'Sana', value: 'date' },
-  { label: 'Katta tekst', value: 'textarea' },
-  { label: 'Tanlov', value: 'select' },
-  { label: 'Fayl', value: 'file' },
-]
 const fieldModalOpen = ref(false)
 const editingFieldIndex = ref<number | null>(null)
-
-const fieldState = reactive({
-  label: '',
-  field_type: 'text',
-  is_required: false,
-  sort_order: 0,
-  placeholder: '',
-  options: '' as string,
-})
+const fieldModalData = ref<{ label: string; field_type: string; is_required: boolean; options: string } | undefined>()
 
 function openFieldCreate() {
   editingFieldIndex.value = null
-  Object.assign(fieldState, { label: '', field_type: 'text', is_required: false, sort_order: 0, placeholder: '', options: '' })
+  fieldModalData.value = undefined
   fieldModalOpen.value = true
 }
 
 function openFieldEdit(index: number) {
   editingFieldIndex.value = index
   const f = tempFields.value[index]!
-  Object.assign(fieldState, { ...f })
+  fieldModalData.value = { label: f.label, field_type: f.field_type, is_required: f.is_required, options: f.options }
   fieldModalOpen.value = true
 }
 
-function saveField() {
-  const data: TempField = { ...fieldState }
+function onFieldSave(data: { label: string; field_type: string; is_required: boolean; options: string }) {
+  const field: TempField = { ...data, sort_order: 0, placeholder: '' }
   if (editingFieldIndex.value !== null) {
-    tempFields.value[editingFieldIndex.value] = data
+    tempFields.value[editingFieldIndex.value] = field
   } else {
-    tempFields.value.push(data)
+    tempFields.value.push(field)
   }
-  fieldModalOpen.value = false
 }
 
 function removeField(index: number) {
@@ -207,34 +190,5 @@ async function handleSubmit() {
     </div>
   </PagePanel>
 
-  <!-- Field Add/Edit modal -->
-  <UModal v-model:open="fieldModalOpen" :title="editingFieldIndex !== null ? 'Maydonni tahrirlash' : 'Yangi maydon qo\'shish'">
-    <template #body>
-      <div class="space-y-5">
-        <UFormField label="Nomi" required>
-          <UInput v-model="fieldState.label" placeholder="masalan: Ro'yxat raqami" size="lg" class="w-full" />
-        </UFormField>
-        <div class="grid grid-cols-3 gap-4 items-end">
-          <UFormField label="Maydon turi">
-            <USelect v-model="fieldState.field_type" :items="fieldTypes" size="lg" class="w-full" />
-          </UFormField>
-          <UFormField label="Majburiy">
-            <USwitch v-model="fieldState.is_required" />
-          </UFormField>
-          <UFormField label="Tartib raqami">
-            <UInput v-model="fieldState.sort_order" type="number" size="lg" class="w-full" />
-          </UFormField>
-        </div>
-        <UFormField v-if="fieldState.field_type === 'select'" label="Tanlov variantlari" help="Vergul bilan ajrating">
-          <UInput v-model="fieldState.options" placeholder="variant1, variant2, variant3" size="lg" class="w-full" />
-        </UFormField>
-      </div>
-    </template>
-    <template #footer>
-      <div class="flex justify-end gap-2">
-        <UButton variant="ghost" label="Bekor qilish" @click="fieldModalOpen = false" />
-        <UButton :label="editingFieldIndex !== null ? 'Saqlash' : 'Qo\'shish'" icon="i-lucide-save" :disabled="!fieldState.label" @click="saveField" />
-      </div>
-    </template>
-  </UModal>
+  <FieldModal v-model:open="fieldModalOpen" :editing="editingFieldIndex !== null" :initial-data="fieldModalData" @save="onFieldSave" />
 </template>

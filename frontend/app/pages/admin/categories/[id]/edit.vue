@@ -57,50 +57,36 @@ const { data: fields, refresh: refreshFields } = await useAsyncData(`cat-fields-
   apiFetch<CategoryFieldResponse[]>(`/api/categories/${catId.value}/fields`)
 )
 
-const fieldTypes = [
-  { label: 'Tekst', value: 'text' },
-  { label: 'Raqam', value: 'number' },
-  { label: 'Sana', value: 'date' },
-  { label: 'Katta tekst', value: 'textarea' },
-  { label: 'Tanlov', value: 'select' },
-  { label: 'Fayl', value: 'file' },
-]
 const fieldModalOpen = ref(false)
 const editingField = ref<CategoryFieldResponse | null>(null)
-
-const fieldState = reactive({
-  label: '',
-  field_type: 'text',
-  is_required: false,
-  sort_order: 0,
-  placeholder: '',
-  options: '' as string,
-})
+const fieldModalData = ref<{ label: string; field_type: string; is_required: boolean; options: string } | undefined>()
 
 function openFieldCreate() {
   editingField.value = null
-  Object.assign(fieldState, { label: '', field_type: 'text', is_required: false, sort_order: 0, placeholder: '', options: '' })
+  fieldModalData.value = undefined
   fieldModalOpen.value = true
 }
 
 function openFieldEdit(field: CategoryFieldResponse) {
   editingField.value = field
-  Object.assign(fieldState, {
+  fieldModalData.value = {
     label: field.label,
     field_type: field.field_type,
     is_required: field.is_required,
-    sort_order: field.sort_order,
-    placeholder: field.placeholder || '',
     options: field.options?.join(', ') || '',
-  })
+  }
   fieldModalOpen.value = true
 }
 
-async function handleFieldSave() {
+async function onFieldSave(data: { label: string; field_type: string; is_required: boolean; options: string }) {
   const body: Record<string, any> = {
-    ...fieldState,
-    options: fieldState.field_type === 'select' && fieldState.options
-      ? fieldState.options.split(',').map(s => s.trim()).filter(Boolean)
+    label: data.label,
+    field_type: data.field_type,
+    is_required: data.is_required,
+    sort_order: 0,
+    placeholder: null,
+    options: data.field_type === 'select' && data.options
+      ? data.options.split(',').map(s => s.trim()).filter(Boolean)
       : null,
   }
   try {
@@ -111,7 +97,6 @@ async function handleFieldSave() {
       await apiFetch(`/api/categories/${catId.value}/fields`, { method: 'POST', body })
       toast.add({ title: 'Muvaffaqiyat', description: 'Maydon qo\'shildi', color: 'success', icon: 'i-lucide-check-circle' })
     }
-    fieldModalOpen.value = false
     refreshFields()
   } catch (error: any) {
     toast.add({ title: 'Xatolik', description: error?.data?.detail || 'Xatolik yuz berdi', color: 'error', icon: 'i-lucide-alert-circle' })
@@ -223,36 +208,7 @@ async function handleFieldDelete() {
     </div>
   </PagePanel>
 
-  <!-- Field Add/Edit modal -->
-  <UModal v-model:open="fieldModalOpen" :title="editingField ? 'Maydonni tahrirlash' : 'Yangi maydon qo\'shish'">
-    <template #body>
-      <div class="space-y-5">
-        <UFormField label="Nomi" required>
-          <UInput v-model="fieldState.label" placeholder="masalan: Ro'yxat raqami" size="lg" class="w-full" />
-        </UFormField>
-        <div class="grid grid-cols-3 gap-4 items-end">
-          <UFormField label="Maydon turi">
-            <USelect v-model="fieldState.field_type" :items="fieldTypes" size="lg" class="w-full" />
-          </UFormField>
-          <UFormField label="Majburiy">
-            <USwitch v-model="fieldState.is_required" />
-          </UFormField>
-          <UFormField label="Tartib raqami">
-            <UInput v-model="fieldState.sort_order" type="number" size="lg" class="w-full" />
-          </UFormField>
-        </div>
-        <UFormField v-if="fieldState.field_type === 'select'" label="Tanlov variantlari" help="Vergul bilan ajrating">
-          <UInput v-model="fieldState.options" placeholder="variant1, variant2, variant3" size="lg" class="w-full" />
-        </UFormField>
-      </div>
-    </template>
-    <template #footer>
-      <div class="flex justify-end gap-2">
-        <UButton variant="ghost" label="Bekor qilish" @click="fieldModalOpen = false" />
-        <UButton :label="editingField ? 'Saqlash' : 'Qo\'shish'" icon="i-lucide-save" :disabled="!fieldState.label" @click="handleFieldSave" />
-      </div>
-    </template>
-  </UModal>
+  <FieldModal v-model:open="fieldModalOpen" :editing="!!editingField" :initial-data="fieldModalData" @save="onFieldSave" />
 
   <!-- Field Delete modal -->
   <UModal v-model:open="fieldDeleteOpen" title="Maydonni o'chirish" description="Bu maydon barcha hujjatlardan ham o'chiriladi.">
