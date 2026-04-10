@@ -147,9 +147,9 @@ function getCategoryName(catId: string) {
   return allCategories.value.find(c => c.id === catId)?.name || '-'
 }
 
-// Get year value for a document (all-years mode)
+// Get year value for a document — year_id in response IS the year value (e.g. 2020)
 function getYearValue(yearId: number) {
-  return yearsData.value?.items.find(y => y.id === yearId)?.value || yearId
+  return yearId
 }
 
 // Format date from YYYY-MM-DD to DD.MM.YYYY

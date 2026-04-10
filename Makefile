@@ -1,16 +1,18 @@
 .PHONY: backend frontend dev install migrate migration
 
-# Run both backend and frontend concurrently
+# Run both backend and frontend concurrently in separate windows
+# Run both backend and frontend concurrently in separate tabs (Windows Terminal only)
 dev:
-	$(MAKE) backend & $(MAKE) frontend & wait
+	wt -w 0 nt -d . cmd /k "make backend"
+	wt -w 0 nt -d . cmd /k "make frontend"
 
 # Backend
 backend:
-	cd backend && .\.venv\Scripts\activate && uv run uvicorn src.api.main:app --reload
+	cd backend && uv run uvicorn src.api.main:app --reload --host 0.0.0.0
 
 # Frontend
 frontend:
-	cd frontend && npm run dev
+	cd frontend && npx nuxi dev --host 0.0.0.0
 
 # Install all dependencies
 install:

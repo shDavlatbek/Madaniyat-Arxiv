@@ -26,7 +26,7 @@ router = APIRouter(prefix="/api/documents", tags=["documents"])
 def _to_response(doc: Document) -> DocumentResponse:
     return DocumentResponse(
         id=doc.id,
-        year_id=doc.year_id,
+        year_id=doc.year_value or doc.year_id,
         category_id=doc.category_id,
         title=doc.title,
         document_number=doc.document_number,

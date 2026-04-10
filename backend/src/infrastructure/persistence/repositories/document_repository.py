@@ -36,8 +36,9 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
         count_stmt = select(func.count()).select_from(DocumentModel)
 
         if params.year_id:
-            stmt = stmt.where(DocumentModel.year_id == params.year_id)
-            count_stmt = count_stmt.where(DocumentModel.year_id == params.year_id)
+            # year_id in search params is the year VALUE (e.g. 2020), not DB PK
+            stmt = stmt.join(YearModel, YearModel.id == DocumentModel.year_id).where(YearModel.value == params.year_id)
+            count_stmt = count_stmt.join(YearModel, YearModel.id == DocumentModel.year_id).where(YearModel.value == params.year_id)
 
         if params.category_id:
             stmt = stmt.where(DocumentModel.category_id == params.category_id)

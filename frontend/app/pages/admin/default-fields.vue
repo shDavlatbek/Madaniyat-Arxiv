@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { z } from 'zod'
 import type { DefaultFieldResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
@@ -24,15 +23,14 @@ const columns = [
 const modalOpen = ref(false)
 const editingField = ref<DefaultFieldResponse | null>(null)
 
-const fieldTypes = ['text', 'number', 'date', 'textarea', 'select', 'file']
-
-const schema = z.object({
-  label: z.string().min(1),
-  field_type: z.string(),
-  is_required: z.boolean(),
-  sort_order: z.coerce.number(),
-  placeholder: z.string().optional(),
-})
+const fieldTypes = [
+  { label: 'Tekst', value: 'text' },
+  { label: 'Raqam', value: 'number' },
+  { label: 'Sana', value: 'date' },
+  { label: 'Katta tekst', value: 'textarea' },
+  { label: 'Tanlov', value: 'select' },
+  { label: 'Fayl', value: 'file' },
+]
 
 const state = reactive({
   label: '',
@@ -114,7 +112,7 @@ async function handleDelete() {
         <UBadge :label="row.original.is_required ? 'Ha' : 'Yo\'q'" :color="row.original.is_required ? 'warning' : 'neutral'" variant="subtle" />
       </template>
       <template #field_type-cell="{ row }">
-        <UBadge :label="row.original.field_type" variant="subtle" />
+        <UBadge :label="{ text: 'Tekst', number: 'Raqam', date: 'Sana', textarea: 'Katta tekst', select: 'Tanlov', file: 'Fayl' }[row.original.field_type] || row.original.field_type" variant="subtle" />
       </template>
       <template #actions-cell="{ row }">
         <div class="flex gap-1 justify-end">
@@ -130,34 +128,33 @@ async function handleDelete() {
   </PagePanel>
 
   <!-- Add/Edit modal -->
-  <UModal v-model:open="modalOpen" :title="editingField ? 'Shablon maydonni tahrirlash' : 'Yangi shablon maydon'">
+  <UModal v-model:open="modalOpen" :title="editingField ? 'Shablon maydonni tahrirlash' : 'Yangi shablon maydon qo\'shish'">
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSave">
-        <UFormField label="Label" name="label" required>
-          <UInput v-model="state.label" placeholder="Ro'yxat raqami" />
+      <div class="space-y-5">
+        <UFormField label="Nomi" required>
+          <UInput v-model="state.label" placeholder="masalan: Ro'yxat raqami" size="lg" class="w-full" />
         </UFormField>
-        <UFormField label="Tur" name="field_type">
-          <USelect v-model="state.field_type" :items="fieldTypes" />
-        </UFormField>
-        <UFormField v-if="state.field_type === 'select'" label="Variantlar (vergul bilan)" name="options">
-          <UInput v-model="state.options" placeholder="variant1, variant2, variant3" />
-        </UFormField>
-        <UFormField label="Placeholder" name="placeholder">
-          <UInput v-model="state.placeholder" />
-        </UFormField>
-        <div class="flex gap-4">
-          <UFormField label="Majburiy" name="is_required">
+        <div class="grid grid-cols-3 gap-4 items-end">
+          <UFormField label="Maydon turi">
+            <USelect v-model="state.field_type" :items="fieldTypes" size="lg" class="w-full" />
+          </UFormField>
+          <UFormField label="Majburiy">
             <USwitch v-model="state.is_required" />
           </UFormField>
-          <UFormField label="Tartib raqami" name="sort_order">
-            <UInput v-model="state.sort_order" type="number" class="w-24" />
+          <UFormField label="Tartib raqami">
+            <UInput v-model="state.sort_order" type="number" size="lg" class="w-full" />
           </UFormField>
         </div>
-        <div class="flex justify-end gap-2">
-          <UButton variant="ghost" label="Bekor qilish" @click="modalOpen = false" />
-          <UButton type="submit" :label="editingField ? 'Saqlash' : 'Qo\'shish'" icon="i-lucide-save" />
-        </div>
-      </UForm>
+        <UFormField v-if="state.field_type === 'select'" label="Tanlov variantlari" help="Vergul bilan ajrating">
+          <UInput v-model="state.options" placeholder="variant1, variant2, variant3" size="lg" class="w-full" />
+        </UFormField>
+      </div>
+    </template>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="ghost" label="Bekor qilish" @click="modalOpen = false" />
+        <UButton :label="editingField ? 'Saqlash' : 'Qo\'shish'" icon="i-lucide-save" :disabled="!state.label" @click="handleSave" />
+      </div>
     </template>
   </UModal>
 
