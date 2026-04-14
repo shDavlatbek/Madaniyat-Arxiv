@@ -31,7 +31,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(100), nullable=False),
         sa.Column("label", sa.String(255), nullable=False),
         sa.Column("field_type", sa.String(30), nullable=False),
-        sa.Column("is_required", sa.Boolean(), nullable=False, server_default=sa.text("0")),
+        sa.Column("is_required", sa.Boolean(), nullable=False, server_default=sa.text("false")),
         sa.Column("sort_order", sa.Integer(), nullable=False, server_default=sa.text("0")),
         sa.Column("options", sa.JSON(), nullable=True),
         sa.Column("placeholder", sa.String(255), nullable=True),
@@ -69,7 +69,7 @@ def downgrade() -> None:
     bind.execute(
         sa.text(
             "INSERT INTO year_categories (id, year_id, category_id) "
-            "SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))), year_id, id "
+            "SELECT gen_random_uuid()::text, year_id, id "
             "FROM categories WHERE year_id IS NOT NULL"
         )
     )
