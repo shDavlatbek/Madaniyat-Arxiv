@@ -12,7 +12,7 @@ Inside Docker:
 import argparse
 import asyncio
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -54,8 +54,8 @@ async def create_admin(username: str, password: str, name: str, email: str | Non
             hashed_password=hash_password(password),
             role="admin",
             is_active=True,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
         )
         session.add(user)
         await session.commit()

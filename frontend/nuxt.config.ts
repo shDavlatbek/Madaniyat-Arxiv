@@ -18,6 +18,15 @@ export default defineNuxtConfig({
     },
   },
 
+  icon: {
+    provider: 'iconify',
+    clientBundle: {
+      scan: true,
+      includeCustomCollections: true,
+    },
+    serverBundle: 'local',
+  },
+
   devtools: { enabled: true },
 
   colorMode: {

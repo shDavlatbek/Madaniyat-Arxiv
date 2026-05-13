@@ -18,8 +18,8 @@ class Year(Entity):
         self.id = id
         self.value = value
         self.is_active = is_active
-        self.created_at = created_at or datetime.now(__import__('datetime').timezone.utc)
-        self.updated_at = updated_at or datetime.now(__import__('datetime').timezone.utc)
+        self.created_at = created_at or datetime.utcnow()
+        self.updated_at = updated_at or datetime.utcnow()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Year):

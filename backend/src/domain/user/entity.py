@@ -41,8 +41,8 @@ class User(Entity):
             self.role = role
         if is_active is not None:
             self.is_active = is_active
-        self.updated_at = datetime.now(__import__('datetime').timezone.utc)
+        self.updated_at = datetime.utcnow()
 
     def change_password(self, new_hashed_password: str) -> None:
         self.hashed_password = new_hashed_password
-        self.updated_at = datetime.now(__import__('datetime').timezone.utc)
+        self.updated_at = datetime.utcnow()

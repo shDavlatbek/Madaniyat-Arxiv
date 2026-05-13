@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from src.domain.shared.entity import Entity
 from src.domain.category.value_objects import FieldType
@@ -126,7 +126,7 @@ class Category(Entity):
             self.sort_order = sort_order
         if year_id is not None:
             self.year_id = year_id
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.utcnow()
 
     def add_field(self, field: CategoryField) -> None:
         self.fields.append(field)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 
 from src.domain.shared.entity import Entity
 
@@ -21,7 +21,7 @@ class PersonTenure:
         self.position = position
         self.start_date = start_date
         self.end_date = end_date
-        self.created_at = created_at or datetime.now(timezone.utc)
+        self.created_at = created_at or datetime.utcnow()
 
 
 class Person(Entity):
@@ -40,11 +40,11 @@ class Person(Entity):
     def update(self, full_name: str | None = None) -> None:
         if full_name is not None:
             self.full_name = full_name
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.utcnow()
 
     def set_tenures(self, tenures: list[PersonTenure]) -> None:
         self.tenures = tenures
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.utcnow()
 
     def active_tenure_on(self, d: date) -> PersonTenure | None:
         for t in self.tenures:

@@ -30,11 +30,15 @@ def upgrade() -> None:
 
     # 2. Migrate existing data from categories.year_id into year_categories
     bind = op.get_bind()
+    if bind.dialect.name == "postgresql":
+        uuid_expr = "gen_random_uuid()::text"
+    else:
+        uuid_expr = "lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6)))"
     bind.execute(
         sa.text(
-            "INSERT INTO year_categories (id, year_id, category_id) "
-            "SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))), year_id, id "
-            "FROM categories WHERE year_id IS NOT NULL"
+            f"INSERT INTO year_categories (id, year_id, category_id) "
+            f"SELECT {uuid_expr}, year_id, id "
+            f"FROM categories WHERE year_id IS NOT NULL"
         )
     )
 

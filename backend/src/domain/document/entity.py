@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 
 from src.domain.shared.aggregate_root import AggregateRoot
 from src.domain.document.value_objects import DocumentAttachment, DocumentFieldValue
@@ -80,20 +80,20 @@ class Document(AggregateRoot):
             self.archive_number = archive_number
         if person_id is not None:
             self.person_id = person_id
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.utcnow()
 
     def set_field_values(self, field_values: list[DocumentFieldValue]) -> None:
         self.field_values = field_values
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.utcnow()
 
     def set_file_path(self, file_path: str) -> None:
         self.file_path = file_path
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.utcnow()
 
     def add_attachment(self, attachment: DocumentAttachment) -> None:
         self.attachments.append(attachment)
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.utcnow()
 
     def remove_attachment(self, attachment_id: uuid.UUID) -> None:
         self.attachments = [a for a in self.attachments if a.id != attachment_id]
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.utcnow()
