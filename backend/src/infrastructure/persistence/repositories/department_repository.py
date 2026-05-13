@@ -38,10 +38,12 @@ class SqlAlchemyDepartmentRepository(DepartmentRepository):
         if existing:
             DepartmentMapper.update_model(existing, department)
             await self._session.flush()
+            await self._session.refresh(existing)
             return DepartmentMapper.to_domain(existing)
         model = DepartmentMapper.to_model(department)
         self._session.add(model)
         await self._session.flush()
+        await self._session.refresh(model)
         return DepartmentMapper.to_domain(model)
 
     async def delete(self, department_id: uuid.UUID) -> None:

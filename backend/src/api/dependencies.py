@@ -7,12 +7,14 @@ from src.infrastructure.persistence.repositories.year_repository import SqlAlche
 from src.infrastructure.persistence.repositories.category_repository import SqlAlchemyCategoryRepository
 from src.infrastructure.persistence.repositories.document_repository import SqlAlchemyDocumentRepository
 from src.infrastructure.persistence.repositories.person_repository import SqlAlchemyPersonRepository
+from src.infrastructure.persistence.repositories.department_repository import SqlAlchemyDepartmentRepository
 from src.infrastructure.file_storage.local_storage import FileStorageService
 from src.application.user.handlers import UserCommandHandler, UserQueryHandler
 from src.application.year.handlers import YearCommandHandler, YearQueryHandler
 from src.application.category.handlers import CategoryCommandHandler, CategoryQueryHandler
 from src.application.document.handlers import DocumentCommandHandler, DocumentQueryHandler
 from src.application.person.handlers import PersonCommandHandler, PersonQueryHandler
+from src.application.department.handlers import DepartmentCommandHandler, DepartmentQueryHandler
 
 
 # User
@@ -63,3 +65,12 @@ def get_person_command_handler(session: AsyncSession = Depends(get_session)) -> 
 
 def get_person_query_handler(session: AsyncSession = Depends(get_session)) -> PersonQueryHandler:
     return PersonQueryHandler(SqlAlchemyPersonRepository(session))
+
+
+# Department
+def get_department_command_handler(session: AsyncSession = Depends(get_session)) -> DepartmentCommandHandler:
+    return DepartmentCommandHandler(SqlAlchemyDepartmentRepository(session))
+
+
+def get_department_query_handler(session: AsyncSession = Depends(get_session)) -> DepartmentQueryHandler:
+    return DepartmentQueryHandler(SqlAlchemyDepartmentRepository(session))
