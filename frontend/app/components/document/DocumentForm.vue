@@ -232,6 +232,12 @@ const appealTypeItems = computed(() =>
   (appealTypesData.value?.items || []).map(t => ({ label: t.name, value: t.id })),
 )
 
+// "Kim tomonidan imzolangan (F.I.O)" becomes "Kim tomonidan yuborilgan" for a
+// legal entity (Yuridik shaxs) — a legal entity sends, a person signs.
+const signedByLabel = computed(() =>
+  state.person_type === 'Yuridik shaxs' ? LABELS.signed_by_legal : LABELS.signed_by,
+)
+
 // File upload
 const selectedFile = ref<File | null>(null)
 const isDragging = ref(false)
@@ -520,7 +526,7 @@ async function handleSubmit() {
             <UFormField :label="LABELS.document_form" name="document_form">
               <USelectMenu
                 v-model="state.document_form"
-                :items="DOCUMENT_FORM_OPTIONS"
+                :items="[...DOCUMENT_FORM_OPTIONS]"
                 :placeholder="`${LABELS.document_form}ni tanlang`"
                 icon="i-lucide-file-stack"
                 size="lg"
@@ -628,7 +634,7 @@ async function handleSubmit() {
               <UFormField :label="LABELS.person_type" name="person_type">
                 <USelectMenu
                   v-model="state.person_type"
-                  :items="PERSON_TYPE_OPTIONS"
+                  :items="[...PERSON_TYPE_OPTIONS]"
                   :placeholder="LABELS.person_type"
                   icon="i-lucide-user"
                   size="lg"
@@ -644,8 +650,8 @@ async function handleSubmit() {
                 <DatePicker v-model="state.outgoing_date" size="lg" />
               </UFormField>
 
-              <UFormField :label="LABELS.signed_by" name="signed_by" class="md:col-span-2">
-                <UInput v-model="state.signed_by" icon="i-lucide-pencil" :placeholder="LABELS.signed_by" size="lg" class="w-full" />
+              <UFormField :label="signedByLabel" name="signed_by" class="md:col-span-2">
+                <UInput v-model="state.signed_by" icon="i-lucide-pencil" :placeholder="signedByLabel" size="lg" class="w-full" />
               </UFormField>
             </div>
 

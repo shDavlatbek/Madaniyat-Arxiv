@@ -56,6 +56,7 @@ export const LABELS = {
   outgoing_date: 'Chiqish sanasi',
   person_type: 'Yuridik yoki Jismoniy shaxs',
   signed_by: 'Kim tomonidan imzolangan (F.I.O)',
+  signed_by_legal: 'Kim tomonidan yuborilgan',
   note: 'Eslatma',
 } as const
 
