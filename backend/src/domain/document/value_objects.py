@@ -2,8 +2,22 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
+from enum import StrEnum
 
 from src.domain.shared.value_object import ValueObject
+
+
+class DocumentView(StrEnum):
+    """Hujjat ko'rinishi — document view/kind.
+
+    UNKNOWN is the backfill value for documents created before this field existed.
+    """
+
+    INCOMING = "incoming"   # Kiruvchi hujjat
+    OUTGOING = "outgoing"   # Chiquvchi hujjat
+    INTERNAL = "internal"   # Ichki hujjat
+    APPEAL = "appeal"       # Murojaat
+    UNKNOWN = "unknown"
 
 
 @dataclass(frozen=True)

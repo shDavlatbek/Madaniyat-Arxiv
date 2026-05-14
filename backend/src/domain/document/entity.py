@@ -4,7 +4,7 @@ import uuid
 from datetime import date, datetime
 
 from src.domain.shared.aggregate_root import AggregateRoot
-from src.domain.document.value_objects import DocumentAttachment, DocumentFieldValue
+from src.domain.document.value_objects import DocumentAttachment, DocumentFieldValue, DocumentView
 
 
 class Document(AggregateRoot):
@@ -25,6 +25,21 @@ class Document(AggregateRoot):
         person_name: str | None = None,
         person_position: str | None = None,
         created_by: uuid.UUID | None = None,
+        # Phase 3 — document view + universal fields
+        document_view: DocumentView = DocumentView.UNKNOWN,
+        archive_folder_id: uuid.UUID | None = None,
+        document_form: str | None = None,
+        sender: str | None = None,
+        language: str | None = None,
+        related_document_number: str | None = None,
+        related_document_date: date | None = None,
+        # Phase 3 — view-specific fields
+        received_date: date | None = None,
+        origin_organization: str | None = None,
+        sent_date: date | None = None,
+        recipient_organization: str | None = None,
+        applicant_full_name: str | None = None,
+        applicant_phone: str | None = None,
         field_values: list[DocumentFieldValue] | None = None,
         attachments: list[DocumentAttachment] | None = None,
         id: uuid.UUID | None = None,
@@ -47,6 +62,19 @@ class Document(AggregateRoot):
         self.person_name = person_name
         self.person_position = person_position
         self.created_by = created_by
+        self.document_view = document_view
+        self.archive_folder_id = archive_folder_id
+        self.document_form = document_form
+        self.sender = sender
+        self.language = language
+        self.related_document_number = related_document_number
+        self.related_document_date = related_document_date
+        self.received_date = received_date
+        self.origin_organization = origin_organization
+        self.sent_date = sent_date
+        self.recipient_organization = recipient_organization
+        self.applicant_full_name = applicant_full_name
+        self.applicant_phone = applicant_phone
         self.field_values = field_values or []
         self.attachments = attachments or []
 
@@ -61,6 +89,19 @@ class Document(AggregateRoot):
         signer: str | None = None,
         archive_number: str | None = None,
         person_id: uuid.UUID | None = None,
+        document_view: DocumentView | None = None,
+        archive_folder_id: uuid.UUID | None = None,
+        document_form: str | None = None,
+        sender: str | None = None,
+        language: str | None = None,
+        related_document_number: str | None = None,
+        related_document_date: date | None = None,
+        received_date: date | None = None,
+        origin_organization: str | None = None,
+        sent_date: date | None = None,
+        recipient_organization: str | None = None,
+        applicant_full_name: str | None = None,
+        applicant_phone: str | None = None,
     ) -> None:
         if category_id is not None:
             self.category_id = category_id
@@ -80,6 +121,32 @@ class Document(AggregateRoot):
             self.archive_number = archive_number
         if person_id is not None:
             self.person_id = person_id
+        if document_view is not None:
+            self.document_view = document_view
+        if archive_folder_id is not None:
+            self.archive_folder_id = archive_folder_id
+        if document_form is not None:
+            self.document_form = document_form
+        if sender is not None:
+            self.sender = sender
+        if language is not None:
+            self.language = language
+        if related_document_number is not None:
+            self.related_document_number = related_document_number
+        if related_document_date is not None:
+            self.related_document_date = related_document_date
+        if received_date is not None:
+            self.received_date = received_date
+        if origin_organization is not None:
+            self.origin_organization = origin_organization
+        if sent_date is not None:
+            self.sent_date = sent_date
+        if recipient_organization is not None:
+            self.recipient_organization = recipient_organization
+        if applicant_full_name is not None:
+            self.applicant_full_name = applicant_full_name
+        if applicant_phone is not None:
+            self.applicant_phone = applicant_phone
         self.updated_at = datetime.utcnow()
 
     def set_field_values(self, field_values: list[DocumentFieldValue]) -> None:

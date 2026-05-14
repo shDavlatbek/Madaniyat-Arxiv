@@ -172,12 +172,30 @@ class DocumentModel(Base):
     archive_number: Mapped[str | None] = mapped_column(String(100), unique=True, nullable=True)
     person_id: Mapped[uuid.UUID | None] = mapped_column(GUID(), ForeignKey("persons.id"), nullable=True)
     created_by: Mapped[uuid.UUID | None] = mapped_column(GUID(), nullable=True)
+    # Phase 3 — document view + universal fields
+    document_view: Mapped[str] = mapped_column(String(20), nullable=False, server_default="unknown")
+    archive_folder_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("archive_folders.id", ondelete="SET NULL"), nullable=True
+    )
+    document_form: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    sender: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    language: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    related_document_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    related_document_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
+    # Phase 3 — view-specific fields
+    received_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
+    origin_organization: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    sent_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
+    recipient_organization: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    applicant_full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    applicant_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
     year: Mapped["YearModel"] = relationship()
     category: Mapped["CategoryModel"] = relationship()
     person: Mapped["PersonModel | None"] = relationship()
+    archive_folder: Mapped["ArchiveFolderModel | None"] = relationship()
     field_values: Mapped[list["DocumentFieldValueModel"]] = relationship(back_populates="document", cascade="all, delete-orphan")
     attachments: Mapped[list["DocumentAttachmentModel"]] = relationship(back_populates="document", cascade="all, delete-orphan", order_by="DocumentAttachmentModel.sort_order")
 

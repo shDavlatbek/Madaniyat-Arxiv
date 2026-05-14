@@ -1,7 +1,7 @@
 import uuid
 
 from src.domain.document.entity import Document
-from src.domain.document.value_objects import DocumentAttachment, DocumentFieldValue
+from src.domain.document.value_objects import DocumentAttachment, DocumentFieldValue, DocumentView
 from src.infrastructure.persistence.models import DocumentAttachmentModel, DocumentFieldValueModel, DocumentModel
 
 
@@ -46,6 +46,19 @@ class DocumentMapper:
             person_name=model.person.full_name if model.person else None,
             person_position=DocumentMapper._get_person_position(model) if model.person else None,
             created_by=model.created_by,
+            document_view=DocumentView(model.document_view),
+            archive_folder_id=model.archive_folder_id,
+            document_form=model.document_form,
+            sender=model.sender,
+            language=model.language,
+            related_document_number=model.related_document_number,
+            related_document_date=model.related_document_date,
+            received_date=model.received_date,
+            origin_organization=model.origin_organization,
+            sent_date=model.sent_date,
+            recipient_organization=model.recipient_organization,
+            applicant_full_name=model.applicant_full_name,
+            applicant_phone=model.applicant_phone,
             field_values=field_values,
             attachments=attachments,
             created_at=model.created_at,
@@ -68,6 +81,19 @@ class DocumentMapper:
             archive_number=entity.archive_number,
             person_id=entity.person_id,
             created_by=entity.created_by,
+            document_view=entity.document_view.value,
+            archive_folder_id=entity.archive_folder_id,
+            document_form=entity.document_form,
+            sender=entity.sender,
+            language=entity.language,
+            related_document_number=entity.related_document_number,
+            related_document_date=entity.related_document_date,
+            received_date=entity.received_date,
+            origin_organization=entity.origin_organization,
+            sent_date=entity.sent_date,
+            recipient_organization=entity.recipient_organization,
+            applicant_full_name=entity.applicant_full_name,
+            applicant_phone=entity.applicant_phone,
         )
         return model
 
@@ -83,6 +109,19 @@ class DocumentMapper:
         model.signer = entity.signer
         model.archive_number = entity.archive_number
         model.person_id = entity.person_id
+        model.document_view = entity.document_view.value
+        model.archive_folder_id = entity.archive_folder_id
+        model.document_form = entity.document_form
+        model.sender = entity.sender
+        model.language = entity.language
+        model.related_document_number = entity.related_document_number
+        model.related_document_date = entity.related_document_date
+        model.received_date = entity.received_date
+        model.origin_organization = entity.origin_organization
+        model.sent_date = entity.sent_date
+        model.recipient_organization = entity.recipient_organization
+        model.applicant_full_name = entity.applicant_full_name
+        model.applicant_phone = entity.applicant_phone
 
     @staticmethod
     def field_value_to_model(doc_id: uuid.UUID, fv: DocumentFieldValue) -> DocumentFieldValueModel:
