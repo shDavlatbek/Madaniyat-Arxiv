@@ -5,6 +5,7 @@ from datetime import date, datetime
 
 from src.domain.archive_folder.value_objects import RetentionPeriod
 from src.domain.shared.entity import Entity
+from src.domain.shared.errors import ValidationError
 
 
 class ArchiveFolder(Entity):
@@ -24,11 +25,11 @@ class ArchiveFolder(Entity):
     ):
         super().__init__(id=id, created_at=created_at, updated_at=updated_at)
         if not index_code or not index_code.strip():
-            raise ValueError("Archive folder index_code cannot be empty")
+            raise ValidationError("Archive folder index_code cannot be empty")
         if not title or not title.strip():
-            raise ValueError("Archive folder title cannot be empty")
+            raise ValidationError("Archive folder title cannot be empty")
         if end_date is not None and end_date < start_date:
-            raise ValueError("Archive folder end_date cannot precede start_date")
+            raise ValidationError("Archive folder end_date cannot precede start_date")
         self.index_code = index_code.strip()
         self.title = title.strip()
         self.retention_period = retention_period
@@ -47,11 +48,11 @@ class ArchiveFolder(Entity):
     ) -> None:
         if index_code is not None:
             if not index_code.strip():
-                raise ValueError("Archive folder index_code cannot be empty")
+                raise ValidationError("Archive folder index_code cannot be empty")
             self.index_code = index_code.strip()
         if title is not None:
             if not title.strip():
-                raise ValueError("Archive folder title cannot be empty")
+                raise ValidationError("Archive folder title cannot be empty")
             self.title = title.strip()
         if retention_period is not None:
             self.retention_period = retention_period
@@ -63,5 +64,5 @@ class ArchiveFolder(Entity):
             self.year_id = year_id
         effective_end = self.end_date
         if effective_end is not None and effective_end < self.start_date:
-            raise ValueError("Archive folder end_date cannot precede start_date")
+            raise ValidationError("Archive folder end_date cannot precede start_date")
         self.updated_at = datetime.utcnow()
