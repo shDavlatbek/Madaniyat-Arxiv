@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { z } from 'zod'
-import type { CategoryFieldResponse, DocumentResponse, PersonResponse } from '~/types'
+import type { CategoryFieldResponse, DocumentResponse, PersonResponse, YearResponse } from '~/types'
 
 const props = defineProps<{
   categoryId: string
@@ -15,12 +15,23 @@ const emit = defineEmits<{
 
 const { apiFetch } = useApi()
 const { getActivePersons } = usePersons()
+const { list: listArchiveFolders } = useArchiveFolders()
 const loading = ref(false)
 
 // Fetch category fields
 const { data: fields } = await useAsyncData(
   `fields-${props.categoryId}`,
   () => apiFetch<CategoryFieldResponse[]>(`/api/categories/${props.categoryId}/fields`),
+)
+
+// Archive folders (Yig'ma jild) + years — to scope folders to the document's year
+const { data: archiveFoldersData } = await useAsyncData(
+  'doc-form-archive-folders',
+  () => listArchiveFolders(),
+)
+const { data: yearsForFolders } = await useAsyncData(
+  'doc-form-years',
+  () => apiFetch<{ items: YearResponse[] }>('/api/years?active_only=false'),
 )
 
 // Build base schema
@@ -43,6 +54,7 @@ const state = reactive<Record<string, any>>({
   pages: props.initialData?.pages || undefined,
   person_id: props.initialData?.person_id || undefined,
   archive_number: props.initialData?.archive_number || '',
+  archive_folder_id: props.initialData?.archive_folder_id || undefined,
 })
 
 // Snapshot of initial values for dirty tracking (edit mode)
@@ -55,6 +67,7 @@ const initialSnapshot = props.initialData
       pages: props.initialData.pages || undefined,
       person_id: props.initialData.person_id || undefined,
       archive_number: props.initialData.archive_number || '',
+      archive_folder_id: props.initialData.archive_folder_id || undefined,
     })
   : null
 
@@ -68,6 +81,14 @@ const docYear = computed(() => {
 })
 const dateMinDate = computed(() => docYear.value ? `${docYear.value}-01-01` : undefined)
 const dateMaxDate = computed(() => docYear.value ? `${docYear.value}-12-31` : undefined)
+
+// Yig'ma jild options — scoped to the document's year when resolvable
+const archiveFolderItems = computed(() => {
+  const yearId = yearsForFolders.value?.items.find(y => y.value === docYear.value)?.id
+  return (archiveFoldersData.value?.items || [])
+    .filter(f => yearId == null ? true : f.year_id === yearId)
+    .map(f => ({ label: `${f.index_code} — ${f.title}`, value: f.id }))
+})
 
 // File upload
 const selectedFile = ref<File | null>(null)
@@ -188,6 +209,7 @@ const isDirty = computed(() => {
     pages: state.pages || undefined,
     person_id: state.person_id || undefined,
     archive_number: state.archive_number || '',
+    archive_folder_id: state.archive_folder_id || undefined,
   })
   if (currentSnapshot !== initialSnapshot) return true
   if (JSON.stringify({ ...dynamicFields }) !== initialDynamicSnapshot.value) return true
@@ -244,6 +266,19 @@ async function handleSubmit() {
                 :search-input="{ placeholder: 'Qidirish...' }"
                 placeholder="Shaxsni tanlang"
                 icon="i-lucide-user-check"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField :label="LABELS.archive_folder" name="archive_folder_id" class="md:col-span-2" help="Hujjat tegishli yig'ma jild">
+              <USelectMenu
+                v-model="state.archive_folder_id"
+                value-key="value"
+                :items="archiveFolderItems"
+                :search-input="{ placeholder: 'Qidirish...' }"
+                placeholder="Yig'ma jildni tanlang"
+                icon="i-lucide-folder-archive"
                 size="lg"
                 class="w-full"
               />
