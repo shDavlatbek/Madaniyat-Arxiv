@@ -63,8 +63,8 @@ class ArchiveFolderQueryHandler:
     def __init__(self, archive_folder_repo: ArchiveFolderRepository):
         self._repo = archive_folder_repo
 
-    async def list_folders(self, query: ListArchiveFoldersQuery) -> list[ArchiveFolder]:
-        return await self._repo.find_all(year_id=query.year_id, search=query.search)
+    async def list_folders(self, query: ListArchiveFoldersQuery) -> list[tuple[ArchiveFolder, int]]:
+        return await self._repo.find_all_with_counts(year_id=query.year_id, search=query.search)
 
     async def get_folder(self, query: GetArchiveFolderQuery) -> ArchiveFolder:
         folder = await self._repo.find_by_id(query.folder_id)

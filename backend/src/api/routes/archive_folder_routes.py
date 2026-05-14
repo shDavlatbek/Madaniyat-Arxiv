@@ -24,7 +24,6 @@ router = APIRouter(prefix="/api/archive-folders", tags=["archive-folders"])
 
 
 def _to_response(folder: ArchiveFolder, document_count: int = 0) -> ArchiveFolderResponse:
-    # document_count is hardcoded to 0 until Phase 3 wires documents.archive_folder_id.
     return ArchiveFolderResponse(
         id=folder.id,
         index_code=folder.index_code,
@@ -47,7 +46,7 @@ async def list_archive_folders(
     _: User = Depends(get_current_user),
 ):
     folders = await handler.list_folders(ListArchiveFoldersQuery(year_id=year_id, search=search))
-    return ArchiveFolderListResponse(items=[_to_response(f) for f in folders])
+    return ArchiveFolderListResponse(items=[_to_response(f, count) for f, count in folders])
 
 
 @router.get("/{folder_id}", response_model=ArchiveFolderResponse)

@@ -1,12 +1,12 @@
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.archive_folder.entity import ArchiveFolder
 from src.domain.archive_folder.repository import ArchiveFolderRepository
 from src.infrastructure.persistence.mappers.archive_folder_mapper import ArchiveFolderMapper
-from src.infrastructure.persistence.models import ArchiveFolderModel
+from src.infrastructure.persistence.models import ArchiveFolderModel, DocumentModel
 
 
 class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
@@ -27,15 +27,22 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
         model = result.scalar_one_or_none()
         return ArchiveFolderMapper.to_domain(model) if model else None
 
-    async def find_all(self, year_id: int | None = None, search: str | None = None) -> list[ArchiveFolder]:
-        stmt = select(ArchiveFolderModel)
+    async def find_all_with_counts(
+        self, year_id: int | None = None, search: str | None = None
+    ) -> list[tuple[ArchiveFolder, int]]:
+        # Single round-trip: LEFT JOIN documents + COUNT, grouped per folder.
+        stmt = (
+            select(ArchiveFolderModel, func.count(DocumentModel.id))
+            .outerjoin(DocumentModel, DocumentModel.archive_folder_id == ArchiveFolderModel.id)
+            .group_by(ArchiveFolderModel.id)
+        )
         if year_id is not None:
             stmt = stmt.where(ArchiveFolderModel.year_id == year_id)
         if search:
             stmt = stmt.where(ArchiveFolderModel.title.ilike(f"%{search}%"))
         stmt = stmt.order_by(ArchiveFolderModel.index_code)
         result = await self._session.execute(stmt)
-        return [ArchiveFolderMapper.to_domain(m) for m in result.scalars().all()]
+        return [(ArchiveFolderMapper.to_domain(m), count) for m, count in result.all()]
 
     async def save(self, folder: ArchiveFolder) -> ArchiveFolder:
         existing = await self._session.get(ArchiveFolderModel, folder.id)
