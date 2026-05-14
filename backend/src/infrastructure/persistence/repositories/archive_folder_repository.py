@@ -1,0 +1,57 @@
+import uuid
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.domain.archive_folder.entity import ArchiveFolder
+from src.domain.archive_folder.repository import ArchiveFolderRepository
+from src.infrastructure.persistence.mappers.archive_folder_mapper import ArchiveFolderMapper
+from src.infrastructure.persistence.models import ArchiveFolderModel
+
+
+class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
+    def __init__(self, session: AsyncSession):
+        self._session = session
+
+    async def find_by_id(self, folder_id: uuid.UUID) -> ArchiveFolder | None:
+        model = await self._session.get(ArchiveFolderModel, folder_id)
+        return ArchiveFolderMapper.to_domain(model) if model else None
+
+    async def find_by_index_code(self, year_id: int | None, index_code: str) -> ArchiveFolder | None:
+        stmt = select(ArchiveFolderModel).where(
+            ArchiveFolderModel.year_id.is_(year_id) if year_id is None
+            else ArchiveFolderModel.year_id == year_id,
+            ArchiveFolderModel.index_code == index_code,
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return ArchiveFolderMapper.to_domain(model) if model else None
+
+    async def find_all(self, year_id: int | None = None, search: str | None = None) -> list[ArchiveFolder]:
+        stmt = select(ArchiveFolderModel)
+        if year_id is not None:
+            stmt = stmt.where(ArchiveFolderModel.year_id == year_id)
+        if search:
+            stmt = stmt.where(ArchiveFolderModel.title.ilike(f"%{search}%"))
+        stmt = stmt.order_by(ArchiveFolderModel.index_code)
+        result = await self._session.execute(stmt)
+        return [ArchiveFolderMapper.to_domain(m) for m in result.scalars().all()]
+
+    async def save(self, folder: ArchiveFolder) -> ArchiveFolder:
+        existing = await self._session.get(ArchiveFolderModel, folder.id)
+        if existing:
+            ArchiveFolderMapper.update_model(existing, folder)
+            await self._session.flush()
+            await self._session.refresh(existing)
+            return ArchiveFolderMapper.to_domain(existing)
+        model = ArchiveFolderMapper.to_model(folder)
+        self._session.add(model)
+        await self._session.flush()
+        await self._session.refresh(model)
+        return ArchiveFolderMapper.to_domain(model)
+
+    async def delete(self, folder_id: uuid.UUID) -> None:
+        model = await self._session.get(ArchiveFolderModel, folder_id)
+        if model:
+            await self._session.delete(model)
+            await self._session.flush()

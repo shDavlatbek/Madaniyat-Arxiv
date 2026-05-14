@@ -114,6 +114,24 @@ class DepartmentModel(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
 
+class ArchiveFolderModel(Base):
+    __tablename__ = "archive_folders"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    index_code: Mapped[str] = mapped_column(String(100), nullable=False)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    retention_period: Mapped[str] = mapped_column(String(20), nullable=False)
+    start_date: Mapped[date_type] = mapped_column(Date, nullable=False)
+    end_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
+    year_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("years.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    year: Mapped["YearModel | None"] = relationship()
+
+    __table_args__ = (UniqueConstraint("year_id", "index_code"),)
+
+
 class PersonModel(Base):
     __tablename__ = "persons"
 
