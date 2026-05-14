@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Andijon viloyati",
+        "id": "067d0797-d343-43e1-abe2-87e60b34b125",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Buxoro viloyati",
+        "id": "17d634c4-f570-48b2-9d56-3a51eaeeca2e",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Fargʻona viloyati",
+        "id": "4e92f001-9ca0-4560-9588-c85fdf4c37d9",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Jizzax viloyati",
+        "id": "7485e4b6-7350-40b5-aa83-379cc1fd135e",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Xorazm viloyati",
+        "id": "17b0e890-a2fd-4111-8c04-87a423082346",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Namangan viloyati",
+        "id": "3dcd2954-c0c4-4c1a-8a53-678bf0a54166",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Navoiy viloyati",
+        "id": "165bdd6e-fb5b-472b-b0ef-07f88d19cb18",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Qashqadaryo viloyati",
+        "id": "18a5db39-61e1-46ae-b67d-5f01616480bb",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Qoraqalpogʻiston Respublikasi",
+        "id": "cc99848f-0d89-450d-861a-3a090db11b26",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Samarqand viloyati",
+        "id": "0c6e130b-1683-4a86-81d7-bceb76e5d2b6",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Sirdaryo viloyati",
+        "id": "c60ada1d-24e4-48ad-aca1-e31aab56bb77",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Surxondaryo viloyati",
+        "id": "69ae19da-5852-464f-b173-e062c8bede25",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Toshkent viloyati",
+        "id": "30845b55-37db-442f-94ab-918f54150ff1",
+        "type": "LOCAL"
+    },
+    {
+        "name": "Toshkent shahar",
+        "id": "3d03b17b-4920-47f4-854a-e79a2ba8fb16",
+        "type": "LOCAL"
+    }
+]

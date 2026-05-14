@@ -1,0 +1,957 @@
+[
+    {
+        "name": "Avstraliya",
+        "id": "88146a9f-d953-4384-92ce-c4c16ee7bedd",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Avstriya",
+        "id": "7fb8a4d1-43f7-4824-a3f5-304a8433f1a1",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Albaniya",
+        "id": "cf4ba68b-b8a6-406d-9109-a34688cfe6b3",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Amerika Qoʻshma Shtatlari",
+        "id": "47e0ad89-d0a2-4b11-9228-5c857c46772c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Angola",
+        "id": "9f4a02a7-eacc-4bba-8455-059826782bd0",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Andorra",
+        "id": "77935864-5d88-4fd0-99aa-107ddf2cebd3",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Antigua va Barbuda",
+        "id": "8ab00f2b-ecaa-4962-9e81-7280a26fc115",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Argentina",
+        "id": "a50666de-bdb1-4711-86cd-7d3941b2200b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Armaniston",
+        "id": "db7c1e0e-4d96-4de2-be55-6bed18bc0347",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Afgʻoniston",
+        "id": "402f367b-7daa-42e5-abb7-e0384699c10f",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Bagama orollari",
+        "id": "f675f63b-4deb-43eb-8010-f503fef9f3ab",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Bangladesh",
+        "id": "9d82c29a-33a5-41f9-8458-7e5a32a588c2",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Barbados",
+        "id": "aeb1c669-3259-4429-a12c-989a18944119",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Bahrayn",
+        "id": "274dcd51-3ba6-4716-90a9-de111da2ee97",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Belorussiya",
+        "id": "cdb3bb7c-e275-4127-a15d-d98557ffadb5",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Beliz",
+        "id": "463cdba5-9120-457f-a93f-4734a835ceb1",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Belgiya",
+        "id": "b5d23c4e-f2ff-4b44-b1a7-417eaffa74fa",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Berlin",
+        "id": "a445c24b-971b-44ab-a32f-ee72c05d8936",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Birlashgan Arab Amirliklari",
+        "id": "048c96c9-a253-4724-b0b4-646997bbbc4f",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Bolgariya",
+        "id": "830c309f-2aa1-4dee-86e1-5b29cddd26eb",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Boliviya",
+        "id": "274a4919-277f-411a-9387-923a27ea03e8",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Bosniya va Gertsegovina",
+        "id": "db7d8bd3-5e58-495e-8abf-ee96df4dab9a",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Botsvana",
+        "id": "788c8c1e-6c8f-40a6-b56b-c086c55429cf",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Braziliya",
+        "id": "484118b5-1a77-4708-89df-7026afd0b673",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Bruney",
+        "id": "ad6ecc96-1881-48c6-ab98-bde9388636ae",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Burkina-Faso",
+        "id": "4db3b8ca-f688-4aae-876b-df6b3f1b5672",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Burundi",
+        "id": "7275df4d-faff-4c5f-bc26-cde042703cd1",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Butan",
+        "id": "a338750f-55b4-4098-a5a3-531a3dbb9061",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Buyuk Britaniya",
+        "id": "c6cd6d2e-e8a4-46f3-a108-4fdeecd309cd",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Vanuatu",
+        "id": "91da8827-77ee-4ce3-ae53-395e9cdeed2b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Vatikan",
+        "id": "d2c26703-b672-418d-b6cc-2e55e792d84e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Vengriya",
+        "id": "b0cb8685-dc74-4b4e-be0f-81496a412cae",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Venesuela",
+        "id": "c6f3ba7f-23c1-412a-917f-919c42a2844d",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Vyetnam",
+        "id": "452411bf-e922-4f70-a5b4-ee6b3a792bd5",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gabon",
+        "id": "4fcddb6b-0c05-4efc-b36c-eb74e4adbe89",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gaiti",
+        "id": "0c3971c0-0a5e-496c-a4a4-2ca742dc5c73",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gayana",
+        "id": "f3efe11d-452b-4484-bfd7-6006f1e97a37",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gana",
+        "id": "5ba59dac-d670-4a9d-924d-f4956c15f45f",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gvatemala",
+        "id": "6c5b33fe-dc89-482b-b9be-844f78643647",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gvineya",
+        "id": "31748482-85a8-46d7-b0c4-e3c90afeb978",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gvineya-Bisau",
+        "id": "813e0e23-fddf-4a95-a325-a482dc896416",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Germaniya",
+        "id": "5dc8b51b-a67f-43ee-87f7-4b71e140c838",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gonduras",
+        "id": "71df17c3-e18f-4df2-b259-5b34e7965226",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Grenada",
+        "id": "360d62ed-e28b-4c15-8296-71f971dcfe76",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gretsiya",
+        "id": "10317b18-47b2-41da-a9f3-cb7a00def2b8",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Gruziya",
+        "id": "4520a6bb-cabc-48fb-8cb9-3bbe4b63658e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Daniya",
+        "id": "746b0477-f099-45d3-959c-70c64a4e5ac8",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Dominika",
+        "id": "e323d152-03fb-41ad-8701-91e998c433c5",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Dominikan Respublikasi",
+        "id": "7b44ce5e-054d-49cb-8f35-3d733226dbef",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Jazoir",
+        "id": "d14c9dfa-3ffc-4252-bfcc-c3c26b5da44e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Janubiy Afrika Respublikasi",
+        "id": "bf3c7d57-11d9-4058-8e08-2734b74bb3b9",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Janubiy Sudan",
+        "id": "43a8c89a-6b1b-4ef1-b62c-0375e771e164",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Jibuti",
+        "id": "135dfdf7-9ce8-4cff-8cac-256c6f831fd2",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Zambiya",
+        "id": "a1241722-b863-4199-87ca-095d56fb8501",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Zimbabve",
+        "id": "ae43b819-0702-47e6-a885-0efeff58d263",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Isroil",
+        "id": "a47df351-ede9-4bc6-a142-3c45f2ca65ae",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Indoneziya",
+        "id": "77c19661-7a42-4d00-8f0a-ee68b5336000",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Iordaniya",
+        "id": "31323b29-041d-4b62-a02b-931b703fb226",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Iroq",
+        "id": "56a0539e-2ecc-4fac-90ba-f031a434901d",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Irlandiya",
+        "id": "93e9b9de-90a6-45e8-b0bd-33557c272439",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Ispaniya",
+        "id": "b4836e9b-7f53-404c-87f9-526fb353ce6b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Islandiya",
+        "id": "39a8ef60-0940-4910-a329-16d1d555f3ec",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Italiya",
+        "id": "d80f9393-0036-4383-83fb-5d3533e16a34",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kabo-Verde",
+        "id": "4bf9a6fc-92e3-4aab-af45-b356706d61e6",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kambodja",
+        "id": "b40d2f15-c153-408a-a98c-768f3e24981c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kamerun",
+        "id": "598e7abf-dc79-4abd-9b05-3d0cb06b4449",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kanada",
+        "id": "ea15cf98-b544-4b19-a2f6-8c644e83e6df",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Keniya",
+        "id": "6a9b340f-46ab-4da8-bc30-ecc25789eb8e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kipr",
+        "id": "9cb2772c-4a95-4faa-9b0b-e191e0bf6477",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kiribati",
+        "id": "1f1f06a5-a3a7-4e04-87b4-43f010e53d4d",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kolumbiya",
+        "id": "16e6bd49-87a3-4538-98e0-58325d800fce",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Komor orollari",
+        "id": "be21e678-025d-4aad-993a-89c1eba0d483",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kongo",
+        "id": "0e5cdd8c-3ca1-4152-be5e-f8185851ab5d",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kongo Demokratik Respublikasi",
+        "id": "3e53839e-f209-41d8-835f-d128e1e82b7b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Koreya Xalq Demokratik Respublikasi",
+        "id": "054b4635-90b5-45b6-9f6f-cf9a371b51bd",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Koreya",
+        "id": "d806e8dd-0dc9-4df0-8dd3-9b33202c317c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kosta-Rika",
+        "id": "cdfd3017-8f55-4cc1-8ca3-986c78ec6a34",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kot-d'Ivuar",
+        "id": "bde17a5a-1d21-4085-8f36-52e38a7c1dfe",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Kuba",
+        "id": "ef38f96a-ed10-4378-8726-85f19ba3d7d1",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Laos",
+        "id": "1c7ef979-f8ee-4fc8-8a2c-f1c3826fac4d",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Latviya",
+        "id": "84dbd02b-131c-4d57-b1c9-039201f5f81d",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Lesoto",
+        "id": "cced8610-ba7f-4d84-a4ee-90c8c36698e3",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Liberiya",
+        "id": "9c097d4a-8d4f-4fb8-887a-923da683fcbb",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Livan",
+        "id": "411b0c57-17f6-4b79-9387-5a004f65c39b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Liviya",
+        "id": "139e5702-83a5-40d2-acc2-432aaa70a82a",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Litva",
+        "id": "08060074-7684-4fd6-9ff7-a50468cbbe23",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Lixtenshteyn",
+        "id": "69964ed0-96ff-406c-b491-c5f157ae59c4",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Lyuksemburg",
+        "id": "6b1c454a-73b2-4092-91df-5cdaf64f0168",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Mavrikiy",
+        "id": "b4678a06-d7a5-4d9c-8cf4-d8b302ec7fb5",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Mavritaniya",
+        "id": "76697cca-6c46-44e3-a22a-423c885586e6",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Madagaskar",
+        "id": "458e4052-b76a-46d6-8728-e3c5e457b36f",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Malavi",
+        "id": "366e6017-a501-4138-8ba1-c63ad78a6539",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Malayziya",
+        "id": "cad272ce-bdeb-44c8-93ed-f8c2910e1043",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Mali",
+        "id": "fd475bd1-392f-4c9c-93ae-f2c6a5dc0c21",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Maldiv orollari",
+        "id": "82cbfad7-34bf-4d14-9f0d-cbe99925d7f6",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Malta",
+        "id": "476b2e3e-da5a-4e7e-b7fb-2c06a832ee9d",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Markaziy Afrika Respublikasi",
+        "id": "d2adce3c-ce29-4f2b-a232-033a9a574712",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Marokash",
+        "id": "a9164129-2452-459d-b2b3-b9279bc1698b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Marshall orollari",
+        "id": "91773860-917a-4343-bedd-3fb2e6532283",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Meksika",
+        "id": "4814802c-c003-43cc-9e31-27d2030c0a51",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Mikroneziya Federativ Shtatlar",
+        "id": "cd764fe4-67e9-444c-b42f-37379c2b586a",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Misr",
+        "id": "ac55e909-9504-4a10-ad1f-403a68bded14",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Mozambik",
+        "id": "7d1b48d4-10e9-4a13-a315-79304f199e2b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Moldaviya",
+        "id": "eef46558-b0fc-43a3-88ae-3fb41d7b150b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Monako",
+        "id": "89522238-310c-47ca-abfb-6af6c2c509e8",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Myanma",
+        "id": "642b9ac7-4177-496a-b9b6-5957b6e5205b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Namibiya",
+        "id": "c2b5278f-4c6b-4a39-a85b-38be4271bdb0",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Nauru",
+        "id": "3c46a263-62b4-4e16-982a-39e653ffdbd3",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Nepal",
+        "id": "81d63775-7ac7-443e-ab8d-57d71987078c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Niger",
+        "id": "69af6ca2-ff8b-4195-bdc7-814bedd8ba55",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Nigeriya",
+        "id": "5a689587-a197-4370-abed-0b5f7271a1ac",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Niderlandiya",
+        "id": "9eedeeba-7e06-42c0-bba9-82ce23acd9db",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Nikaragua",
+        "id": "c398c9be-5be4-441c-aea3-db7ec9952268",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Norvegiya",
+        "id": "94be92c5-31a8-43dc-966b-686ac8a57bde",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Ozarbayjon",
+        "id": "886e986c-923b-4f2d-a526-445f48dbc2ec",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Pokiston",
+        "id": "655eb224-9205-4c94-a64c-bb21d14632bf",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Palau",
+        "id": "c7d10915-c2c2-4204-8961-6ee2254526b2",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Panama",
+        "id": "b52b9bc1-4b89-435e-880c-921b9c493d0c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Papua Yangi Gvineya",
+        "id": "a81b3e04-7414-4cfe-89d1-a0a99f64384a",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Paragvay",
+        "id": "473b39bc-4b70-4d83-a9d9-1a69f305f907",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Peru",
+        "id": "f79b6ad3-a9af-4060-9f5a-f85815fe430e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Polsha",
+        "id": "600c9dba-9bd0-49a1-bb72-f1555e534f1c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Portugaliya",
+        "id": "611e84b3-ab1c-41ad-9c30-f0963a584803",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Rossiya",
+        "id": "189ca174-9151-417e-a5a4-dc5ef09f7df4",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Ruanda",
+        "id": "b74591bb-a5cd-419e-8f3d-76c28363c850",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Ruminiya",
+        "id": "53bf9c64-a3e3-42c1-bbdf-73232587463b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Salvador",
+        "id": "97314df2-2e7b-4769-a975-df61ab503058",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Samoa",
+        "id": "e022b0ad-4ae8-4122-8129-60e2d3111613",
+        "type": "ABROAD"
+    },
+    {
+        "name": "San-Marino",
+        "id": "104bdc51-c8cf-4d76-b51d-5dd018da538f",
+        "type": "ABROAD"
+    },
+    {
+        "name": "San-Tome va Prinsipi",
+        "id": "69e0f4ac-f16c-4a85-8a53-571fed925e3b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Saudiya Arabistoni",
+        "id": "86028569-7fcc-456b-adee-5e48ab0ab051",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Seyshell orollari",
+        "id": "af5c98fc-c3a6-4edf-a040-82602cda1104",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Senegal",
+        "id": "16d0156f-b58b-4ae9-b242-b1ee7241a719",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Sent-Vinsent va Grenadin",
+        "id": "c171dfef-6dc5-4492-b547-cf7f6efdcb27",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Sent-Kits va Nevis",
+        "id": "03cd8485-2136-43c9-9e3a-6d42b3ab7431",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Sent-Lyusiya",
+        "id": "10f81d8b-00c0-41e9-8ca3-ecbae140b1e3",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Serbiya",
+        "id": "99b32c40-06ae-453e-8b87-f8ba91bddd96",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Singapur",
+        "id": "a002fba9-5f43-4400-93f9-bf85a8f32e7e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Suriya",
+        "id": "f5edb89c-aff1-43bc-aea3-d005add547ec",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Slovakiya",
+        "id": "1ed04c64-c856-4a53-84ec-ce6d102c36d9",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Sloveniya",
+        "id": "4da95f79-c2b1-4696-ae8d-699d636c4812",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Solomon orollari",
+        "id": "d1d35933-b48e-4c15-b9a8-7b8c52b3d789",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Somali",
+        "id": "2b5288eb-06cf-48a6-bd3b-32ed69ca9c5e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Sudan",
+        "id": "af3bd860-f6e9-408c-a571-01ddbc06d730",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Surinam",
+        "id": "71fff474-295d-4476-8cee-0d29d91aab77",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Syerra-Leone",
+        "id": "b57b8b93-170b-44bc-8bbf-9a740e724466",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Tojikiston",
+        "id": "63a7b59b-281b-4194-a499-cd05314fbfc7",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Tailand",
+        "id": "960f2989-ddf7-4eb1-9809-ec479f0e2205",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Tanzaniya",
+        "id": "546f0e2c-7539-447a-bccb-744c5b61809a",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Togo",
+        "id": "74b507cb-25ca-450f-86dd-813e57605985",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Tonga",
+        "id": "70c256a6-fc2f-4b26-85c0-a0b38b7c3c86",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Trinidad va Tobago",
+        "id": "8fcfd122-2eab-4024-aa23-be601d3861be",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Tuvalu",
+        "id": "6b0bd518-526d-4879-b545-f3e68231e181",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Tunis",
+        "id": "29d28c86-475b-4ef6-aa73-4f6656c3a8c7",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Turkmaniston",
+        "id": "186a24c2-5f1f-43df-b67a-b4768a201d5c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Turkiya",
+        "id": "128c7901-9c23-4d10-8b41-3901c895716c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Uganda",
+        "id": "ceecfce9-a8d3-48ce-ba81-caabaf7820bb",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Ukraina",
+        "id": "c5996d68-dc0a-42a3-a38f-e2a8385f3948",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Ummon",
+        "id": "b0b560c2-e6a6-4343-b888-dc3ed60827df",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Urugvay",
+        "id": "2af504d3-48f1-4b77-aded-146b5bf4c0f7",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Fiji",
+        "id": "b9220752-08fb-4de4-88fe-601fcaec071c",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Filippin",
+        "id": "82f18b66-b2b7-4716-aa5e-7ab049fc4723",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Finlandiya",
+        "id": "552ff768-439b-4df1-b471-d3130515073e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Fransiya",
+        "id": "e4aa86b1-29ec-4b07-b3ad-ffc356fad937",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Xitoy",
+        "id": "68d2f87a-3fa1-46f0-9850-1db9d326ad70",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Xorvatiya",
+        "id": "91873f4e-b084-4019-8b29-2a6a4c8e2972",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Chad",
+        "id": "cbf12b83-682f-4a17-bd0c-ee567f368712",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Chernogoriya",
+        "id": "bd9570e7-3ba2-43c2-b4fc-bbe7669b5ba8",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Chexiya",
+        "id": "daf7465d-d9cd-43f0-9c62-4fd7e83602b9",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Chili",
+        "id": "db238888-4aec-4664-925d-2d4bd55a587b",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Shveytsariya",
+        "id": "c507aa17-3569-4e48-96c5-d44d6da3f06f",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Shvetsiya",
+        "id": "8952cfa5-dc7a-40ea-9770-1b60be544ade",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Shri-Lanka",
+        "id": "25d8f2c8-e736-4a7c-9b40-98b05ea8d9ce",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Sharqiy Timor",
+        "id": "3ed68cee-9ba0-48d4-a88e-8e4b4e22a177",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Shimoliy Makedoniya",
+        "id": "d2e9ef99-84eb-4892-860d-ed06ae712ce0",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Ekvador",
+        "id": "108d5627-b692-43d1-ba28-2cf60e3202c3",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Ekvatorial Gvineya",
+        "id": "82abe7e7-8d1e-4279-9b1f-5348d22e367e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Eritreya",
+        "id": "3c8525a5-bd8b-4b54-a7c5-40c6989e90c0",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Eron",
+        "id": "be8696bf-3616-409d-9e0d-fa89774e6bb2",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Esvatini",
+        "id": "43be3848-cad9-4f06-9b03-09efccbdfca0",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Estoniya",
+        "id": "5519090c-b487-4fff-ac6b-5b74eb9d2077",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Efiopiya",
+        "id": "37c28d02-f317-4789-9683-6cd21e4078e8",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Yamayka",
+        "id": "7ddfb82b-f08f-4094-85c5-3c6e69d383d0",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Yaman",
+        "id": "b997500d-4235-41c1-bed9-d5cd8567a5e3",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Yangi Zelandiya",
+        "id": "20fc452c-874e-4003-ac27-c5eec54eeec4",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Yaponiya",
+        "id": "db95bdd0-550e-4d74-9dd9-c539f64cf1bb",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Qatar",
+        "id": "2e6bcb82-8cc8-4af9-816f-f6d7cdb607dc",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Qirgʻiziston",
+        "id": "56723a8f-85d7-4de4-a159-38b9035b6f2e",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Qozogʻiston",
+        "id": "2544d818-acbc-4953-82bf-71c7f8fc62fc",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Quvayt",
+        "id": "a1392d98-e0f7-4af2-9c0e-647d4e4665b4",
+        "type": "ABROAD"
+    },
+    {
+        "name": "Hindiston",
+        "id": "4589d1ac-65d3-4061-9b7c-7a1243374f38",
+        "type": "ABROAD"
+    }
+]

@@ -146,6 +146,37 @@ class DocumentTypeModel(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
 
+class RegionModel(Base):
+    """Hudud — region/country reference. type='LOCAL' (viloyat) or 'ABROAD' (xorijiy davlat)."""
+
+    __tablename__ = "regions"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    type: Mapped[str] = mapped_column(String(10), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+
+
+class ReceptionPlaceModel(Base):
+    """Qabul qilingan joy — where an appeal was received."""
+
+    __tablename__ = "reception_places"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(500), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+
+
+class AppealTypeModel(Base):
+    """Murojaat turi — kind of appeal (Ariza, Taklif, Shikoyat, So'rov)."""
+
+    __tablename__ = "appeal_types"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+
+
 class PersonModel(Base):
     __tablename__ = "persons"
 
@@ -206,6 +237,24 @@ class DocumentModel(Base):
     recipient_organization: Mapped[str | None] = mapped_column(String(255), nullable=True)
     applicant_full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     applicant_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    # Murojaat (appeal) — view-specific fields matching the reference form
+    region_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("regions.id", ondelete="SET NULL"), nullable=True
+    )
+    country_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("regions.id", ondelete="SET NULL"), nullable=True
+    )
+    reception_place_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("reception_places.id", ondelete="SET NULL"), nullable=True
+    )
+    appeal_type_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("appeal_types.id", ondelete="SET NULL"), nullable=True
+    )
+    person_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    outgoing_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    outgoing_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
+    signed_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -214,6 +263,10 @@ class DocumentModel(Base):
     person: Mapped["PersonModel | None"] = relationship()
     archive_folder: Mapped["ArchiveFolderModel | None"] = relationship()
     document_type: Mapped["DocumentTypeModel | None"] = relationship()
+    region: Mapped["RegionModel | None"] = relationship(foreign_keys=[region_id])
+    country: Mapped["RegionModel | None"] = relationship(foreign_keys=[country_id])
+    reception_place: Mapped["ReceptionPlaceModel | None"] = relationship()
+    appeal_type: Mapped["AppealTypeModel | None"] = relationship()
     field_values: Mapped[list["DocumentFieldValueModel"]] = relationship(back_populates="document", cascade="all, delete-orphan")
     attachments: Mapped[list["DocumentAttachmentModel"]] = relationship(back_populates="document", cascade="all, delete-orphan", order_by="DocumentAttachmentModel.sort_order")
 

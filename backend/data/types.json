@@ -1,0 +1,494 @@
+[
+    {
+        "name": "Oʻzbekiston Respublikasi Vazirlar Mahamasi Rayosati majlisining bayoni",
+        "id": "df43ab4b-b158-4f4b-a5b9-f65449b13bca"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Vazirlar Mahkamasi majlisining bayoni",
+        "id": "28b1d6db-3f65-4d8d-b4bf-94cd5721047d"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Vazirlar Mahkamasining Rayosati qarori",
+        "id": "1c4df374-9b86-4b10-87f6-e65ab4c79d8a"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Vazirlar Mahkamasining topshirigʻi",
+        "id": "edab662f-358d-4add-80cf-4b8d0cfb3847"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Vazirlar Mahkamasining farmoyishi",
+        "id": "cb24a341-c877-4b9b-a8bd-25bcd8dfc652"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Vazirlar Mahkamasining qarori",
+        "id": "dc3ae856-2357-4487-91cc-cf3d59d0984f"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Oliy majlis senati topshirigʻi",
+        "id": "6b843868-ac5a-493a-9c07-c124d7cea5cd"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Oliy majlis qonunchilik palatasi deputati soʻrovi",
+        "id": "5be573a2-fa63-483a-8a77-213c7adde150"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Oliy majlis qonunchilik palatasi topshirigʻi",
+        "id": "045079bd-c274-49a4-9766-09088b2bc8b3"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti Administratsiyasi rahbari topshirigʻi",
+        "id": "cda0b751-8de2-45a0-a483-519ebc592ff6"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti Administratsiyasi rahbari topshiriqlari",
+        "id": "8f325433-d74b-4334-b1e8-fcfc340e7ef7"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti Administratsiyasi rahbari oʻrinbosarlari topshiriqlari",
+        "id": "9a282fdb-5be1-4ef1-a4b1-4b3edf695d8e"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti Administratsiyasi topshirigʻi",
+        "id": "2220e914-9b42-4c16-93a1-4f36f05587da"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti Administratsiyasi hujjatlari",
+        "id": "cfcd98b3-2074-4f8b-b089-b5f81c333d52"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti Davlat maslahatchisi topshirigʻi",
+        "id": "88a5f81f-47b5-4b6d-9304-c9e3b09827a4"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti Devoni topshirigʻi",
+        "id": "860eaddf-6a94-4ea1-a19a-eae829f0deee"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti maslahatchilari topshiriqlari",
+        "id": "e45efbd6-adc6-4e8e-8add-30ded32cdf95"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti maslahatchisi oʻrinbosarlari topshiriqlari",
+        "id": "e26b7d60-bbc2-437c-a464-91d749ba90c1"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti raisligida oʻtkazilgan majlis bayoni",
+        "id": "6d10330e-ea77-4ccd-b257-ef9e616912eb"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti topshirigʻi",
+        "id": "178e990d-c7ff-475b-96d4-866786e03fa0"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti farmoyishi",
+        "id": "c451f9be-2aef-4b10-b6e3-768e02c8e8ae"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti Farmoni",
+        "id": "df5f6b38-fe56-44f3-9e71-408aacab5cf2"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti qarori",
+        "id": "4d9c1c27-e14e-48be-aa14-e95ff2b9dc64"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidenti huzuridagi Xavfsizlik kengashi topshiriqlari",
+        "id": "729e27ab-c80b-4a29-a10b-186df9fd3f61"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Prezidentining respublika hududiga tashrifi yakuni boʻyicha tasdiqlangan bayon",
+        "id": "6c4e59ee-9715-4916-b8e1-b142e33bdf74"
+    },
+    {
+        "name": "Oʻzbekiston Respublikasi Qonuni",
+        "id": "d7a63592-0855-477c-ad89-9bd0ce4e9d93"
+    },
+    {
+        "name": "Oʻrganish va monitoring",
+        "id": "9db974ca-ae3f-4363-b03a-018d1c979a95"
+    },
+    {
+        "name": "Administratsiya rahbari Bayoni",
+        "id": "6835e97b-9265-46e1-954e-ec9caff7a966"
+    },
+    {
+        "name": "Ajrim",
+        "id": "2adc1280-ad25-46ba-b810-35b6f94c31cc"
+    },
+    {
+        "name": "Akt",
+        "id": "4fb6e1e4-d67e-4f23-b5de-08193e5d6534"
+    },
+    {
+        "name": "Analiticheskaya Spravka",
+        "id": "e81e1207-02f3-4566-834a-0e19adfbbac4"
+    },
+    {
+        "name": "Anonim",
+        "id": "5f07aabd-dbab-403f-a662-df5e720bbcfc"
+    },
+    {
+        "name": "Apparat yigʻilish bayoni",
+        "id": "c08ece30-c577-4ed9-948c-6dbd9a75a460"
+    },
+    {
+        "name": "Ariza",
+        "id": "acd9fa20-0835-44f1-8ad1-d901b7864082"
+    },
+    {
+        "name": "Ariza topshirigʻi",
+        "id": "847f1e71-cb88-41da-b6ef-4212b3cacb56"
+    },
+    {
+        "name": "Bayon",
+        "id": "d56335cd-5e54-462c-9eb7-3553f32f64ee"
+    },
+    {
+        "name": "Bildirgi",
+        "id": "398d967e-dfca-4edd-ace6-cf81d8ea2aaa"
+    },
+    {
+        "name": "Bildirgi topshirigʻi",
+        "id": "9a715122-3fdc-4917-9f46-2a11e2ff4dda"
+    },
+    {
+        "name": "Boshqaruv qarori",
+        "id": "f621b9c3-e988-450f-b388-d643c54c304f"
+    },
+    {
+        "name": "Buyruq",
+        "id": "48d1d598-b194-4987-a47f-c8e987be74ea"
+    },
+    {
+        "name": "Vazirlar Mahkamasi Rayosat majlisi bayonlari",
+        "id": "8f18d9f4-2e44-4d2a-8583-8272806c90a7"
+    },
+    {
+        "name": "Vazirlar Mahkamasi majlisi bayonlari",
+        "id": "656a7379-c46a-4ad9-b71b-34cea1eeced4"
+    },
+    {
+        "name": "Vazirlar Mahkamasi farmoyishlari",
+        "id": "6cbaaa50-5552-4c8c-afed-a0f7c2d7f888"
+    },
+    {
+        "name": "Vazirlar Mahkamasi qarorlari",
+        "id": "126f0880-1683-449e-aa4b-9e925803156e"
+    },
+    {
+        "name": "Daʼvo ariza",
+        "id": "380d6267-08a8-4892-867e-f85ba53ecb54"
+    },
+    {
+        "name": "Deputat soʻroviga javob",
+        "id": "a103203d-72b0-46ba-a39c-3fb6e4f9d80c"
+    },
+    {
+        "name": "Javob xati",
+        "id": "21daa2a6-23bf-4a69-868b-20654b94cd25"
+    },
+    {
+        "name": "Izoh",
+        "id": "8463971d-8c72-419d-a217-fdebe2ca76e2"
+    },
+    {
+        "name": "Ichki buyruq",
+        "id": "ff4c3624-266f-4012-b9cb-27c494861ce8"
+    },
+    {
+        "name": "Ichki farmoyish",
+        "id": "5847382b-1c7b-41fa-bd36-1551aa9c2c2f"
+    },
+    {
+        "name": "Ish rejasi",
+        "id": "0f927d44-c870-4af9-9a89-e22819714c87"
+    },
+    {
+        "name": "Ishlab chiqarish buyruqlari",
+        "id": "d153a056-4a29-4ea2-b397-da0c72bf5002"
+    },
+    {
+        "name": "Ishonchnoma",
+        "id": "be337cee-bd20-4185-abd7-d445b6e75786"
+    },
+    {
+        "name": "Yoʻl xaritasi",
+        "id": "8eae3b10-895d-4457-8750-5080fdbb1e0f"
+    },
+    {
+        "name": "Kadr xujjatlari",
+        "id": "3cdda978-4000-4e69-9c0e-a1f0c31f30d0"
+    },
+    {
+        "name": "Kiruvchi xujjat",
+        "id": "e3bf75c5-9ff7-4735-8cbc-113f14965ddb"
+    },
+    {
+        "name": "O'zbekiston  Respublikasi Konstitutsiyasi",
+        "id": "d37a3985-2d71-4b48-9d54-7b2fdc33835e"
+    },
+    {
+        "name": "Koʻrsatma",
+        "id": "5a7ab4c4-2212-4bb6-90e5-e99f05930aa3"
+    },
+    {
+        "name": "Maʼlumot",
+        "id": "be975655-b1ad-4cb7-9dcd-e34cc9e35022"
+    },
+    {
+        "name": "Mahalliy kengash deputati soʻrovi",
+        "id": "4e710a70-3524-4006-9047-da19580ddfbb"
+    },
+    {
+        "name": "Monitoring rejasiga takliflar",
+        "id": "d075b135-4b88-48f6-b51d-9334f48a1759"
+    },
+    {
+        "name": "Muassasa qarori",
+        "id": "47336851-fd2e-4d67-992a-637331581d7b"
+    },
+    {
+        "name": "Murojaat",
+        "id": "fd480b80-db09-4499-b288-bbf1fb52f4ad"
+    },
+    {
+        "name": "Nazorat rejasi",
+        "id": "0d5e0738-a18b-4a3b-a3bb-d262eecfb184"
+    },
+    {
+        "name": "Normativ xuquqiy hujjat",
+        "id": "dcdaa62b-f014-4396-a312-74039688627d"
+    },
+    {
+        "name": "Normativ-huquqiy hujjatlar loyihasi",
+        "id": "60633000-57e8-4eb2-acc5-4ea46d85bc77"
+    },
+    {
+        "name": "Ogohnoma",
+        "id": "219920e8-65b6-451f-a283-8a037bc085c7"
+    },
+    {
+        "name": "Oliy darajadagi tashrif",
+        "id": "21a416b9-82c6-4d77-abd2-4a536ff1ed49"
+    },
+    {
+        "name": "Ombudsman murojaat toposhirigʻi",
+        "id": "1d7c8de4-51e0-428d-a31b-2784551babf2"
+    },
+    {
+        "name": "Ombudsman xujjatlari",
+        "id": "0944c3f5-2a6a-41a4-b89f-85117ddb12fd"
+    },
+    {
+        "name": "Normativ-huquqiy hujjatlar hisoboti",
+        "id": "ae6c8525-d08b-4bf9-a4f8-2a3bc49687a2"
+    },
+    {
+        "name": "Prezident topshirigʻi nazorat rejasi",
+        "id": "a1181f12-4281-4687-8ae2-454a50fb7761"
+    },
+    {
+        "name": "Prokratura protesti",
+        "id": "dad8d00b-b8e0-42e3-8d5e-ba48f13683b5"
+    },
+    {
+        "name": "Sud buyrugʻi",
+        "id": "358d2564-95b0-4dcf-bdc1-040ad06e0f87"
+    },
+    {
+        "name": "Sud jarayoni",
+        "id": "3a97e987-15aa-489a-abb9-d716463228c2"
+    },
+    {
+        "name": "Sudning hal qiluv qarori",
+        "id": "aab3d959-cef6-4fbb-a474-bf6a006f26aa"
+    },
+    {
+        "name": "Soʻrov",
+        "id": "7e3eb989-38f2-467b-aa1f-e0c13b66116e"
+    },
+    {
+        "name": "Taklif",
+        "id": "4055c712-f250-4e52-afd8-ee0564013e78"
+    },
+    {
+        "name": "Taklifnoma",
+        "id": "b4e415fa-138f-4a27-a4ed-e43c0752094a"
+    },
+    {
+        "name": "Talabnoma",
+        "id": "7adc9bfe-5245-4792-9fc2-ad40ea547054"
+    },
+    {
+        "name": "Tanbeh",
+        "id": "e92c6b89-2329-4d70-8109-4b4b8a3f8eb2"
+    },
+    {
+        "name": "Tashrif qarori",
+        "id": "52b997a6-f089-4083-92ec-18763bb1db22"
+    },
+    {
+        "name": "Taqdimnoma",
+        "id": "1d656a29-6d16-4709-913a-9e4d0d9740d3"
+    },
+    {
+        "name": "Telegramma",
+        "id": "37a6542e-2a7b-4480-b7f4-17774aa64c3d"
+    },
+    {
+        "name": "Topshiriq",
+        "id": "e3790aa2-a037-46d8-85b6-85d2c188124d"
+    },
+    {
+        "name": "Topshiriqlar (xatlar, fishkalar va ogʻzaki topshiriqlar)",
+        "id": "57a02c28-6187-4b85-a9d8-e8f9422783b2"
+    },
+    {
+        "name": "Toshkent shahar hokimining farmoyishi",
+        "id": "fe0f6aa3-e12f-4e46-82ad-4219edd6ec1a"
+    },
+    {
+        "name": "Toshkent shahar hokimining qarori",
+        "id": "3d21817e-df51-4be9-b64b-4e5d423f8d55"
+    },
+    {
+        "name": "Toshkent shahar hokimligining yigʻilish bayonlari",
+        "id": "19a183a3-dce2-47a4-a16c-8558b4bdaea8"
+    },
+    {
+        "name": "Tushuntirishnoma",
+        "id": "7c1c5880-6e4a-4d59-b484-ba01b867b137"
+    },
+    {
+        "name": "Faksogramma",
+        "id": "8df27ceb-57bf-49ac-8b2f-786fff642d75"
+    },
+    {
+        "name": "Farmoyish",
+        "id": "3cbe403e-2159-418d-b593-97da9f937ab4"
+    },
+    {
+        "name": "Farmon",
+        "id": "322c7588-544c-4268-b3ad-e0d254d94dae"
+    },
+    {
+        "name": "Fishka",
+        "id": "93394a12-333a-4e5f-a61f-d839b8068fcc"
+    },
+    {
+        "name": "Fuqaro murojaati",
+        "id": "bc844b97-530d-4389-ad69-eb15d2d62818"
+    },
+    {
+        "name": "Fuqarolar murojati topshirigʻi",
+        "id": "a95c8cd4-5a72-45ee-99bf-1cefea04c876"
+    },
+    {
+        "name": "Xabarnoma",
+        "id": "d6c2d5b5-d502-4107-8217-a6f3d6f86dcd"
+    },
+    {
+        "name": "Xat",
+        "id": "6cb5c4a6-98e0-4e84-a0ee-345000fadc8f"
+    },
+    {
+        "name": "Xizmat xatlari",
+        "id": "9f91c77d-ba8e-4f7d-8f3e-ae270b79e9b1"
+    },
+    {
+        "name": "Xulosa",
+        "id": "b308655d-5b66-4936-af28-a9b52c4b1300"
+    },
+    {
+        "name": "Chiquvchi xat",
+        "id": "970db5ac-7651-42e6-9b35-ecda14023889"
+    },
+    {
+        "name": "Chora tadbir",
+        "id": "d2eaf9de-4fb6-462e-b90d-36dd9f5b25e9"
+    },
+    {
+        "name": "Chora tadbirlar",
+        "id": "67a564a9-a907-4688-a7d4-6e1cb0906333"
+    },
+    {
+        "name": "Shartnoma",
+        "id": "e2a244df-e4c9-421c-b549-71feb41fbb25"
+    },
+    {
+        "name": "Maʼmuriy taklif",
+        "id": "78a1ce42-5d06-4549-be4a-7733c2ac4564"
+    },
+    {
+        "name": "Qaror",
+        "id": "b1321bab-ed55-42db-bbb9-75803b4557ba"
+    },
+    {
+        "name": "Qonun",
+        "id": "9b997221-ad40-41b3-aa34-f53df22555ac"
+    },
+    {
+        "name": "Qonun xujjatlari",
+        "id": "2af4b046-45b4-4491-9d9f-b55cf49b8f8c"
+    },
+    {
+        "name": "Qoʻshma chora-tadbir",
+        "id": "da22cafd-c9f5-4a62-b1fe-14bb161fc905"
+    },
+    {
+        "name": "Qoʻshma qaror",
+        "id": "172cf785-35e4-4c07-8ab3-740c9438894e"
+    },
+    {
+        "name": "Habar",
+        "id": "60727561-f1c2-40c5-8c97-e9d11afa5295"
+    },
+    {
+        "name": "Hayʼat bayoni",
+        "id": "6cd161ed-429f-41dc-ade3-1d7ce5420f4a"
+    },
+    {
+        "name": "Hayʼat qarori",
+        "id": "d8231d60-0e6e-4414-a326-d8fe027938eb"
+    },
+    {
+        "name": "Haftalik tezkor majlis bayoni",
+        "id": "30535ddf-ca6d-4872-bab4-3658c65bf7ba"
+    },
+    {
+        "name": "Hizmat safari buyruqlari",
+        "id": "dae48908-b322-4bb5-a7b2-200cb3a619e1"
+    },
+    {
+        "name": "Hisob palatasi rahbariyati topshirigʻi",
+        "id": "b880aff6-5fad-4fa1-9689-6eecb8ed3ea5"
+    },
+    {
+        "name": "Hisobot",
+        "id": "58aa3870-8803-40c4-ab7f-b49fc8197336"
+    },
+    {
+        "name": "Hokimning yerni olib qoʻygandan keyin mulkni buzish toʻgʻrisidagi qarori",
+        "id": "15fc6e0b-1da1-43e0-9aa9-8c37b809757b"
+    },
+    {
+        "name": "Hujjat",
+        "id": "c28afe1c-bb19-4b62-a11f-abaa70404b91"
+    },
+    {
+        "name": "Hukumat komissiyasi topshiriqlari",
+        "id": "86e9e44a-38fa-4ec2-8c54-b2c8a9197dd3"
+    },
+    {
+        "name": "Huquqiy savodxonlik",
+        "id": "ea604118-9ad6-4a8a-b856-7013d430829f"
+    },
+    {
+        "name": "Huquqiy targʻibot",
+        "id": "04befb08-d9ce-4035-b3d1-9143c4ac47c1"
+    },
+    {
+        "name": "Yozishmalar",
+        "id": "04c4d354-d7e4-4ed5-9364-ec0cc2ec082f"
+    }
+]
