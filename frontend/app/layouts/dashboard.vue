@@ -14,6 +14,7 @@ const navItems = computed<NavigationMenuItem[]>(() => {
     items.push(
       { label: 'Yillar', icon: 'i-lucide-calendar', to: '/admin/years' },
       { label: 'Nomenklaturalar', icon: 'i-lucide-folder', to: '/admin/categories' },
+      { label: LABELS.departments, icon: 'i-lucide-building-2', to: '/admin/departments' },
       { label: 'Shaxslar', icon: 'i-lucide-user-check', to: '/admin/persons' },
       { label: 'Foydalanuvchilar', icon: 'i-lucide-users', to: '/admin/users' },
     )

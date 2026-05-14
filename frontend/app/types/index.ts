@@ -106,6 +106,15 @@ export interface PersonResponse {
   updated_at: string
 }
 
+export interface DepartmentResponse {
+  id: string
+  name: string
+  description: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
 export interface PaginatedResponse<T> {
   items: T[]
   total: number
