@@ -28,6 +28,8 @@ class Document(AggregateRoot):
         # Phase 3 — document view + universal fields
         document_view: DocumentView = DocumentView.UNKNOWN,
         archive_folder_id: uuid.UUID | None = None,
+        document_type_id: uuid.UUID | None = None,
+        document_type_name: str | None = None,
         document_form: str | None = None,
         sender: str | None = None,
         language: str | None = None,
@@ -64,6 +66,8 @@ class Document(AggregateRoot):
         self.created_by = created_by
         self.document_view = document_view
         self.archive_folder_id = archive_folder_id
+        self.document_type_id = document_type_id
+        self.document_type_name = document_type_name
         self.document_form = document_form
         self.sender = sender
         self.language = language
@@ -91,6 +95,7 @@ class Document(AggregateRoot):
         person_id: uuid.UUID | None = None,
         document_view: DocumentView | None = None,
         archive_folder_id: uuid.UUID | None = None,
+        document_type_id: uuid.UUID | None = None,
         document_form: str | None = None,
         sender: str | None = None,
         language: str | None = None,
@@ -125,6 +130,8 @@ class Document(AggregateRoot):
             self.document_view = document_view
         if archive_folder_id is not None:
             self.archive_folder_id = archive_folder_id
+        if document_type_id is not None:
+            self.document_type_id = document_type_id
         if document_form is not None:
             self.document_form = document_form
         if sender is not None:

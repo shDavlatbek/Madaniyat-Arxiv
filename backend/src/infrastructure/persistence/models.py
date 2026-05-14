@@ -137,6 +137,15 @@ class ArchiveFolderModel(Base):
     __table_args__ = (UniqueConstraint("year_id", "index_code"),)
 
 
+class DocumentTypeModel(Base):
+    __tablename__ = "document_types"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(500), unique=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+
+
 class PersonModel(Base):
     __tablename__ = "persons"
 
@@ -183,6 +192,9 @@ class DocumentModel(Base):
         GUID(), ForeignKey("archive_folders.id", ondelete="SET NULL"), nullable=True
     )
     document_form: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    document_type_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("document_types.id", ondelete="SET NULL"), nullable=True
+    )
     sender: Mapped[str | None] = mapped_column(String(255), nullable=True)
     language: Mapped[str | None] = mapped_column(String(20), nullable=True)
     related_document_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -201,6 +213,7 @@ class DocumentModel(Base):
     category: Mapped["CategoryModel"] = relationship()
     person: Mapped["PersonModel | None"] = relationship()
     archive_folder: Mapped["ArchiveFolderModel | None"] = relationship()
+    document_type: Mapped["DocumentTypeModel | None"] = relationship()
     field_values: Mapped[list["DocumentFieldValueModel"]] = relationship(back_populates="document", cascade="all, delete-orphan")
     attachments: Mapped[list["DocumentAttachmentModel"]] = relationship(back_populates="document", cascade="all, delete-orphan", order_by="DocumentAttachmentModel.sort_order")
 

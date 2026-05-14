@@ -34,6 +34,7 @@ export const LABELS = {
 
   // Document overhaul (Hujjat ko'rinishi) — Phase 3
   document_view: "Hujjat ko'rinishi",
+  document_type: 'Hujjat turi',
   document_form: 'Hujjat shakli',
   sender: 'Kim tomonidan yuborilgan',
   language: 'Tili',

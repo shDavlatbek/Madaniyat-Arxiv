@@ -34,6 +34,13 @@ const { data: yearsForFolders } = await useAsyncData(
   () => apiFetch<{ items: YearResponse[] }>('/api/years?active_only=false'),
 )
 
+// Document types (Hujjat turi) — reference taxonomy
+const { list: listDocumentTypes } = useDocumentTypes()
+const { data: documentTypesData } = await useAsyncData(
+  'doc-form-document-types',
+  () => listDocumentTypes(),
+)
+
 // State
 const state = reactive<Record<string, any>>({
   title: props.initialData?.title || '',
@@ -46,6 +53,7 @@ const state = reactive<Record<string, any>>({
   archive_folder_id: props.initialData?.archive_folder_id || undefined,
   // Phase 3 — document view + universal fields
   document_view: props.initialData?.document_view || 'unknown',
+  document_type_id: props.initialData?.document_type_id || undefined,
   document_form: props.initialData?.document_form || '',
   sender: props.initialData?.sender || '',
   language: props.initialData?.language || '',
@@ -115,6 +123,7 @@ const initialSnapshot = props.initialData
       archive_number: props.initialData.archive_number || '',
       archive_folder_id: props.initialData.archive_folder_id || undefined,
       document_view: props.initialData.document_view || 'unknown',
+      document_type_id: props.initialData.document_type_id || undefined,
       document_form: props.initialData.document_form || '',
       sender: props.initialData.sender || '',
       language: props.initialData.language || '',
@@ -147,6 +156,11 @@ const archiveFolderItems = computed(() => {
     .filter(f => yearId == null ? true : f.year_id === yearId)
     .map(f => ({ label: `${f.index_code} — ${f.title}`, value: f.id }))
 })
+
+// Hujjat turi options
+const documentTypeItems = computed(() =>
+  (documentTypesData.value?.items || []).map(t => ({ label: t.name, value: t.id })),
+)
 
 // File upload
 const selectedFile = ref<File | null>(null)
@@ -269,6 +283,7 @@ const isDirty = computed(() => {
     archive_number: state.archive_number || '',
     archive_folder_id: state.archive_folder_id || undefined,
     document_view: state.document_view || 'unknown',
+    document_type_id: state.document_type_id || undefined,
     document_form: state.document_form || '',
     sender: state.sender || '',
     language: state.language || '',
@@ -390,17 +405,32 @@ async function handleSubmit() {
             </div>
           </template>
 
-          <UFormField :label="LABELS.document_view" name="document_view" help="Hujjat turini tanlang — qo'shimcha maydonlar shunga qarab ochiladi">
-            <USelectMenu
-              v-model="state.document_view"
-              value-key="value"
-              :items="documentViewItems"
-              :placeholder="`${LABELS.document_view}ni tanlang`"
-              icon="i-lucide-list-tree"
-              size="lg"
-              class="w-full md:w-1/2"
-            />
-          </UFormField>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <UFormField :label="LABELS.document_view" name="document_view" help="Qo'shimcha maydonlar shunga qarab ochiladi">
+              <USelectMenu
+                v-model="state.document_view"
+                value-key="value"
+                :items="documentViewItems"
+                :placeholder="`${LABELS.document_view}ni tanlang`"
+                icon="i-lucide-list-tree"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField :label="LABELS.document_type" name="document_type_id" help="Hujjat tasnifi (turlar ro'yxatidan)">
+              <USelectMenu
+                v-model="state.document_type_id"
+                value-key="value"
+                :items="documentTypeItems"
+                :search-input="{ placeholder: 'Qidirish...' }"
+                :placeholder="`${LABELS.document_type}ni tanlang`"
+                icon="i-lucide-tags"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+          </div>
 
           <!-- Universal fields — apply to every view -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

@@ -25,14 +25,14 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
         stmt = (
             select(DocumentModel)
             .where(DocumentModel.id == document_id)
-            .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
+            .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
         )
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return DocumentMapper.to_domain(model) if model else None
 
     async def search(self, params: DocumentSearchParams) -> tuple[list[Document], int]:
-        stmt = select(DocumentModel).options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
+        stmt = select(DocumentModel).options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
         count_stmt = select(func.count()).select_from(DocumentModel)
 
         if params.year_id:
@@ -122,7 +122,7 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             stmt = (
                 select(DocumentModel)
                 .where(DocumentModel.id == document.id)
-                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
+                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
             )
             result = await self._session.execute(stmt)
             return DocumentMapper.to_domain(result.scalar_one())
@@ -141,7 +141,7 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             stmt = (
                 select(DocumentModel)
                 .where(DocumentModel.id == model.id)
-                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
+                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
             )
             result = await self._session.execute(stmt)
             return DocumentMapper.to_domain(result.scalar_one())

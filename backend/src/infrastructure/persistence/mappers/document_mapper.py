@@ -48,6 +48,8 @@ class DocumentMapper:
             created_by=model.created_by,
             document_view=DocumentView(model.document_view),
             archive_folder_id=model.archive_folder_id,
+            document_type_id=model.document_type_id,
+            document_type_name=model.document_type.name if model.document_type else None,
             document_form=model.document_form,
             sender=model.sender,
             language=model.language,
@@ -83,6 +85,7 @@ class DocumentMapper:
             created_by=entity.created_by,
             document_view=entity.document_view.value,
             archive_folder_id=entity.archive_folder_id,
+            document_type_id=entity.document_type_id,
             document_form=entity.document_form,
             sender=entity.sender,
             language=entity.language,
@@ -111,6 +114,7 @@ class DocumentMapper:
         model.person_id = entity.person_id
         model.document_view = entity.document_view.value
         model.archive_folder_id = entity.archive_folder_id
+        model.document_type_id = entity.document_type_id
         model.document_form = entity.document_form
         model.sender = entity.sender
         model.language = entity.language

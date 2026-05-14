@@ -24,6 +24,7 @@ class CreateDocumentCommand:
     # Phase 3 — document view + universal fields
     document_view: DocumentView = DocumentView.UNKNOWN
     archive_folder_id: uuid.UUID | None = None
+    document_type_id: uuid.UUID | None = None
     document_form: str | None = None
     sender: str | None = None
     language: str | None = None
@@ -54,6 +55,7 @@ class UpdateDocumentCommand:
     # Phase 3 — document view + universal fields
     document_view: DocumentView | None = None
     archive_folder_id: uuid.UUID | None = None
+    document_type_id: uuid.UUID | None = None
     document_form: str | None = None
     sender: str | None = None
     language: str | None = None

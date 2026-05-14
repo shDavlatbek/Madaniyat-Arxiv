@@ -71,6 +71,8 @@ export interface DocumentResponse {
   // Phase 3 — document view + universal fields
   document_view: DocumentView
   archive_folder_id: string | null
+  document_type_id: string | null
+  document_type_name: string | null
   document_form: string | null
   sender: string | null
   language: string | null
@@ -130,6 +132,13 @@ export interface DepartmentResponse {
   name: string
   description: string | null
   is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface DocumentTypeResponse {
+  id: string
+  name: string
   created_at: string
   updated_at: string
 }

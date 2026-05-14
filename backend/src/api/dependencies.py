@@ -9,6 +9,7 @@ from src.infrastructure.persistence.repositories.document_repository import SqlA
 from src.infrastructure.persistence.repositories.person_repository import SqlAlchemyPersonRepository
 from src.infrastructure.persistence.repositories.department_repository import SqlAlchemyDepartmentRepository
 from src.infrastructure.persistence.repositories.archive_folder_repository import SqlAlchemyArchiveFolderRepository
+from src.infrastructure.persistence.repositories.document_type_repository import SqlAlchemyDocumentTypeRepository
 from src.infrastructure.file_storage.local_storage import FileStorageService
 from src.application.user.handlers import UserCommandHandler, UserQueryHandler
 from src.application.year.handlers import YearCommandHandler, YearQueryHandler
@@ -17,6 +18,7 @@ from src.application.document.handlers import DocumentCommandHandler, DocumentQu
 from src.application.person.handlers import PersonCommandHandler, PersonQueryHandler
 from src.application.department.handlers import DepartmentCommandHandler, DepartmentQueryHandler
 from src.application.archive_folder.handlers import ArchiveFolderCommandHandler, ArchiveFolderQueryHandler
+from src.application.document_type.handlers import DocumentTypeCommandHandler, DocumentTypeQueryHandler
 
 
 # User
@@ -85,3 +87,12 @@ def get_archive_folder_command_handler(session: AsyncSession = Depends(get_sessi
 
 def get_archive_folder_query_handler(session: AsyncSession = Depends(get_session)) -> ArchiveFolderQueryHandler:
     return ArchiveFolderQueryHandler(SqlAlchemyArchiveFolderRepository(session))
+
+
+# Document Type
+def get_document_type_command_handler(session: AsyncSession = Depends(get_session)) -> DocumentTypeCommandHandler:
+    return DocumentTypeCommandHandler(SqlAlchemyDocumentTypeRepository(session))
+
+
+def get_document_type_query_handler(session: AsyncSession = Depends(get_session)) -> DocumentTypeQueryHandler:
+    return DocumentTypeQueryHandler(SqlAlchemyDocumentTypeRepository(session))
