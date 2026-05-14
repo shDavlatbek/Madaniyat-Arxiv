@@ -12,6 +12,7 @@ class CreateUserCommand:
     role: str = "user"
     email: str | None = None
     is_active: bool = True
+    department_id: uuid.UUID | None = None
 
 
 @dataclass
@@ -21,6 +22,7 @@ class UpdateUserCommand:
     email: str | None = None
     role: str | None = None
     is_active: bool | None = None
+    department_id: uuid.UUID | None = None
 
 
 @dataclass

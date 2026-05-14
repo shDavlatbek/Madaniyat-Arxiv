@@ -14,6 +14,8 @@ class UserMapper:
             hashed_password=model.hashed_password,
             role=UserRole(model.role),
             is_active=model.is_active,
+            department_id=model.department_id,
+            department_name=model.department.name if model.department else None,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
@@ -28,6 +30,7 @@ class UserMapper:
             hashed_password=entity.hashed_password,
             role=entity.role.value,
             is_active=entity.is_active,
+            department_id=entity.department_id,
         )
 
     @staticmethod
@@ -38,3 +41,4 @@ class UserMapper:
         model.hashed_password = entity.hashed_password
         model.role = entity.role.value
         model.is_active = entity.is_active
+        model.department_id = entity.department_id

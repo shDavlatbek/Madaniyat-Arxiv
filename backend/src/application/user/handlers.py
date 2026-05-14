@@ -26,6 +26,7 @@ class UserCommandHandler:
             hashed_password=hash_password(command.password),
             role=UserRole(command.role),
             is_active=command.is_active,
+            department_id=command.department_id,
         )
         return await self._user_repo.save(user)
 
@@ -35,7 +36,13 @@ class UserCommandHandler:
             raise NotFoundError("User", str(command.user_id))
 
         role = UserRole(command.role) if command.role else None
-        user.update(name=command.name, email=command.email, role=role, is_active=command.is_active)
+        user.update(
+            name=command.name,
+            email=command.email,
+            role=role,
+            is_active=command.is_active,
+            department_id=command.department_id,
+        )
         return await self._user_repo.save(user)
 
     async def delete(self, command: DeleteUserCommand) -> None:

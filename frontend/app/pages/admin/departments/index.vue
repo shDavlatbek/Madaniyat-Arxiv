@@ -133,6 +133,14 @@ async function toggleActive(department: DepartmentResponse) {
               size="sm"
             />
             <div class="flex items-center gap-1">
+              <UTooltip :text="LABELS.add_user_to_department">
+                <UButton
+                  icon="i-lucide-user-plus"
+                  variant="ghost"
+                  size="xs"
+                  :to="`/admin/users/create?department_id=${department.id}`"
+                />
+              </UTooltip>
               <UTooltip :text="department.is_active ? LABELS.inactive : LABELS.active">
                 <UButton
                   :icon="department.is_active ? 'i-lucide-toggle-right' : 'i-lucide-toggle-left'"

@@ -15,6 +15,7 @@ export const LABELS = {
   add_department: "Bo'lim qo'shish",
   edit_department: "Bo'limni tahrirlash",
   delete_department: "Bo'limni o'chirish",
+  add_user_to_department: "Xodim qo'shish",
   active: 'Faol',
   inactive: 'Nofaol',
 

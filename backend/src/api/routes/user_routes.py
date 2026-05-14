@@ -27,6 +27,8 @@ def _to_response(user: User) -> UserResponse:
         email=user.email,
         role=user.role.value,
         is_active=user.is_active,
+        department_id=user.department_id,
+        department_name=user.department_name,
         created_at=user.created_at,
         updated_at=user.updated_at,
     )
@@ -57,6 +59,7 @@ async def create_user(
         role=request.role,
         email=request.email,
         is_active=request.is_active,
+        department_id=request.department_id,
     ))
     return _to_response(user)
 
@@ -84,6 +87,7 @@ async def update_user(
         email=request.email,
         role=request.role,
         is_active=request.is_active,
+        department_id=request.department_id,
     ))
     return _to_response(user)
 

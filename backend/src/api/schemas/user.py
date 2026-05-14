@@ -11,6 +11,7 @@ class CreateUserRequest(BaseModel):
     role: str = Field(default="user")
     email: str | None = None
     is_active: bool = True
+    department_id: uuid.UUID | None = None
 
 
 class UpdateUserRequest(BaseModel):
@@ -18,6 +19,7 @@ class UpdateUserRequest(BaseModel):
     email: str | None = None
     role: str | None = None
     is_active: bool | None = None
+    department_id: uuid.UUID | None = None
 
 
 class ChangePasswordRequest(BaseModel):
@@ -31,6 +33,8 @@ class UserResponse(BaseModel):
     email: str | None
     role: str
     is_active: bool
+    department_id: uuid.UUID | None
+    department_name: str | None
     created_at: datetime
     updated_at: datetime
 

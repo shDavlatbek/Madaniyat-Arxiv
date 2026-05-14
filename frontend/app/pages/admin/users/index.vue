@@ -24,6 +24,7 @@ const total = computed(() => data.value?.total || 0)
 const columns = [
   { accessorKey: 'username', header: 'Login' },
   { accessorKey: 'name', header: 'Ism' },
+  { accessorKey: 'department_name', header: LABELS.department },
   { accessorKey: 'role', header: 'Rol' },
   { accessorKey: 'is_active', header: 'Holat' },
   { id: 'actions', header: '' },
@@ -58,6 +59,10 @@ async function handleDelete() {
     <UTable :data="users" :columns="columns" :loading="status === 'pending'" @select="(row: any) => navigateTo(`/admin/users/${row.original.id}/edit`)">
       <template #username-cell="{ row }">
         <span class="font-semibold text-highlighted">{{ row.original.username }}</span>
+      </template>
+      <template #department_name-cell="{ row }">
+        <span v-if="row.original.department_name" class="text-sm">{{ row.original.department_name }}</span>
+        <span v-else class="text-sm text-muted">—</span>
       </template>
       <template #is_active-cell="{ row }">
         <UBadge :label="row.original.is_active ? 'Faol' : 'Nofaol'" :color="row.original.is_active ? 'success' : 'error'" variant="subtle" />

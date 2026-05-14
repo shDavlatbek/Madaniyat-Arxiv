@@ -16,6 +16,8 @@ class User(Entity):
         role: UserRole = UserRole.USER,
         email: str | None = None,
         is_active: bool = True,
+        department_id: uuid.UUID | None = None,
+        department_name: str | None = None,
         id: uuid.UUID | None = None,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
@@ -27,12 +29,22 @@ class User(Entity):
         self.hashed_password = hashed_password
         self.role = role
         self.is_active = is_active
+        self.department_id = department_id
+        # Read-only — populated by the mapper from the joined department row.
+        self.department_name = department_name
 
     @property
     def is_admin(self) -> bool:
         return self.role == UserRole.ADMIN
 
-    def update(self, name: str | None = None, email: str | None = None, role: UserRole | None = None, is_active: bool | None = None) -> None:
+    def update(
+        self,
+        name: str | None = None,
+        email: str | None = None,
+        role: UserRole | None = None,
+        is_active: bool | None = None,
+        department_id: uuid.UUID | None = None,
+    ) -> None:
         if name is not None:
             self.name = name
         if email is not None:
@@ -41,6 +53,8 @@ class User(Entity):
             self.role = role
         if is_active is not None:
             self.is_active = is_active
+        if department_id is not None:
+            self.department_id = department_id
         self.updated_at = datetime.utcnow()
 
     def change_password(self, new_hashed_password: str) -> None:

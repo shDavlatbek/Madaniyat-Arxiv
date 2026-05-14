@@ -7,6 +7,7 @@ definePageMeta({ layout: 'dashboard' })
 const route = useRoute()
 const userId = computed(() => route.params.id as string)
 const { apiFetch } = useApi()
+const { list: listDepartments } = useDepartments()
 const toast = useToast()
 const loading = ref(false)
 
@@ -14,11 +15,19 @@ const { data: user } = await useAsyncData(`user-${userId.value}`, () =>
   apiFetch<UserResponse>(`/api/users/${userId.value}`)
 )
 
+const { data: departmentsData } = await useAsyncData('users-edit-departments', () =>
+  listDepartments({ activeOnly: true }),
+)
+const departmentItems = computed(() =>
+  (departmentsData.value?.items || []).map(d => ({ label: d.name, value: d.id })),
+)
+
 const schema = z.object({
   name: z.string().min(1),
   email: z.string().email().optional().or(z.literal('')),
   role: z.string(),
   is_active: z.boolean(),
+  department_id: z.string().optional(),
 })
 
 const state = reactive({
@@ -26,6 +35,7 @@ const state = reactive({
   email: user.value?.email || '',
   role: user.value?.role || 'user',
   is_active: user.value?.is_active ?? true,
+  department_id: user.value?.department_id || undefined,
 })
 
 const newPassword = ref('')
@@ -34,7 +44,10 @@ const roleOptions = ['admin', 'user', 'viewer']
 async function handleSubmit() {
   loading.value = true
   try {
-    await apiFetch(`/api/users/${userId.value}`, { method: 'PUT', body: state })
+    await apiFetch(`/api/users/${userId.value}`, {
+      method: 'PUT',
+      body: { ...state, department_id: state.department_id || null },
+    })
     toast.add({ title: 'Muvaffaqiyat', description: 'Foydalanuvchi yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
     navigateTo('/admin/users')
   } catch (error: any) {
@@ -82,6 +95,18 @@ async function changePassword() {
             </UFormField>
             <UFormField label="Rol" name="role">
               <USelect v-model="state.role" :items="roleOptions" size="lg" />
+            </UFormField>
+            <UFormField :label="LABELS.department" name="department_id">
+              <USelectMenu
+                v-model="state.department_id"
+                value-key="value"
+                :items="departmentItems"
+                :search-input="{ placeholder: 'Qidirish...' }"
+                placeholder="Bo'limni tanlang"
+                icon="i-lucide-building-2"
+                size="lg"
+                class="w-full"
+              />
             </UFormField>
             <UFormField label="Holat" name="is_active">
               <div class="flex items-center gap-2 pt-1">

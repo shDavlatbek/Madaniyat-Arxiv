@@ -39,28 +39,25 @@ async def login(request: LoginRequest, session: AsyncSession = Depends(get_sessi
 
     return LoginResponse(
         access_token=token,
-        user=UserResponse(
-            id=user.id,
-            username=user.username,
-            name=user.name,
-            email=user.email,
-            role=user.role.value,
-            is_active=user.is_active,
-            created_at=user.created_at,
-            updated_at=user.updated_at,
-        ),
+        user=_user_response(user),
     )
 
 
 @router.get("/me", response_model=UserResponse)
 async def get_me(current_user: User = Depends(get_current_user)):
+    return _user_response(current_user)
+
+
+def _user_response(user: User) -> UserResponse:
     return UserResponse(
-        id=current_user.id,
-        username=current_user.username,
-        name=current_user.name,
-        email=current_user.email,
-        role=current_user.role.value,
-        is_active=current_user.is_active,
-        created_at=current_user.created_at,
-        updated_at=current_user.updated_at,
+        id=user.id,
+        username=user.username,
+        name=user.name,
+        email=user.email,
+        role=user.role.value,
+        is_active=user.is_active,
+        department_id=user.department_id,
+        department_name=user.department_name,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
     )

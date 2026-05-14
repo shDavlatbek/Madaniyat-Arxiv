@@ -5,6 +5,8 @@ export interface UserResponse {
   email: string | null
   role: string
   is_active: boolean
+  department_id: string | null
+  department_name: string | null
   created_at: string
   updated_at: string
 }

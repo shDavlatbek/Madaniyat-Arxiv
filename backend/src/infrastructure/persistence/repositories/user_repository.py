@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.domain.user.entity import User
 from src.domain.user.repository import UserRepository
@@ -14,17 +15,27 @@ class SqlAlchemyUserRepository(UserRepository):
         self._session = session
 
     async def find_by_id(self, user_id: uuid.UUID) -> User | None:
-        model = await self._session.get(UserModel, user_id)
+        stmt = (
+            select(UserModel)
+            .where(UserModel.id == user_id)
+            .options(selectinload(UserModel.department))
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
         return UserMapper.to_domain(model) if model else None
 
     async def find_by_username(self, username: str) -> User | None:
-        stmt = select(UserModel).where(UserModel.username == username)
+        stmt = (
+            select(UserModel)
+            .where(UserModel.username == username)
+            .options(selectinload(UserModel.department))
+        )
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return UserMapper.to_domain(model) if model else None
 
     async def find_all(self, page: int = 1, page_size: int = 20, search: str | None = None) -> tuple[list[User], int]:
-        stmt = select(UserModel)
+        stmt = select(UserModel).options(selectinload(UserModel.department))
         count_stmt = select(func.count()).select_from(UserModel)
 
         if search:
@@ -46,12 +57,19 @@ class SqlAlchemyUserRepository(UserRepository):
         if existing:
             UserMapper.update_model(existing, user)
             await self._session.flush()
-            return UserMapper.to_domain(existing)
         else:
-            model = UserMapper.to_model(user)
-            self._session.add(model)
+            existing = UserMapper.to_model(user)
+            self._session.add(existing)
             await self._session.flush()
-            return UserMapper.to_domain(model)
+        # Re-select with the department joined so to_domain has no lazy-load,
+        # and server-side onupdate timestamps are refreshed.
+        stmt = (
+            select(UserModel)
+            .where(UserModel.id == existing.id)
+            .options(selectinload(UserModel.department))
+        )
+        result = await self._session.execute(stmt)
+        return UserMapper.to_domain(result.scalar_one())
 
     async def delete(self, user_id: uuid.UUID) -> None:
         model = await self._session.get(UserModel, user_id)
