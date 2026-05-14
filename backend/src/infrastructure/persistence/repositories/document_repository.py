@@ -52,6 +52,14 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             stmt = stmt.where(DocumentModel.date <= params.date_to)
             count_stmt = count_stmt.where(DocumentModel.date <= params.date_to)
 
+        if params.document_view:
+            stmt = stmt.where(DocumentModel.document_view == params.document_view)
+            count_stmt = count_stmt.where(DocumentModel.document_view == params.document_view)
+
+        if params.archive_folder_id:
+            stmt = stmt.where(DocumentModel.archive_folder_id == params.archive_folder_id)
+            count_stmt = count_stmt.where(DocumentModel.archive_folder_id == params.archive_folder_id)
+
         if params.search:
             search_filter = or_(
                 DocumentModel.title.ilike(f"%{params.search}%"),

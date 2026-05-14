@@ -56,6 +56,19 @@ class DocumentCommandHandler:
             archive_number=command.archive_number or None,
             person_id=command.person_id,
             created_by=command.created_by,
+            document_view=command.document_view,
+            archive_folder_id=command.archive_folder_id,
+            document_form=command.document_form,
+            sender=command.sender,
+            language=command.language,
+            related_document_number=command.related_document_number,
+            related_document_date=command.related_document_date,
+            received_date=command.received_date,
+            origin_organization=command.origin_organization,
+            sent_date=command.sent_date,
+            recipient_organization=command.recipient_organization,
+            applicant_full_name=command.applicant_full_name,
+            applicant_phone=command.applicant_phone,
             field_values=field_values,
         )
         return await self._document_repo.save(document)
@@ -84,6 +97,19 @@ class DocumentCommandHandler:
             signer=command.signer,
             archive_number=command.archive_number if command.archive_number else None,
             person_id=command.person_id,
+            document_view=command.document_view,
+            archive_folder_id=command.archive_folder_id,
+            document_form=command.document_form,
+            sender=command.sender,
+            language=command.language,
+            related_document_number=command.related_document_number,
+            related_document_date=command.related_document_date,
+            received_date=command.received_date,
+            origin_organization=command.origin_organization,
+            sent_date=command.sent_date,
+            recipient_organization=command.recipient_organization,
+            applicant_full_name=command.applicant_full_name,
+            applicant_phone=command.applicant_phone,
         )
 
         if command.dynamic_fields is not None:
@@ -167,6 +193,8 @@ class DocumentQueryHandler:
             date_from=query.date_from,
             date_to=query.date_to,
             field_filters=query.field_filters if query.field_filters else None,
+            document_view=query.document_view.value if query.document_view else None,
+            archive_folder_id=query.archive_folder_id,
             page=query.page,
             page_size=query.page_size,
         )

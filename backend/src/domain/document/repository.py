@@ -15,6 +15,8 @@ class DocumentSearchParams:
     date_from: str | None = None
     date_to: str | None = None
     field_filters: dict[str, str] | None = None
+    document_view: str | None = None
+    archive_folder_id: uuid.UUID | None = None
     page: int = 1
     page_size: int = 20
 

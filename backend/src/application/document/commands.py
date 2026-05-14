@@ -4,6 +4,8 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import date
 
+from src.domain.document.value_objects import DocumentView
+
 
 @dataclass
 class CreateDocumentCommand:
@@ -19,6 +21,21 @@ class CreateDocumentCommand:
     person_id: uuid.UUID | None = None
     created_by: uuid.UUID | None = None
     dynamic_fields: dict[str, str] = field(default_factory=dict)
+    # Phase 3 — document view + universal fields
+    document_view: DocumentView = DocumentView.UNKNOWN
+    archive_folder_id: uuid.UUID | None = None
+    document_form: str | None = None
+    sender: str | None = None
+    language: str | None = None
+    related_document_number: str | None = None
+    related_document_date: date | None = None
+    # Phase 3 — view-specific fields
+    received_date: date | None = None
+    origin_organization: str | None = None
+    sent_date: date | None = None
+    recipient_organization: str | None = None
+    applicant_full_name: str | None = None
+    applicant_phone: str | None = None
 
 
 @dataclass
@@ -34,6 +51,21 @@ class UpdateDocumentCommand:
     archive_number: str | None = None
     person_id: uuid.UUID | None = None
     dynamic_fields: dict[str, str] | None = None
+    # Phase 3 — document view + universal fields
+    document_view: DocumentView | None = None
+    archive_folder_id: uuid.UUID | None = None
+    document_form: str | None = None
+    sender: str | None = None
+    language: str | None = None
+    related_document_number: str | None = None
+    related_document_date: date | None = None
+    # Phase 3 — view-specific fields
+    received_date: date | None = None
+    origin_organization: str | None = None
+    sent_date: date | None = None
+    recipient_organization: str | None = None
+    applicant_full_name: str | None = None
+    applicant_phone: str | None = None
 
 
 @dataclass

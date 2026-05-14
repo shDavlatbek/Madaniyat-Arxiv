@@ -18,6 +18,7 @@ from src.application.document.commands import CreateDocumentCommand, DeleteAttac
 from src.application.document.handlers import DocumentCommandHandler, DocumentQueryHandler
 from src.application.document.queries import GetDocumentQuery, ListDocumentsQuery
 from src.domain.document.entity import Document
+from src.domain.document.value_objects import DocumentView
 from src.domain.user.entity import User
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -40,6 +41,19 @@ def _to_response(doc: Document) -> DocumentResponse:
         person_name=doc.person_name,
         person_position=doc.person_position,
         created_by=doc.created_by,
+        document_view=doc.document_view,
+        archive_folder_id=doc.archive_folder_id,
+        document_form=doc.document_form,
+        sender=doc.sender,
+        language=doc.language,
+        related_document_number=doc.related_document_number,
+        related_document_date=doc.related_document_date,
+        received_date=doc.received_date,
+        origin_organization=doc.origin_organization,
+        sent_date=doc.sent_date,
+        recipient_organization=doc.recipient_organization,
+        applicant_full_name=doc.applicant_full_name,
+        applicant_phone=doc.applicant_phone,
         field_values=[
             DocumentFieldValueResponse(category_field_id=fv.category_field_id, value=fv.value)
             for fv in doc.field_values
@@ -64,6 +78,8 @@ async def list_documents(
     date_from: str | None = Query(None),
     date_to: str | None = Query(None),
     field_filters: str | None = Query(None),
+    document_view: DocumentView | None = Query(None),
+    archive_folder_id: uuid.UUID | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     handler: DocumentQueryHandler = Depends(get_document_query_handler),
@@ -83,6 +99,8 @@ async def list_documents(
         date_from=date_from,
         date_to=date_to,
         field_filters=parsed_filters,
+        document_view=document_view,
+        archive_folder_id=archive_folder_id,
         page=page,
         page_size=page_size,
     ))
@@ -108,6 +126,19 @@ async def create_document(
         person_id=request.person_id,
         created_by=current_user.id,
         dynamic_fields=request.dynamic_fields,
+        document_view=request.document_view,
+        archive_folder_id=request.archive_folder_id,
+        document_form=request.document_form,
+        sender=request.sender,
+        language=request.language,
+        related_document_number=request.related_document_number,
+        related_document_date=request.related_document_date,
+        received_date=request.received_date,
+        origin_organization=request.origin_organization,
+        sent_date=request.sent_date,
+        recipient_organization=request.recipient_organization,
+        applicant_full_name=request.applicant_full_name,
+        applicant_phone=request.applicant_phone,
     ))
     return _to_response(doc)
 
@@ -141,6 +172,19 @@ async def update_document(
         archive_number=request.archive_number,
         person_id=request.person_id,
         dynamic_fields=request.dynamic_fields,
+        document_view=request.document_view,
+        archive_folder_id=request.archive_folder_id,
+        document_form=request.document_form,
+        sender=request.sender,
+        language=request.language,
+        related_document_number=request.related_document_number,
+        related_document_date=request.related_document_date,
+        received_date=request.received_date,
+        origin_organization=request.origin_organization,
+        sent_date=request.sent_date,
+        recipient_organization=request.recipient_organization,
+        applicant_full_name=request.applicant_full_name,
+        applicant_phone=request.applicant_phone,
     ))
     return _to_response(doc)
 

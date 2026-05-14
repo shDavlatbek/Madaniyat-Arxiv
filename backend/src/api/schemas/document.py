@@ -1,7 +1,27 @@
-import uuid
 import datetime as dt
+import uuid
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+
+from src.domain.document.value_objects import DocumentView
+
+# Required extra fields per document view (Hujjat ko'rinishi).
+# Locked in tasks/plan.md — internal/unknown require nothing beyond the common set.
+REQUIRED_EXTRAS_BY_VIEW: dict[DocumentView, tuple[str, ...]] = {
+    DocumentView.INCOMING: ("received_date", "origin_organization"),
+    DocumentView.OUTGOING: ("sent_date", "recipient_organization"),
+    DocumentView.APPEAL: ("applicant_full_name", "applicant_phone"),
+    DocumentView.INTERNAL: (),
+    DocumentView.UNKNOWN: (),
+}
+
+
+def _missing_extras(view: DocumentView, values: "BaseModel") -> list[str]:
+    missing = []
+    for field_name in REQUIRED_EXTRAS_BY_VIEW.get(view, ()):
+        if getattr(values, field_name, None) in (None, ""):
+            missing.append(field_name)
+    return missing
 
 
 class CreateDocumentRequest(BaseModel):
@@ -16,6 +36,30 @@ class CreateDocumentRequest(BaseModel):
     archive_number: str | None = None
     person_id: uuid.UUID | None = None
     dynamic_fields: dict[str, str] = Field(default_factory=dict)
+    # Phase 3 — document view + universal fields
+    document_view: DocumentView = DocumentView.UNKNOWN
+    archive_folder_id: uuid.UUID | None = None
+    document_form: str | None = Field(default=None, max_length=100)
+    sender: str | None = Field(default=None, max_length=255)
+    language: str | None = Field(default=None, max_length=20)
+    related_document_number: str | None = Field(default=None, max_length=100)
+    related_document_date: dt.date | None = None
+    # Phase 3 — view-specific fields
+    received_date: dt.date | None = None
+    origin_organization: str | None = Field(default=None, max_length=255)
+    sent_date: dt.date | None = None
+    recipient_organization: str | None = Field(default=None, max_length=255)
+    applicant_full_name: str | None = Field(default=None, max_length=255)
+    applicant_phone: str | None = Field(default=None, max_length=50)
+
+    @model_validator(mode="after")
+    def _check_required_extras(self) -> "CreateDocumentRequest":
+        missing = _missing_extras(self.document_view, self)
+        if missing:
+            raise ValueError(
+                f"document_view '{self.document_view.value}' requires: {', '.join(missing)}"
+            )
+        return self
 
 
 class UpdateDocumentRequest(BaseModel):
@@ -29,6 +73,33 @@ class UpdateDocumentRequest(BaseModel):
     archive_number: str | None = None
     person_id: uuid.UUID | None = None
     dynamic_fields: dict[str, str] | None = None
+    # Phase 3 — document view + universal fields
+    document_view: DocumentView | None = None
+    archive_folder_id: uuid.UUID | None = None
+    document_form: str | None = Field(default=None, max_length=100)
+    sender: str | None = Field(default=None, max_length=255)
+    language: str | None = Field(default=None, max_length=20)
+    related_document_number: str | None = Field(default=None, max_length=100)
+    related_document_date: dt.date | None = None
+    # Phase 3 — view-specific fields
+    received_date: dt.date | None = None
+    origin_organization: str | None = Field(default=None, max_length=255)
+    sent_date: dt.date | None = None
+    recipient_organization: str | None = Field(default=None, max_length=255)
+    applicant_full_name: str | None = Field(default=None, max_length=255)
+    applicant_phone: str | None = Field(default=None, max_length=50)
+
+    @model_validator(mode="after")
+    def _check_required_extras(self) -> "UpdateDocumentRequest":
+        # Only enforce when the caller is explicitly (re)setting the view —
+        # a partial update that doesn't touch document_view skips this check.
+        if self.document_view is not None:
+            missing = _missing_extras(self.document_view, self)
+            if missing:
+                raise ValueError(
+                    f"document_view '{self.document_view.value}' requires: {', '.join(missing)}"
+                )
+        return self
 
 
 class AttachmentResponse(BaseModel):
@@ -60,6 +131,21 @@ class DocumentResponse(BaseModel):
     person_name: str | None
     person_position: str | None
     created_by: uuid.UUID | None
+    # Phase 3 — document view + universal fields
+    document_view: DocumentView
+    archive_folder_id: uuid.UUID | None
+    document_form: str | None
+    sender: str | None
+    language: str | None
+    related_document_number: str | None
+    related_document_date: dt.date | None
+    # Phase 3 — view-specific fields
+    received_date: dt.date | None
+    origin_organization: str | None
+    sent_date: dt.date | None
+    recipient_organization: str | None
+    applicant_full_name: str | None
+    applicant_phone: str | None
     field_values: list[DocumentFieldValueResponse]
     attachments: list[AttachmentResponse] = Field(default_factory=list)
     created_at: dt.datetime
