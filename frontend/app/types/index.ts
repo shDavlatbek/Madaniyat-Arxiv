@@ -85,6 +85,16 @@ export interface DocumentResponse {
   recipient_organization: string | null
   applicant_full_name: string | null
   applicant_phone: string | null
+  // Murojaat (appeal) — reference FKs + extra fields
+  region_id: string | null
+  country_id: string | null
+  reception_place_id: string | null
+  appeal_type_id: string | null
+  person_type: string | null
+  outgoing_number: string | null
+  outgoing_date: string | null
+  signed_by: string | null
+  note: string | null
   field_values: DocumentFieldValueResponse[]
   attachments: AttachmentResponse[]
   created_at: string
@@ -141,6 +151,24 @@ export interface DocumentTypeResponse {
   name: string
   created_at: string
   updated_at: string
+}
+
+export type RegionType = 'LOCAL' | 'ABROAD'
+
+export interface RegionResponse {
+  id: string
+  name: string
+  type: RegionType
+}
+
+export interface ReceptionPlaceResponse {
+  id: string
+  name: string
+}
+
+export interface AppealTypeResponse {
+  id: string
+  name: string
 }
 
 export type RetentionPeriod =

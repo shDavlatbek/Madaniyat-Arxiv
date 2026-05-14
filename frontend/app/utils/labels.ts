@@ -46,7 +46,34 @@ export const LABELS = {
   recipient_organization: 'Qabul qiluvchi tashkilot',
   applicant_full_name: 'Murojaatchi F.I.Sh.',
   applicant_phone: 'Murojaatchi telefoni',
+
+  // Murojaat (appeal) — reference form fields
+  region: 'Hududni tanlang',
+  country: 'Davlatni tanlang',
+  reception_place: 'Qabul qilingan joy',
+  appeal_type: 'Murojaat turi',
+  outgoing_number: 'Chiqish raqami',
+  outgoing_date: 'Chiqish sanasi',
+  person_type: 'Yuridik yoki Jismoniy shaxs',
+  signed_by: 'Kim tomonidan imzolangan (F.I.O)',
+  note: 'Eslatma',
 } as const
+
+/** Hudud — the synthetic "Xorijiy davlat" option in the region select. */
+export const ABROAD_REGION_VALUE = '__abroad__'
+export const ABROAD_REGION_LABEL = 'Xorijiy davlat'
+
+/** Hujjat shakli — document-form option list (data/Hujjat shakli.json). */
+export const DOCUMENT_FORM_OPTIONS = [
+  'Elektron hujjat',
+  "Qog'oz hujjatning nusxasi",
+] as const
+
+/** Yuridik yoki Jismoniy shaxs — person-type option list. */
+export const PERSON_TYPE_OPTIONS = [
+  'Yuridik shaxs',
+  'Jismoniy shaxs',
+] as const
 
 /** Saqlash muddati — retention period option labels, keyed by enum value. */
 export const RETENTION_PERIOD_LABELS = {
