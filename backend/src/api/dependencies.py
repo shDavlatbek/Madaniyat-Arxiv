@@ -10,6 +10,7 @@ from src.infrastructure.persistence.repositories.person_repository import SqlAlc
 from src.infrastructure.persistence.repositories.department_repository import SqlAlchemyDepartmentRepository
 from src.infrastructure.persistence.repositories.archive_folder_repository import SqlAlchemyArchiveFolderRepository
 from src.infrastructure.persistence.repositories.document_type_repository import SqlAlchemyDocumentTypeRepository
+from src.infrastructure.persistence.repositories.reference_repository import SqlAlchemyReferenceRepository
 from src.infrastructure.file_storage.local_storage import FileStorageService
 from src.application.user.handlers import UserCommandHandler, UserQueryHandler
 from src.application.year.handlers import YearCommandHandler, YearQueryHandler
@@ -96,3 +97,8 @@ def get_document_type_command_handler(session: AsyncSession = Depends(get_sessio
 
 def get_document_type_query_handler(session: AsyncSession = Depends(get_session)) -> DocumentTypeQueryHandler:
     return DocumentTypeQueryHandler(SqlAlchemyDocumentTypeRepository(session))
+
+
+# Reference data (regions, reception places, appeal types) — read-only seed tables
+def get_reference_repository(session: AsyncSession = Depends(get_session)) -> SqlAlchemyReferenceRepository:
+    return SqlAlchemyReferenceRepository(session)
