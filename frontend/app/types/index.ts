@@ -115,6 +115,29 @@ export interface DepartmentResponse {
   updated_at: string
 }
 
+export type RetentionPeriod =
+  | '3_years'
+  | '5_years'
+  | '10_years'
+  | '25_years'
+  | '50_years'
+  | '75_years'
+  | 'permanent'
+  | 'epk'
+
+export interface ArchiveFolderResponse {
+  id: string
+  index_code: string
+  title: string
+  retention_period: RetentionPeriod
+  start_date: string
+  end_date: string | null
+  year_id: number | null
+  document_count: number
+  created_at: string
+  updated_at: string
+}
+
 export interface PaginatedResponse<T> {
   items: T[]
   total: number

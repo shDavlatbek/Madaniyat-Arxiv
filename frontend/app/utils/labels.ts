@@ -17,6 +17,31 @@ export const LABELS = {
   delete_department: "Bo'limni o'chirish",
   active: 'Faol',
   inactive: 'Nofaol',
+
+  // Archive folder (Yig'ma jild) — Phase 2
+  archive_folder: "Yig'ma jild",
+  archive_folders: "Yig'ma jildlar",
+  index_code: "Yig'ma jild indeksi",
+  title: 'Sarlavha',
+  retention_period: 'Saqlash muddati',
+  start_date: 'Boshlanish sanasi',
+  end_date: 'Tugash sanasi',
+  document_count: 'Hujjatlar soni',
+  add_archive_folder: "Yig'ma jild qo'shish",
+  edit_archive_folder: "Yig'ma jildni tahrirlash",
+  delete_archive_folder: "Yig'ma jildni o'chirish",
+} as const
+
+/** Saqlash muddati — retention period option labels, keyed by enum value. */
+export const RETENTION_PERIOD_LABELS = {
+  '3_years': '3 yil',
+  '5_years': '5 yil',
+  '10_years': '10 yil',
+  '25_years': '25 yil',
+  '50_years': '50 yil',
+  '75_years': '75 yil',
+  permanent: 'Doimiy',
+  epk: 'EPK',
 } as const
 
 export type LabelKey = keyof typeof LABELS
