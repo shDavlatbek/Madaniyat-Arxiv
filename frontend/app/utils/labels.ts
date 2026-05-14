@@ -31,6 +31,20 @@ export const LABELS = {
   add_archive_folder: "Yig'ma jild qo'shish",
   edit_archive_folder: "Yig'ma jildni tahrirlash",
   delete_archive_folder: "Yig'ma jildni o'chirish",
+
+  // Document overhaul (Hujjat ko'rinishi) — Phase 3
+  document_view: "Hujjat ko'rinishi",
+  document_form: 'Hujjat shakli',
+  sender: 'Kim tomonidan yuborilgan',
+  language: 'Tili',
+  related_document_number: 'Aloqador hujjat raqami',
+  related_document_date: 'Aloqador hujjat sanasi',
+  received_date: 'Qabul qilingan sana',
+  origin_organization: 'Kelib chiqqan tashkilot',
+  sent_date: 'Yuborilgan sana',
+  recipient_organization: 'Qabul qiluvchi tashkilot',
+  applicant_full_name: 'Murojaatchi F.I.Sh.',
+  applicant_phone: 'Murojaatchi telefoni',
 } as const
 
 /** Saqlash muddati — retention period option labels, keyed by enum value. */
@@ -43,6 +57,15 @@ export const RETENTION_PERIOD_LABELS = {
   '75_years': '75 yil',
   permanent: 'Doimiy',
   epk: 'EPK',
+} as const
+
+/** Hujjat ko'rinishi — document view option labels, keyed by enum value. */
+export const DOCUMENT_VIEW_LABELS = {
+  incoming: 'Kiruvchi hujjat',
+  outgoing: 'Chiquvchi hujjat',
+  internal: 'Ichki hujjat',
+  appeal: 'Murojaat',
+  unknown: "Noma'lum",
 } as const
 
 export type LabelKey = keyof typeof LABELS

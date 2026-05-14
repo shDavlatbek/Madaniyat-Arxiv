@@ -34,17 +34,6 @@ const { data: yearsForFolders } = await useAsyncData(
   () => apiFetch<{ items: YearResponse[] }>('/api/years?active_only=false'),
 )
 
-// Build base schema
-const baseSchema = z.object({
-  title: z.string().min(1, 'Sarlavha kiritilishi shart'),
-  document_number: z.string().min(1, 'Hujjat raqami kiritilishi shart'),
-  date: z.string().min(1, 'Sana kiritilishi shart'),
-  short_desc: z.string().optional(),
-  pages: z.coerce.number().optional(),
-  person_id: z.string().optional(),
-  archive_number: z.string().optional(),
-})
-
 // State
 const state = reactive<Record<string, any>>({
   title: props.initialData?.title || '',
@@ -55,6 +44,63 @@ const state = reactive<Record<string, any>>({
   person_id: props.initialData?.person_id || undefined,
   archive_number: props.initialData?.archive_number || '',
   archive_folder_id: props.initialData?.archive_folder_id || undefined,
+  // Phase 3 — document view + universal fields
+  document_view: props.initialData?.document_view || 'unknown',
+  document_form: props.initialData?.document_form || '',
+  sender: props.initialData?.sender || '',
+  language: props.initialData?.language || '',
+  related_document_number: props.initialData?.related_document_number || '',
+  related_document_date: props.initialData?.related_document_date || '',
+  // Phase 3 — view-specific fields
+  received_date: props.initialData?.received_date || '',
+  origin_organization: props.initialData?.origin_organization || '',
+  sent_date: props.initialData?.sent_date || '',
+  recipient_organization: props.initialData?.recipient_organization || '',
+  applicant_full_name: props.initialData?.applicant_full_name || '',
+  applicant_phone: props.initialData?.applicant_phone || '',
+})
+
+// Phase 3 optional fields — empty strings become null before posting
+const PHASE3_OPTIONAL_KEYS = [
+  'document_form', 'sender', 'language', 'related_document_number',
+  'related_document_date', 'received_date', 'origin_organization',
+  'sent_date', 'recipient_organization', 'applicant_full_name', 'applicant_phone',
+] as const
+
+// Hujjat ko'rinishi select options (excludes 'unknown' — that's the unset state)
+const documentViewItems = [
+  { label: DOCUMENT_VIEW_LABELS.incoming, value: 'incoming' },
+  { label: DOCUMENT_VIEW_LABELS.outgoing, value: 'outgoing' },
+  { label: DOCUMENT_VIEW_LABELS.internal, value: 'internal' },
+  { label: DOCUMENT_VIEW_LABELS.appeal, value: 'appeal' },
+]
+
+const languageItems = ["O'zbek", 'Rus', 'Ingliz']
+
+// Required view-specific extras — mirrors REQUIRED_EXTRAS_BY_VIEW in the backend schema
+const requiredExtrasByView: Record<string, string[]> = {
+  incoming: ['received_date', 'origin_organization'],
+  outgoing: ['sent_date', 'recipient_organization'],
+  appeal: ['applicant_full_name', 'applicant_phone'],
+  internal: [],
+  unknown: [],
+}
+
+// Schema is reactive: required view-specific extras toggle with document_view
+const schema = computed(() => {
+  const shape: Record<string, z.ZodTypeAny> = {
+    title: z.string().min(1, 'Sarlavha kiritilishi shart'),
+    document_number: z.string().min(1, 'Hujjat raqami kiritilishi shart'),
+    date: z.string().min(1, 'Sana kiritilishi shart'),
+    short_desc: z.string().optional(),
+    pages: z.coerce.number().optional(),
+    person_id: z.string().optional(),
+    archive_number: z.string().optional(),
+  }
+  for (const key of requiredExtrasByView[state.document_view] || []) {
+    shape[key] = z.string().min(1, 'Bu maydon majburiy')
+  }
+  return z.object(shape)
 })
 
 // Snapshot of initial values for dirty tracking (edit mode)
@@ -68,6 +114,18 @@ const initialSnapshot = props.initialData
       person_id: props.initialData.person_id || undefined,
       archive_number: props.initialData.archive_number || '',
       archive_folder_id: props.initialData.archive_folder_id || undefined,
+      document_view: props.initialData.document_view || 'unknown',
+      document_form: props.initialData.document_form || '',
+      sender: props.initialData.sender || '',
+      language: props.initialData.language || '',
+      related_document_number: props.initialData.related_document_number || '',
+      related_document_date: props.initialData.related_document_date || '',
+      received_date: props.initialData.received_date || '',
+      origin_organization: props.initialData.origin_organization || '',
+      sent_date: props.initialData.sent_date || '',
+      recipient_organization: props.initialData.recipient_organization || '',
+      applicant_full_name: props.initialData.applicant_full_name || '',
+      applicant_phone: props.initialData.applicant_phone || '',
     })
   : null
 
@@ -210,6 +268,18 @@ const isDirty = computed(() => {
     person_id: state.person_id || undefined,
     archive_number: state.archive_number || '',
     archive_folder_id: state.archive_folder_id || undefined,
+    document_view: state.document_view || 'unknown',
+    document_form: state.document_form || '',
+    sender: state.sender || '',
+    language: state.language || '',
+    related_document_number: state.related_document_number || '',
+    related_document_date: state.related_document_date || '',
+    received_date: state.received_date || '',
+    origin_organization: state.origin_organization || '',
+    sent_date: state.sent_date || '',
+    recipient_organization: state.recipient_organization || '',
+    applicant_full_name: state.applicant_full_name || '',
+    applicant_phone: state.applicant_phone || '',
   })
   if (currentSnapshot !== initialSnapshot) return true
   if (JSON.stringify({ ...dynamicFields }) !== initialDynamicSnapshot.value) return true
@@ -219,10 +289,17 @@ const isDirty = computed(() => {
 async function handleSubmit() {
   loading.value = true
   try {
-    emit('submit', {
-      ...state,
-      dynamic_fields: { ...dynamicFields },
-    }, selectedFile.value || undefined, attachmentFiles.value.length ? [...attachmentFiles.value] : undefined)
+    const payload: Record<string, any> = { ...state, dynamic_fields: { ...dynamicFields } }
+    // Empty strings → null so the backend's optional/date fields validate cleanly
+    for (const key of PHASE3_OPTIONAL_KEYS) {
+      if (payload[key] === '') payload[key] = null
+    }
+    emit(
+      'submit',
+      payload,
+      selectedFile.value || undefined,
+      attachmentFiles.value.length ? [...attachmentFiles.value] : undefined,
+    )
   }
   finally {
     loading.value = false
@@ -232,7 +309,7 @@ async function handleSubmit() {
 
 <template>
   <UForm
-    :schema="baseSchema"
+    :schema="schema"
     :state="state"
     @submit="handleSubmit"
   >
@@ -302,6 +379,95 @@ async function handleSubmit() {
           <UFormField label="Qisqacha tavsif" name="short_desc" help="Ixtiyoriy — hujjat mazmuni haqida qisqacha">
             <UTextarea v-model="state.short_desc" :rows="6" placeholder="Hujjat haqida qisqacha..." class="w-full" />
           </UFormField>
+        </UCard>
+
+        <!-- Document view + universal/conditional fields -->
+        <UCard :ui="{ header: 'border-b border-default', body: 'space-y-5' }">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-list-tree" class="w-4 h-4 text-muted" />
+              <h2 class="text-sm font-semibold text-highlighted">{{ LABELS.document_view }}</h2>
+            </div>
+          </template>
+
+          <UFormField :label="LABELS.document_view" name="document_view" help="Hujjat turini tanlang — qo'shimcha maydonlar shunga qarab ochiladi">
+            <USelectMenu
+              v-model="state.document_view"
+              value-key="value"
+              :items="documentViewItems"
+              :placeholder="`${LABELS.document_view}ni tanlang`"
+              icon="i-lucide-list-tree"
+              size="lg"
+              class="w-full md:w-1/2"
+            />
+          </UFormField>
+
+          <!-- Universal fields — apply to every view -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <UFormField :label="LABELS.sender" name="sender">
+              <UInput v-model="state.sender" icon="i-lucide-send" :placeholder="LABELS.sender" size="lg" class="w-full" />
+            </UFormField>
+
+            <UFormField :label="LABELS.document_form" name="document_form">
+              <UInput v-model="state.document_form" icon="i-lucide-file-stack" placeholder="Asl nusxa, nusxa, elektron..." size="lg" class="w-full" />
+            </UFormField>
+
+            <UFormField :label="LABELS.language" name="language">
+              <USelectMenu
+                v-model="state.language"
+                :items="languageItems"
+                :placeholder="`${LABELS.language}ni tanlang`"
+                icon="i-lucide-languages"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+
+            <div class="hidden md:block" />
+
+            <UFormField :label="LABELS.related_document_number" name="related_document_number">
+              <UInput v-model="state.related_document_number" icon="i-lucide-link" placeholder="123-A" size="lg" class="w-full" />
+            </UFormField>
+
+            <UFormField :label="LABELS.related_document_date" name="related_document_date">
+              <DatePicker v-model="state.related_document_date" size="lg" />
+            </UFormField>
+          </div>
+
+          <!-- Conditional: incoming (Kiruvchi hujjat) -->
+          <div v-if="state.document_view === 'incoming'" class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-default">
+            <UFormField :label="LABELS.received_date" name="received_date" required>
+              <DatePicker v-model="state.received_date" size="lg" />
+            </UFormField>
+            <UFormField :label="LABELS.origin_organization" name="origin_organization" required>
+              <UInput v-model="state.origin_organization" icon="i-lucide-building" :placeholder="LABELS.origin_organization" size="lg" class="w-full" />
+            </UFormField>
+          </div>
+
+          <!-- Conditional: outgoing (Chiquvchi hujjat) -->
+          <div v-else-if="state.document_view === 'outgoing'" class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-default">
+            <UFormField :label="LABELS.sent_date" name="sent_date" required>
+              <DatePicker v-model="state.sent_date" size="lg" />
+            </UFormField>
+            <UFormField :label="LABELS.recipient_organization" name="recipient_organization" required>
+              <UInput v-model="state.recipient_organization" icon="i-lucide-building" :placeholder="LABELS.recipient_organization" size="lg" class="w-full" />
+            </UFormField>
+          </div>
+
+          <!-- Conditional: appeal (Murojaat) -->
+          <div v-else-if="state.document_view === 'appeal'" class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-default">
+            <UFormField :label="LABELS.applicant_full_name" name="applicant_full_name" required>
+              <UInput v-model="state.applicant_full_name" icon="i-lucide-user" :placeholder="LABELS.applicant_full_name" size="lg" class="w-full" />
+            </UFormField>
+            <UFormField :label="LABELS.applicant_phone" name="applicant_phone" required>
+              <UInput v-model="state.applicant_phone" icon="i-lucide-phone" placeholder="+998 90 123 45 67" size="lg" class="w-full" />
+            </UFormField>
+          </div>
+
+          <!-- Conditional: internal (Ichki hujjat) — no extra fields -->
+          <p v-else-if="state.document_view === 'internal'" class="text-xs text-muted pt-4 border-t border-default">
+            Ichki hujjat uchun qo'shimcha maydon talab qilinmaydi.
+          </p>
         </UCard>
 
         <!-- Dynamic fields -->

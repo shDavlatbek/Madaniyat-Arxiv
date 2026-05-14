@@ -50,6 +50,8 @@ export interface DocumentFieldValueResponse {
   value: string | null
 }
 
+export type DocumentView = 'incoming' | 'outgoing' | 'internal' | 'appeal' | 'unknown'
+
 export interface DocumentResponse {
   id: string
   year_id: number
@@ -66,6 +68,21 @@ export interface DocumentResponse {
   person_name: string | null
   person_position: string | null
   created_by: string | null
+  // Phase 3 — document view + universal fields
+  document_view: DocumentView
+  archive_folder_id: string | null
+  document_form: string | null
+  sender: string | null
+  language: string | null
+  related_document_number: string | null
+  related_document_date: string | null
+  // Phase 3 — view-specific fields
+  received_date: string | null
+  origin_organization: string | null
+  sent_date: string | null
+  recipient_organization: string | null
+  applicant_full_name: string | null
+  applicant_phone: string | null
   field_values: DocumentFieldValueResponse[]
   attachments: AttachmentResponse[]
   created_at: string
