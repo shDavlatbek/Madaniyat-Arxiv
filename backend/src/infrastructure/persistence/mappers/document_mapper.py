@@ -61,6 +61,15 @@ class DocumentMapper:
             recipient_organization=model.recipient_organization,
             applicant_full_name=model.applicant_full_name,
             applicant_phone=model.applicant_phone,
+            region_id=model.region_id,
+            country_id=model.country_id,
+            reception_place_id=model.reception_place_id,
+            appeal_type_id=model.appeal_type_id,
+            person_type=model.person_type,
+            outgoing_number=model.outgoing_number,
+            outgoing_date=model.outgoing_date,
+            signed_by=model.signed_by,
+            note=model.note,
             field_values=field_values,
             attachments=attachments,
             created_at=model.created_at,
@@ -97,6 +106,15 @@ class DocumentMapper:
             recipient_organization=entity.recipient_organization,
             applicant_full_name=entity.applicant_full_name,
             applicant_phone=entity.applicant_phone,
+            region_id=entity.region_id,
+            country_id=entity.country_id,
+            reception_place_id=entity.reception_place_id,
+            appeal_type_id=entity.appeal_type_id,
+            person_type=entity.person_type,
+            outgoing_number=entity.outgoing_number,
+            outgoing_date=entity.outgoing_date,
+            signed_by=entity.signed_by,
+            note=entity.note,
         )
         return model
 
@@ -126,6 +144,15 @@ class DocumentMapper:
         model.recipient_organization = entity.recipient_organization
         model.applicant_full_name = entity.applicant_full_name
         model.applicant_phone = entity.applicant_phone
+        model.region_id = entity.region_id
+        model.country_id = entity.country_id
+        model.reception_place_id = entity.reception_place_id
+        model.appeal_type_id = entity.appeal_type_id
+        model.person_type = entity.person_type
+        model.outgoing_number = entity.outgoing_number
+        model.outgoing_date = entity.outgoing_date
+        model.signed_by = entity.signed_by
+        model.note = entity.note
 
     @staticmethod
     def field_value_to_model(doc_id: uuid.UUID, fv: DocumentFieldValue) -> DocumentFieldValueModel:

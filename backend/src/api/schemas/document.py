@@ -10,7 +10,9 @@ from src.domain.document.value_objects import DocumentView
 REQUIRED_EXTRAS_BY_VIEW: dict[DocumentView, tuple[str, ...]] = {
     DocumentView.INCOMING: ("received_date", "origin_organization"),
     DocumentView.OUTGOING: ("sent_date", "recipient_organization"),
-    DocumentView.APPEAL: ("applicant_full_name", "applicant_phone"),
+    # Murojaat (appeal): the reference form marks no field as strictly required,
+    # so the rich appeal field set is all optional — see tasks/todo.md.
+    DocumentView.APPEAL: (),
     DocumentView.INTERNAL: (),
     DocumentView.UNKNOWN: (),
 }
@@ -52,6 +54,16 @@ class CreateDocumentRequest(BaseModel):
     recipient_organization: str | None = Field(default=None, max_length=255)
     applicant_full_name: str | None = Field(default=None, max_length=255)
     applicant_phone: str | None = Field(default=None, max_length=50)
+    # Murojaat (appeal) — reference FKs + extra fields
+    region_id: uuid.UUID | None = None
+    country_id: uuid.UUID | None = None
+    reception_place_id: uuid.UUID | None = None
+    appeal_type_id: uuid.UUID | None = None
+    person_type: str | None = Field(default=None, max_length=50)
+    outgoing_number: str | None = Field(default=None, max_length=100)
+    outgoing_date: dt.date | None = None
+    signed_by: str | None = Field(default=None, max_length=255)
+    note: str | None = None
 
     @model_validator(mode="after")
     def _check_required_extras(self) -> "CreateDocumentRequest":
@@ -90,6 +102,16 @@ class UpdateDocumentRequest(BaseModel):
     recipient_organization: str | None = Field(default=None, max_length=255)
     applicant_full_name: str | None = Field(default=None, max_length=255)
     applicant_phone: str | None = Field(default=None, max_length=50)
+    # Murojaat (appeal) — reference FKs + extra fields
+    region_id: uuid.UUID | None = None
+    country_id: uuid.UUID | None = None
+    reception_place_id: uuid.UUID | None = None
+    appeal_type_id: uuid.UUID | None = None
+    person_type: str | None = Field(default=None, max_length=50)
+    outgoing_number: str | None = Field(default=None, max_length=100)
+    outgoing_date: dt.date | None = None
+    signed_by: str | None = Field(default=None, max_length=255)
+    note: str | None = None
 
     @model_validator(mode="after")
     def _check_required_extras(self) -> "UpdateDocumentRequest":
@@ -150,6 +172,16 @@ class DocumentResponse(BaseModel):
     recipient_organization: str | None
     applicant_full_name: str | None
     applicant_phone: str | None
+    # Murojaat (appeal) — reference FKs + extra fields
+    region_id: uuid.UUID | None
+    country_id: uuid.UUID | None
+    reception_place_id: uuid.UUID | None
+    appeal_type_id: uuid.UUID | None
+    person_type: str | None
+    outgoing_number: str | None
+    outgoing_date: dt.date | None
+    signed_by: str | None
+    note: str | None
     field_values: list[DocumentFieldValueResponse]
     attachments: list[AttachmentResponse] = Field(default_factory=list)
     created_at: dt.datetime

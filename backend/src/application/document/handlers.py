@@ -70,6 +70,15 @@ class DocumentCommandHandler:
             recipient_organization=command.recipient_organization,
             applicant_full_name=command.applicant_full_name,
             applicant_phone=command.applicant_phone,
+            region_id=command.region_id,
+            country_id=command.country_id,
+            reception_place_id=command.reception_place_id,
+            appeal_type_id=command.appeal_type_id,
+            person_type=command.person_type,
+            outgoing_number=command.outgoing_number,
+            outgoing_date=command.outgoing_date,
+            signed_by=command.signed_by,
+            note=command.note,
             field_values=field_values,
         )
         return await self._document_repo.save(document)
@@ -112,6 +121,15 @@ class DocumentCommandHandler:
             recipient_organization=command.recipient_organization,
             applicant_full_name=command.applicant_full_name,
             applicant_phone=command.applicant_phone,
+            region_id=command.region_id,
+            country_id=command.country_id,
+            reception_place_id=command.reception_place_id,
+            appeal_type_id=command.appeal_type_id,
+            person_type=command.person_type,
+            outgoing_number=command.outgoing_number,
+            outgoing_date=command.outgoing_date,
+            signed_by=command.signed_by,
+            note=command.note,
         )
 
         if command.dynamic_fields is not None:

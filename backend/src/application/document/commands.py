@@ -37,6 +37,16 @@ class CreateDocumentCommand:
     recipient_organization: str | None = None
     applicant_full_name: str | None = None
     applicant_phone: str | None = None
+    # Murojaat (appeal) — reference FKs + extra fields
+    region_id: uuid.UUID | None = None
+    country_id: uuid.UUID | None = None
+    reception_place_id: uuid.UUID | None = None
+    appeal_type_id: uuid.UUID | None = None
+    person_type: str | None = None
+    outgoing_number: str | None = None
+    outgoing_date: date | None = None
+    signed_by: str | None = None
+    note: str | None = None
 
 
 @dataclass
@@ -68,6 +78,16 @@ class UpdateDocumentCommand:
     recipient_organization: str | None = None
     applicant_full_name: str | None = None
     applicant_phone: str | None = None
+    # Murojaat (appeal) — reference FKs + extra fields
+    region_id: uuid.UUID | None = None
+    country_id: uuid.UUID | None = None
+    reception_place_id: uuid.UUID | None = None
+    appeal_type_id: uuid.UUID | None = None
+    person_type: str | None = None
+    outgoing_number: str | None = None
+    outgoing_date: date | None = None
+    signed_by: str | None = None
+    note: str | None = None
 
 
 @dataclass

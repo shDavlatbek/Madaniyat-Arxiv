@@ -56,6 +56,15 @@ def _to_response(doc: Document) -> DocumentResponse:
         recipient_organization=doc.recipient_organization,
         applicant_full_name=doc.applicant_full_name,
         applicant_phone=doc.applicant_phone,
+        region_id=doc.region_id,
+        country_id=doc.country_id,
+        reception_place_id=doc.reception_place_id,
+        appeal_type_id=doc.appeal_type_id,
+        person_type=doc.person_type,
+        outgoing_number=doc.outgoing_number,
+        outgoing_date=doc.outgoing_date,
+        signed_by=doc.signed_by,
+        note=doc.note,
         field_values=[
             DocumentFieldValueResponse(category_field_id=fv.category_field_id, value=fv.value)
             for fv in doc.field_values
@@ -142,6 +151,15 @@ async def create_document(
         recipient_organization=request.recipient_organization,
         applicant_full_name=request.applicant_full_name,
         applicant_phone=request.applicant_phone,
+        region_id=request.region_id,
+        country_id=request.country_id,
+        reception_place_id=request.reception_place_id,
+        appeal_type_id=request.appeal_type_id,
+        person_type=request.person_type,
+        outgoing_number=request.outgoing_number,
+        outgoing_date=request.outgoing_date,
+        signed_by=request.signed_by,
+        note=request.note,
     ))
     return _to_response(doc)
 
@@ -189,6 +207,15 @@ async def update_document(
         recipient_organization=request.recipient_organization,
         applicant_full_name=request.applicant_full_name,
         applicant_phone=request.applicant_phone,
+        region_id=request.region_id,
+        country_id=request.country_id,
+        reception_place_id=request.reception_place_id,
+        appeal_type_id=request.appeal_type_id,
+        person_type=request.person_type,
+        outgoing_number=request.outgoing_number,
+        outgoing_date=request.outgoing_date,
+        signed_by=request.signed_by,
+        note=request.note,
     ))
     return _to_response(doc)
 

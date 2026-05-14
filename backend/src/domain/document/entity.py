@@ -42,6 +42,16 @@ class Document(AggregateRoot):
         recipient_organization: str | None = None,
         applicant_full_name: str | None = None,
         applicant_phone: str | None = None,
+        # Murojaat (appeal) — reference FKs + extra fields
+        region_id: uuid.UUID | None = None,
+        country_id: uuid.UUID | None = None,
+        reception_place_id: uuid.UUID | None = None,
+        appeal_type_id: uuid.UUID | None = None,
+        person_type: str | None = None,
+        outgoing_number: str | None = None,
+        outgoing_date: date | None = None,
+        signed_by: str | None = None,
+        note: str | None = None,
         field_values: list[DocumentFieldValue] | None = None,
         attachments: list[DocumentAttachment] | None = None,
         id: uuid.UUID | None = None,
@@ -79,6 +89,15 @@ class Document(AggregateRoot):
         self.recipient_organization = recipient_organization
         self.applicant_full_name = applicant_full_name
         self.applicant_phone = applicant_phone
+        self.region_id = region_id
+        self.country_id = country_id
+        self.reception_place_id = reception_place_id
+        self.appeal_type_id = appeal_type_id
+        self.person_type = person_type
+        self.outgoing_number = outgoing_number
+        self.outgoing_date = outgoing_date
+        self.signed_by = signed_by
+        self.note = note
         self.field_values = field_values or []
         self.attachments = attachments or []
 
@@ -107,6 +126,15 @@ class Document(AggregateRoot):
         recipient_organization: str | None = None,
         applicant_full_name: str | None = None,
         applicant_phone: str | None = None,
+        region_id: uuid.UUID | None = None,
+        country_id: uuid.UUID | None = None,
+        reception_place_id: uuid.UUID | None = None,
+        appeal_type_id: uuid.UUID | None = None,
+        person_type: str | None = None,
+        outgoing_number: str | None = None,
+        outgoing_date: date | None = None,
+        signed_by: str | None = None,
+        note: str | None = None,
     ) -> None:
         if category_id is not None:
             self.category_id = category_id
@@ -154,6 +182,24 @@ class Document(AggregateRoot):
             self.applicant_full_name = applicant_full_name
         if applicant_phone is not None:
             self.applicant_phone = applicant_phone
+        if region_id is not None:
+            self.region_id = region_id
+        if country_id is not None:
+            self.country_id = country_id
+        if reception_place_id is not None:
+            self.reception_place_id = reception_place_id
+        if appeal_type_id is not None:
+            self.appeal_type_id = appeal_type_id
+        if person_type is not None:
+            self.person_type = person_type
+        if outgoing_number is not None:
+            self.outgoing_number = outgoing_number
+        if outgoing_date is not None:
+            self.outgoing_date = outgoing_date
+        if signed_by is not None:
+            self.signed_by = signed_by
+        if note is not None:
+            self.note = note
         self.updated_at = datetime.utcnow()
 
     def set_field_values(self, field_values: list[DocumentFieldValue]) -> None:
