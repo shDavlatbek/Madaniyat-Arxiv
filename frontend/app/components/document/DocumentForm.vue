@@ -66,6 +66,16 @@ const state = reactive<Record<string, any>>({
   recipient_organization: props.initialData?.recipient_organization || '',
   applicant_full_name: props.initialData?.applicant_full_name || '',
   applicant_phone: props.initialData?.applicant_phone || '',
+  // Murojaat (appeal) — reference FKs + extra fields
+  region_id: props.initialData?.region_id || undefined,
+  country_id: props.initialData?.country_id || undefined,
+  reception_place_id: props.initialData?.reception_place_id || undefined,
+  appeal_type_id: props.initialData?.appeal_type_id || undefined,
+  person_type: props.initialData?.person_type || '',
+  outgoing_number: props.initialData?.outgoing_number || '',
+  outgoing_date: props.initialData?.outgoing_date || '',
+  signed_by: props.initialData?.signed_by || '',
+  note: props.initialData?.note || '',
 })
 
 // Phase 3 optional fields — empty strings become null before posting
@@ -73,6 +83,7 @@ const PHASE3_OPTIONAL_KEYS = [
   'document_form', 'sender', 'language', 'related_document_number',
   'related_document_date', 'received_date', 'origin_organization',
   'sent_date', 'recipient_organization', 'applicant_full_name', 'applicant_phone',
+  'person_type', 'outgoing_number', 'outgoing_date', 'signed_by', 'note',
 ] as const
 
 // Hujjat ko'rinishi select options (excludes 'unknown' — that's the unset state)
@@ -85,11 +96,12 @@ const documentViewItems = [
 
 const languageItems = ["O'zbek", 'Rus', 'Ingliz']
 
-// Required view-specific extras — mirrors REQUIRED_EXTRAS_BY_VIEW in the backend schema
+// Required view-specific extras — mirrors REQUIRED_EXTRAS_BY_VIEW in the backend schema.
+// Murojaat (appeal): the reference form marks no field as strictly required.
 const requiredExtrasByView: Record<string, string[]> = {
   incoming: ['received_date', 'origin_organization'],
   outgoing: ['sent_date', 'recipient_organization'],
-  appeal: ['applicant_full_name', 'applicant_phone'],
+  appeal: [],
   internal: [],
   unknown: [],
 }
@@ -135,6 +147,15 @@ const initialSnapshot = props.initialData
       recipient_organization: props.initialData.recipient_organization || '',
       applicant_full_name: props.initialData.applicant_full_name || '',
       applicant_phone: props.initialData.applicant_phone || '',
+      region_id: props.initialData.region_id || undefined,
+      country_id: props.initialData.country_id || undefined,
+      reception_place_id: props.initialData.reception_place_id || undefined,
+      appeal_type_id: props.initialData.appeal_type_id || undefined,
+      person_type: props.initialData.person_type || '',
+      outgoing_number: props.initialData.outgoing_number || '',
+      outgoing_date: props.initialData.outgoing_date || '',
+      signed_by: props.initialData.signed_by || '',
+      note: props.initialData.note || '',
     })
   : null
 
@@ -160,6 +181,55 @@ const archiveFolderItems = computed(() => {
 // Hujjat turi options
 const documentTypeItems = computed(() =>
   (documentTypesData.value?.items || []).map(t => ({ label: t.name, value: t.id })),
+)
+
+// Murojaat (appeal) reference data — regions, reception places, appeal types
+const { listRegions, listReceptionPlaces, listAppealTypes } = useReferences()
+const { data: localRegionsData } = await useAsyncData(
+  'doc-form-regions-local',
+  () => listRegions('LOCAL'),
+)
+const { data: abroadRegionsData } = await useAsyncData(
+  'doc-form-regions-abroad',
+  () => listRegions('ABROAD'),
+)
+const { data: receptionPlacesData } = await useAsyncData(
+  'doc-form-reception-places',
+  () => listReceptionPlaces(),
+)
+const { data: appealTypesData } = await useAsyncData(
+  'doc-form-appeal-types',
+  () => listAppealTypes(),
+)
+
+// "Hududni tanlang" combines local regions with a synthetic "Xorijiy davlat"
+// option; picking it enables the "Davlatni tanlang" (country) select.
+const regionChoice = ref<string | undefined>(
+  props.initialData?.country_id ? ABROAD_REGION_VALUE : (props.initialData?.region_id || undefined),
+)
+const isAbroad = computed(() => regionChoice.value === ABROAD_REGION_VALUE)
+
+watch(regionChoice, (choice) => {
+  if (choice === ABROAD_REGION_VALUE) {
+    state.region_id = undefined
+  } else {
+    state.region_id = choice || undefined
+    state.country_id = undefined
+  }
+})
+
+const regionItems = computed(() => [
+  ...(localRegionsData.value?.items || []).map(r => ({ label: r.name, value: r.id })),
+  { label: ABROAD_REGION_LABEL, value: ABROAD_REGION_VALUE },
+])
+const countryItems = computed(() =>
+  (abroadRegionsData.value?.items || []).map(r => ({ label: r.name, value: r.id })),
+)
+const receptionPlaceItems = computed(() =>
+  (receptionPlacesData.value?.items || []).map(p => ({ label: p.name, value: p.id })),
+)
+const appealTypeItems = computed(() =>
+  (appealTypesData.value?.items || []).map(t => ({ label: t.name, value: t.id })),
 )
 
 // File upload
@@ -295,6 +365,15 @@ const isDirty = computed(() => {
     recipient_organization: state.recipient_organization || '',
     applicant_full_name: state.applicant_full_name || '',
     applicant_phone: state.applicant_phone || '',
+    region_id: state.region_id || undefined,
+    country_id: state.country_id || undefined,
+    reception_place_id: state.reception_place_id || undefined,
+    appeal_type_id: state.appeal_type_id || undefined,
+    person_type: state.person_type || '',
+    outgoing_number: state.outgoing_number || '',
+    outgoing_date: state.outgoing_date || '',
+    signed_by: state.signed_by || '',
+    note: state.note || '',
   })
   if (currentSnapshot !== initialSnapshot) return true
   if (JSON.stringify({ ...dynamicFields }) !== initialDynamicSnapshot.value) return true
@@ -439,7 +518,14 @@ async function handleSubmit() {
             </UFormField>
 
             <UFormField :label="LABELS.document_form" name="document_form">
-              <UInput v-model="state.document_form" icon="i-lucide-file-stack" placeholder="Asl nusxa, nusxa, elektron..." size="lg" class="w-full" />
+              <USelectMenu
+                v-model="state.document_form"
+                :items="DOCUMENT_FORM_OPTIONS"
+                :placeholder="`${LABELS.document_form}ni tanlang`"
+                icon="i-lucide-file-stack"
+                size="lg"
+                class="w-full"
+              />
             </UFormField>
 
             <UFormField :label="LABELS.language" name="language">
@@ -484,13 +570,87 @@ async function handleSubmit() {
             </UFormField>
           </div>
 
-          <!-- Conditional: appeal (Murojaat) -->
-          <div v-else-if="state.document_view === 'appeal'" class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-default">
-            <UFormField :label="LABELS.applicant_full_name" name="applicant_full_name" required>
-              <UInput v-model="state.applicant_full_name" icon="i-lucide-user" :placeholder="LABELS.applicant_full_name" size="lg" class="w-full" />
-            </UFormField>
-            <UFormField :label="LABELS.applicant_phone" name="applicant_phone" required>
-              <UInput v-model="state.applicant_phone" icon="i-lucide-phone" placeholder="+998 90 123 45 67" size="lg" class="w-full" />
+          <!-- Conditional: appeal (Murojaat) — reference form field set -->
+          <div v-else-if="state.document_view === 'appeal'" class="space-y-5 pt-4 border-t border-default">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <UFormField :label="LABELS.region" name="region_id">
+                <USelectMenu
+                  v-model="regionChoice"
+                  value-key="value"
+                  :items="regionItems"
+                  :search-input="{ placeholder: 'Qidirish...' }"
+                  :placeholder="LABELS.region"
+                  icon="i-lucide-map-pin"
+                  size="lg"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField :label="LABELS.country" name="country_id" :help="isAbroad ? undefined : `${LABELS.region}da “${ABROAD_REGION_LABEL}” tanlang`">
+                <USelectMenu
+                  v-model="state.country_id"
+                  value-key="value"
+                  :items="countryItems"
+                  :search-input="{ placeholder: 'Qidirish...' }"
+                  :placeholder="LABELS.country"
+                  :disabled="!isAbroad"
+                  icon="i-lucide-globe"
+                  size="lg"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField :label="LABELS.reception_place" name="reception_place_id" class="md:col-span-2">
+                <USelectMenu
+                  v-model="state.reception_place_id"
+                  value-key="value"
+                  :items="receptionPlaceItems"
+                  :search-input="{ placeholder: 'Qidirish...' }"
+                  :placeholder="LABELS.reception_place"
+                  icon="i-lucide-inbox"
+                  size="lg"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField :label="LABELS.appeal_type" name="appeal_type_id">
+                <USelectMenu
+                  v-model="state.appeal_type_id"
+                  value-key="value"
+                  :items="appealTypeItems"
+                  :placeholder="`${LABELS.appeal_type}ni tanlang`"
+                  icon="i-lucide-megaphone"
+                  size="lg"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField :label="LABELS.person_type" name="person_type">
+                <USelectMenu
+                  v-model="state.person_type"
+                  :items="PERSON_TYPE_OPTIONS"
+                  :placeholder="LABELS.person_type"
+                  icon="i-lucide-user"
+                  size="lg"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField :label="LABELS.outgoing_number" name="outgoing_number">
+                <UInput v-model="state.outgoing_number" icon="i-lucide-hash" :placeholder="LABELS.outgoing_number" size="lg" class="w-full" />
+              </UFormField>
+
+              <UFormField :label="LABELS.outgoing_date" name="outgoing_date">
+                <DatePicker v-model="state.outgoing_date" size="lg" />
+              </UFormField>
+
+              <UFormField :label="LABELS.signed_by" name="signed_by" class="md:col-span-2">
+                <UInput v-model="state.signed_by" icon="i-lucide-pencil" :placeholder="LABELS.signed_by" size="lg" class="w-full" />
+              </UFormField>
+            </div>
+
+            <UFormField :label="LABELS.note" name="note">
+              <UTextarea v-model="state.note" :rows="3" :placeholder="LABELS.note" class="w-full" />
             </UFormField>
           </div>
 
