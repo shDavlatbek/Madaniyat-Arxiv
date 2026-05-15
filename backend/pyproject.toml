@@ -17,6 +17,10 @@ dependencies = [
     "aiofiles>=24.1.0",
     "arq>=0.26.0",
     "elasticsearch[async]>=8.0.0,<9.0.0",
+    "pytesseract>=0.3.10",
+    "pdf2image>=1.17.0",
+    "pillow>=11.0.0",
+    "pymupdf>=1.24.0",
 ]
 
 [build-system]

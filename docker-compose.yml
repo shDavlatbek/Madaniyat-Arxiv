@@ -68,6 +68,29 @@ services:
       elasticsearch:
         condition: service_healthy
 
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
+    image: arxiv-worker:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:${DB_PASSWORD:-postgres}@db:5432/arxiv_db
+      REDIS_URL: redis://redis:6379/0
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    # Bind-mount so the OCR worker can read files the native backend
+    # writes during dev (uploads/{doc_id}/{filename}). In a full-prod
+    # "app" profile both backend and worker share the named uploads volume.
+    volumes:
+      - ./backend/uploads:/app/uploads
+
   backend:
     build: ./backend
     restart: unless-stopped

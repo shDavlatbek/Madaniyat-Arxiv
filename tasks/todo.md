@@ -131,7 +131,7 @@ Elasticsearch 8.x, Postgres 16, arq + Redis (queue), outbox-lite sync pattern.
 
 ## Phase 6: OCR pipeline
 
-- [ ] **6.1** OCR service abstraction (PyMuPDF → Tesseract fallback, lang `uzb+rus+eng`)
+- [x] **6.1** OCR service abstraction (PyMuPDF → Tesseract fallback, lang `uzb+uzb_cyrl+rus+eng`) ✅ Dockerfile.worker with tesseract + poppler + 4 lang packs; worker container running drain loop; verified on 3 real PDFs (digital fast-path, scanned OCR fallback)
 - [ ] **6.2** `documents.extracted_text` + `ocr_status` + same for attachments + migration
 - [ ] **6.3** arq job: OCR on upload → write text → trigger reindex
 - [ ] **6.4** Backfill CLI: OCR all existing documents
