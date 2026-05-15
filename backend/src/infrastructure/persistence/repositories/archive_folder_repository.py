@@ -57,20 +57,22 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
         return [(ArchiveFolderMapper.to_domain(m), count) for m, count in result.all()]
 
     async def save(self, folder: ArchiveFolder) -> ArchiveFolder:
-        existing = await self._session.get(
-            ArchiveFolderModel, folder.id,
-            options=[selectinload(ArchiveFolderModel.retention_period), selectinload(ArchiveFolderModel.department)],
-        )
+        existing = await self._session.get(ArchiveFolderModel, folder.id)
         if existing:
             ArchiveFolderMapper.update_model(existing, folder)
             await self._session.flush()
-            await self._session.refresh(existing, attribute_names=["retention_period", "department"])
-            return ArchiveFolderMapper.to_domain(existing)
-        model = ArchiveFolderMapper.to_model(folder)
-        self._session.add(model)
-        await self._session.flush()
-        await self._session.refresh(model, attribute_names=["retention_period", "department"])
-        return ArchiveFolderMapper.to_domain(model)
+            folder_id = existing.id
+        else:
+            model = ArchiveFolderMapper.to_model(folder)
+            self._session.add(model)
+            await self._session.flush()
+            folder_id = model.id
+        # Refetch with relationships eagerly loaded — the mapper denormalizes
+        # department + retention_period names and would otherwise trigger
+        # implicit lazy loads in the async context.
+        saved = await self.find_by_id(folder_id)
+        assert saved is not None
+        return saved
 
     async def delete(self, folder_id: uuid.UUID) -> None:
         model = await self._session.get(ArchiveFolderModel, folder_id)
