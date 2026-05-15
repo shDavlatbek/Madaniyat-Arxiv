@@ -292,7 +292,7 @@ async function handleDelete() {
                 <p v-if="doc.person_position" class="text-xs text-muted">{{ doc.person_position }}</p>
               </div>
               <div>
-                <p class="text-highlighted font-semibold mb-1">Sahifalar</p>
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.pages_total }}</p>
                 <p class="text-sm">{{ doc.pages || '-' }}</p>
               </div>
               <div>
@@ -306,7 +306,7 @@ async function handleDelete() {
             </div>
 
             <div v-if="doc.short_desc" class="mt-4 pt-4 border-t border-default">
-              <p class="text-highlighted font-semibold mb-1">Qisqacha tavsif</p>
+              <p class="text-highlighted font-semibold mb-1">{{ LABELS.short_desc }}</p>
               <p class="text-sm">{{ doc.short_desc }}</p>
             </div>
           </UCard>
@@ -351,7 +351,9 @@ async function handleDelete() {
           </UCard>
 
           <!-- Conditional: Kiruvchi hujjat (incoming) -->
-          <UCard v-if="doc.document_view === 'incoming' && (doc.received_date || doc.origin_organization)">
+          <UCard
+            v-if="doc.document_view === 'incoming' && (doc.received_date || doc.origin_organization || doc.outgoing_number || doc.outgoing_date || doc.note)"
+          >
             <template #header>
               <div class="flex items-center gap-2">
                 <UIcon name="i-lucide-inbox" class="text-primary" />
@@ -367,6 +369,18 @@ async function handleDelete() {
                 <p class="text-highlighted font-semibold mb-1">{{ LABELS.origin_organization }}</p>
                 <p class="text-sm">{{ doc.origin_organization }}</p>
               </div>
+              <div v-if="doc.outgoing_number">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_number }}</p>
+                <p class="text-sm">{{ doc.outgoing_number }}</p>
+              </div>
+              <div v-if="doc.outgoing_date">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_date }}</p>
+                <p class="text-sm">{{ formatDate(doc.outgoing_date) }}</p>
+              </div>
+            </div>
+            <div v-if="doc.note" class="mt-4 pt-4 border-t border-default">
+              <p class="text-highlighted font-semibold mb-1">{{ LABELS.note }}</p>
+              <p class="text-sm whitespace-pre-wrap">{{ doc.note }}</p>
             </div>
           </UCard>
 

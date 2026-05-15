@@ -467,7 +467,7 @@ async function handleSubmit() {
               <DatePicker v-model="state.date" size="lg" :min-date="dateMinDate" :max-date="dateMaxDate" />
             </UFormField>
 
-            <UFormField label="Sahifalar soni" name="pages">
+            <UFormField :label="LABELS.pages_total" name="pages">
               <UInput v-model="state.pages" type="number" icon="i-lucide-book-open" size="lg" class="w-full" />
             </UFormField>
 
@@ -476,7 +476,7 @@ async function handleSubmit() {
             </UFormField>
           </div>
 
-          <UFormField label="Qisqacha tavsif" name="short_desc" help="Ixtiyoriy — hujjat mazmuni haqida qisqacha">
+          <UFormField :label="LABELS.short_desc" name="short_desc" help="Ixtiyoriy — hujjat mazmuni haqida qisqacha">
             <UTextarea v-model="state.short_desc" :rows="6" placeholder="Hujjat haqida qisqacha..." class="w-full" />
           </UFormField>
         </UCard>
@@ -557,12 +557,23 @@ async function handleSubmit() {
           </div>
 
           <!-- Conditional: incoming (Kiruvchi hujjat) -->
-          <div v-if="state.document_view === 'incoming'" class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-default">
-            <UFormField :label="LABELS.received_date" name="received_date" required>
-              <DatePicker v-model="state.received_date" size="lg" />
-            </UFormField>
-            <UFormField :label="LABELS.origin_organization" name="origin_organization" required>
-              <UInput v-model="state.origin_organization" icon="i-lucide-building" :placeholder="LABELS.origin_organization" size="lg" class="w-full" />
+          <div v-if="state.document_view === 'incoming'" class="space-y-5 pt-4 border-t border-default">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <UFormField :label="LABELS.received_date" name="received_date" required>
+                <DatePicker v-model="state.received_date" size="lg" />
+              </UFormField>
+              <UFormField :label="LABELS.origin_organization" name="origin_organization" required>
+                <UInput v-model="state.origin_organization" icon="i-lucide-building" :placeholder="LABELS.origin_organization" size="lg" class="w-full" />
+              </UFormField>
+              <UFormField :label="LABELS.outgoing_number" name="outgoing_number">
+                <UInput v-model="state.outgoing_number" icon="i-lucide-hash" :placeholder="LABELS.outgoing_number" size="lg" class="w-full" />
+              </UFormField>
+              <UFormField :label="LABELS.outgoing_date" name="outgoing_date">
+                <DatePicker v-model="state.outgoing_date" size="lg" />
+              </UFormField>
+            </div>
+            <UFormField :label="LABELS.note" name="note">
+              <UTextarea v-model="state.note" :rows="3" :placeholder="LABELS.note" class="w-full" />
             </UFormField>
           </div>
 
@@ -696,7 +707,7 @@ async function handleSubmit() {
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-lucide-paperclip" class="w-4 h-4 text-muted" />
-              <h2 class="text-sm font-semibold text-highlighted">Fayl biriktirish</h2>
+              <h2 class="text-sm font-semibold text-highlighted">{{ LABELS.file_upload }}</h2>
             </div>
           </template>
 
