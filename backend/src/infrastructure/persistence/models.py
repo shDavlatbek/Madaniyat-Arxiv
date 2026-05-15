@@ -3,26 +3,48 @@ import uuid
 from datetime import date as date_type, datetime
 
 from sqlalchemy import Boolean, Date, ForeignKey, Integer, String, Text, TypeDecorator, UniqueConstraint
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from sqlalchemy.types import CHAR, JSON
 
 
 class GUID(TypeDecorator):
-    """Platform-independent UUID type. Uses CHAR(36) for SQLite, native UUID for PostgreSQL."""
+    """Platform-independent UUID. Native ``UUID`` on PostgreSQL; ``CHAR(36)`` elsewhere."""
 
     impl = CHAR(36)
     cache_ok = True
 
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(postgresql.UUID(as_uuid=True))
+        return dialect.type_descriptor(CHAR(36))
+
     def process_bind_param(self, value, dialect):
-        if value is not None:
-            return str(value)
-        return value
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return value if isinstance(value, uuid.UUID) else uuid.UUID(value)
+        return str(value)
 
     def process_result_value(self, value, dialect):
-        if value is not None:
-            return uuid.UUID(value)
-        return value
+        if value is None:
+            return None
+        if isinstance(value, uuid.UUID):
+            return value
+        return uuid.UUID(value)
+
+
+class JSONType(TypeDecorator):
+    """Platform-independent JSON. ``JSONB`` on PostgreSQL; ``JSON`` elsewhere."""
+
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(postgresql.JSONB())
+        return dialect.type_descriptor(JSON())
 
 
 class Base(DeclarativeBase):
@@ -84,9 +106,9 @@ class CategoryFieldModel(Base):
     field_type: Mapped[str] = mapped_column(String(30), nullable=False)
     is_required: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    options: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    options: Mapped[dict | None] = mapped_column(JSONType, nullable=True)
     placeholder: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    validation: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    validation: Mapped[dict | None] = mapped_column(JSONType, nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
     category: Mapped["CategoryModel"] = relationship(back_populates="fields")
@@ -103,7 +125,7 @@ class DefaultFieldModel(Base):
     field_type: Mapped[str] = mapped_column(String(30), nullable=False)
     is_required: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    options: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    options: Mapped[dict | None] = mapped_column(JSONType, nullable=True)
     placeholder: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
