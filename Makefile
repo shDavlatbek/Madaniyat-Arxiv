@@ -1,4 +1,4 @@
-.PHONY: backend frontend dev install migrate migration
+.PHONY: backend frontend worker dev install migrate migration
 
 # Run both backend and frontend concurrently in separate windows
 # Run both backend and frontend concurrently in separate tabs (Windows Terminal only)
@@ -13,6 +13,10 @@ backend:
 # Frontend
 frontend:
 	cd frontend && npx nuxi dev --host 0.0.0.0
+
+# Background task worker (arq + Redis)
+worker:
+	cd backend && uv run arq src.infrastructure.jobs.worker.WorkerSettings
 
 # Install all dependencies
 install:

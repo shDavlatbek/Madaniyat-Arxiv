@@ -99,14 +99,14 @@ Elasticsearch 8.x, Postgres 16, arq + Redis (queue), outbox-lite sync pattern.
 - [x] **4.1** Docker Compose: postgres + redis + elasticsearch + kibana (profile) ✅ live-verified (db/redis/es all healthy)
 - [x] **4.2** Postgres-aware types in models (`UUID`, `JSONB` with SQLite fallback) ✅ 33 uuid + 3 jsonb columns on PG; SQLite migrations unchanged; ORM round-trip verified
 - [x] **4.3** `migrate_sqlite_to_postgres.py` data move script ✅ 375 rows across 17 tables migrated; FK integrity preserved (year/category/archive_folder/department/retention_period resolve via ORM)
-- [ ] **4.4** arq worker bootstrap (placeholder job only — actual jobs in 5/6)
+- [x] **4.4** arq worker bootstrap (placeholder job only — actual jobs in 5/6) ✅ `make worker` boots; enqueue→process→result round-trip verified through Redis
 
 ### Checkpoint — Phase 4
-- [ ] `docker compose up -d` brings up full stack
-- [ ] Migrations clean on Postgres
-- [ ] Dev data migrated; app works on Postgres
-- [ ] arq worker connects + runs placeholder
-- [ ] **No user-visible change** (foundational only)
+- [x] `docker compose up -d` brings up full stack
+- [x] Migrations clean on Postgres (existing + new promote migration)
+- [x] Dev data migrated; app works on Postgres (ORM read of documents w/ FKs verified)
+- [x] arq worker connects + runs placeholder
+- [x] **No user-visible change** (foundational only)
 - [ ] **Human review**
 
 ---
