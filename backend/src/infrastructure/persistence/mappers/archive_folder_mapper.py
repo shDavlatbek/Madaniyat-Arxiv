@@ -9,6 +9,11 @@ class ArchiveFolderMapper:
             id=model.id,
             index_code=model.index_code,
             title=model.title,
+            department_id=model.department_id,
+            department_name=model.department.name if model.department else None,
+            department_index_code=model.department.index_code if model.department else None,
+            article_number=model.article_number,
+            note=model.note,
             retention_period_id=model.retention_period_id,
             retention_period_name=model.retention_period.name if model.retention_period else None,
             start_date=model.start_date,
@@ -24,6 +29,9 @@ class ArchiveFolderMapper:
             id=entity.id,
             index_code=entity.index_code,
             title=entity.title,
+            department_id=entity.department_id,
+            article_number=entity.article_number,
+            note=entity.note,
             retention_period_id=entity.retention_period_id,
             start_date=entity.start_date,
             end_date=entity.end_date,
@@ -34,6 +42,9 @@ class ArchiveFolderMapper:
     def update_model(model: ArchiveFolderModel, entity: ArchiveFolder) -> None:
         model.index_code = entity.index_code
         model.title = entity.title
+        model.department_id = entity.department_id
+        model.article_number = entity.article_number
+        model.note = entity.note
         model.retention_period_id = entity.retention_period_id
         model.start_date = entity.start_date
         model.end_date = entity.end_date

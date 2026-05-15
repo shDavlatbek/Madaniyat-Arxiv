@@ -9,7 +9,7 @@ export const LABELS = {
   // Department (Bo'lim) — Phase 1
   department: "Bo'lim",
   departments: "Bo'limlar",
-  department_name: 'Nomi',
+  department_name_short: 'Nomi',
   department_description: 'Tavsifi',
   department_status: 'Holati',
   add_department: "Bo'lim qo'shish",
@@ -19,12 +19,16 @@ export const LABELS = {
   active: 'Faol',
   inactive: 'Nofaol',
 
-  // Archive folder (Yig'ma jild) — Phase 2
+  // Archive folder (Yig'ma jild) — Phase 2 + 7-field redesign
   archive_folder: "Yig'ma jild",
   archive_folders: "Yig'ma jildlar",
   index_code: "Yig'ma jild indeksi",
-  title: 'Sarlavha',
+  title: "Yig'ma jild sarlavhasi",
+  department_name: "Bo'lim nomi",
+  department_index_code: "Bo'lim indeksi",
+  article_number: 'Modda raqami',
   retention_period: 'Saqlash muddati',
+  archive_folder_note: 'Eslatma',
   start_date: 'Boshlanish sanasi',
   end_date: 'Tugash sanasi',
   document_count: 'Hujjatlar soni',

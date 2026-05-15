@@ -9,8 +9,11 @@ from datetime import date
 class CreateArchiveFolderCommand:
     index_code: str
     title: str
-    start_date: date
+    department_id: uuid.UUID | None = None
+    article_number: str | None = None
+    note: str | None = None
     retention_period_id: uuid.UUID | None = None
+    start_date: date | None = None
     end_date: date | None = None
     year_id: int | None = None
 
@@ -20,6 +23,9 @@ class UpdateArchiveFolderCommand:
     folder_id: uuid.UUID
     index_code: str | None = None
     title: str | None = None
+    department_id: uuid.UUID | None = None
+    article_number: str | None = None
+    note: str | None = None
     retention_period_id: uuid.UUID | None = None
     start_date: date | None = None
     end_date: date | None = None

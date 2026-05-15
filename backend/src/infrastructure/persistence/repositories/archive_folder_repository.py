@@ -17,7 +17,7 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
     async def find_by_id(self, folder_id: uuid.UUID) -> ArchiveFolder | None:
         stmt = (
             select(ArchiveFolderModel)
-            .options(selectinload(ArchiveFolderModel.retention_period))
+            .options(selectinload(ArchiveFolderModel.retention_period), selectinload(ArchiveFolderModel.department))
             .where(ArchiveFolderModel.id == folder_id)
         )
         result = await self._session.execute(stmt)
@@ -27,7 +27,7 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
     async def find_by_index_code(self, year_id: int | None, index_code: str) -> ArchiveFolder | None:
         stmt = (
             select(ArchiveFolderModel)
-            .options(selectinload(ArchiveFolderModel.retention_period))
+            .options(selectinload(ArchiveFolderModel.retention_period), selectinload(ArchiveFolderModel.department))
             .where(
                 ArchiveFolderModel.year_id.is_(year_id) if year_id is None
                 else ArchiveFolderModel.year_id == year_id,
@@ -45,7 +45,7 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
         stmt = (
             select(ArchiveFolderModel, func.count(DocumentModel.id))
             .outerjoin(DocumentModel, DocumentModel.archive_folder_id == ArchiveFolderModel.id)
-            .options(selectinload(ArchiveFolderModel.retention_period))
+            .options(selectinload(ArchiveFolderModel.retention_period), selectinload(ArchiveFolderModel.department))
             .group_by(ArchiveFolderModel.id)
         )
         if year_id is not None:
@@ -59,17 +59,17 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
     async def save(self, folder: ArchiveFolder) -> ArchiveFolder:
         existing = await self._session.get(
             ArchiveFolderModel, folder.id,
-            options=[selectinload(ArchiveFolderModel.retention_period)],
+            options=[selectinload(ArchiveFolderModel.retention_period), selectinload(ArchiveFolderModel.department)],
         )
         if existing:
             ArchiveFolderMapper.update_model(existing, folder)
             await self._session.flush()
-            await self._session.refresh(existing, attribute_names=["retention_period"])
+            await self._session.refresh(existing, attribute_names=["retention_period", "department"])
             return ArchiveFolderMapper.to_domain(existing)
         model = ArchiveFolderMapper.to_model(folder)
         self._session.add(model)
         await self._session.flush()
-        await self._session.refresh(model, attribute_names=["retention_period"])
+        await self._session.refresh(model, attribute_names=["retention_period", "department"])
         return ArchiveFolderMapper.to_domain(model)
 
     async def delete(self, folder_id: uuid.UUID) -> None:

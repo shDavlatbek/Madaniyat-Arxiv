@@ -7,6 +7,7 @@ from dataclasses import dataclass
 @dataclass
 class CreateDepartmentCommand:
     name: str
+    index_code: str | None = None
     description: str | None = None
 
 
@@ -14,6 +15,7 @@ class CreateDepartmentCommand:
 class UpdateDepartmentCommand:
     department_id: uuid.UUID
     name: str | None = None
+    index_code: str | None = None
     description: str | None = None
 
 

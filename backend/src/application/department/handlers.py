@@ -22,7 +22,11 @@ class DepartmentCommandHandler:
         existing = await self._department_repo.find_by_name(command.name.strip())
         if existing:
             raise ValidationError(f"Department '{command.name}' already exists")
-        department = Department(name=command.name, description=command.description)
+        department = Department(
+            name=command.name,
+            index_code=command.index_code,
+            description=command.description,
+        )
         return await self._department_repo.save(department)
 
     async def update(self, command: UpdateDepartmentCommand) -> Department:
@@ -33,7 +37,11 @@ class DepartmentCommandHandler:
             clash = await self._department_repo.find_by_name(command.name.strip())
             if clash and clash.id != department.id:
                 raise ValidationError(f"Department '{command.name}' already exists")
-        department.update(name=command.name, description=command.description)
+        department.update(
+            name=command.name,
+            index_code=command.index_code,
+            description=command.description,
+        )
         return await self._department_repo.save(department)
 
     async def delete(self, command: DeleteDepartmentCommand) -> None:

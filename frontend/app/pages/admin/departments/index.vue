@@ -20,12 +20,13 @@ const breadcrumbItems = [
 // Create / edit modal
 const modalOpen = ref(false)
 const editing = ref<DepartmentResponse | null>(null)
-const state = reactive({ name: '', description: '' })
+const state = reactive({ name: '', index_code: '', description: '' })
 const saving = ref(false)
 
 function openCreate() {
   editing.value = null
   state.name = ''
+  state.index_code = ''
   state.description = ''
   modalOpen.value = true
 }
@@ -33,6 +34,7 @@ function openCreate() {
 function openEdit(department: DepartmentResponse) {
   editing.value = department
   state.name = department.name
+  state.index_code = department.index_code || ''
   state.description = department.description || ''
   modalOpen.value = true
 }
@@ -41,7 +43,11 @@ async function handleSave() {
   if (!state.name.trim()) return
   saving.value = true
   try {
-    const payload = { name: state.name.trim(), description: state.description.trim() || null }
+    const payload = {
+      name: state.name.trim(),
+      index_code: state.index_code.trim() || null,
+      description: state.description.trim() || null,
+    }
     if (editing.value) {
       await update(editing.value.id, payload)
       toast.add({ title: 'Muvaffaqiyat', description: "Bo'lim yangilandi", color: 'success', icon: 'i-lucide-check-circle' })
@@ -118,7 +124,10 @@ async function toggleActive(department: DepartmentResponse) {
           <div class="flex items-start gap-2">
             <UIcon name="i-lucide-building-2" class="mt-0.5 shrink-0 text-primary" />
             <div class="min-w-0 flex-1">
-              <h3 class="font-semibold leading-snug text-highlighted">{{ department.name }}</h3>
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold leading-snug text-highlighted truncate">{{ department.name }}</h3>
+                <UBadge v-if="department.index_code" :label="department.index_code" variant="subtle" size="xs" />
+              </div>
               <p v-if="department.description" class="mt-1 text-sm text-muted line-clamp-2">
                 {{ department.description }}
               </p>
@@ -182,6 +191,15 @@ async function toggleActive(department: DepartmentResponse) {
             size="lg"
             class="w-full"
             @keydown.enter="handleSave"
+          />
+        </UFormField>
+        <UFormField :label="LABELS.department_index_code" help="Masalan: 01">
+          <UInput
+            v-model="state.index_code"
+            placeholder="01"
+            icon="i-lucide-hash"
+            size="lg"
+            class="w-full"
           />
         </UFormField>
         <UFormField :label="LABELS.department_description">

@@ -1,5 +1,11 @@
 import type { DepartmentResponse } from '~/types'
 
+interface DepartmentPayload {
+  name?: string
+  index_code?: string | null
+  description?: string | null
+}
+
 export const useDepartments = () => {
   const { apiFetch } = useApi()
 
@@ -15,11 +21,11 @@ export const useDepartments = () => {
     return apiFetch<DepartmentResponse>(`/api/departments/${id}`)
   }
 
-  async function create(data: { name: string, description?: string | null }) {
+  async function create(data: DepartmentPayload & { name: string }) {
     return apiFetch<DepartmentResponse>('/api/departments', { method: 'POST', body: data })
   }
 
-  async function update(id: string, data: { name?: string, description?: string | null }) {
+  async function update(id: string, data: DepartmentPayload) {
     return apiFetch<DepartmentResponse>(`/api/departments/${id}`, { method: 'PUT', body: data })
   }
 

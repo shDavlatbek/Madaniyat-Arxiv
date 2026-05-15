@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import type { ArchiveFolderResponse, YearResponse } from '~/types'
+import type { ArchiveFolderResponse, DepartmentResponse, YearResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
 
 const { apiFetch } = useApi()
 const { create, update, remove } = useArchiveFolders()
 const { listRetentionPeriods } = useReferences()
+const { list: listDepartments } = useDepartments()
 const toast = useToast()
 
-// Year filter
+// Year filter (kept as organizational scope even though Yil isn't a column)
 const yearFilter = ref<number | undefined>(undefined)
 
 const { data: yearsData } = await useAsyncData('archive-folders-years', () =>
@@ -23,10 +24,19 @@ const yearSelectItems = computed(() =>
   years.value.map(y => ({ label: `${y.value}`, value: y.id })),
 )
 
-// Retention period reference (Saqlash muddati) — seeded server-side.
+// Reference data
 const { data: retentionData } = await useAsyncData('archive-folders-retention', () => listRetentionPeriods())
 const retentionItems = computed(() =>
   (retentionData.value?.items || []).map(r => ({ label: r.name, value: r.id })),
+)
+
+const { data: departmentsData } = await useAsyncData('archive-folders-departments', () => listDepartments())
+const departments = computed<DepartmentResponse[]>(() => departmentsData.value?.items || [])
+const departmentItems = computed(() =>
+  departments.value.map(d => ({
+    label: d.index_code ? `${d.index_code} — ${d.name}` : d.name,
+    value: d.id,
+  })),
 )
 
 // Folders list — refetches when the year filter changes
@@ -40,14 +50,16 @@ const { data: foldersData, status, refresh } = await useAsyncData(
 )
 const folders = computed(() => foldersData.value?.items || [])
 
+// 7-field column set per partner-system contract.
 const columns = [
   { id: 'row_number', header: 'T/r' },
+  { accessorKey: 'department_name', header: LABELS.department_name },
+  { accessorKey: 'department_index_code', header: LABELS.department_index_code },
   { accessorKey: 'index_code', header: LABELS.index_code },
   { accessorKey: 'title', header: LABELS.title },
+  { accessorKey: 'article_number', header: LABELS.article_number },
   { accessorKey: 'retention_period_name', header: LABELS.retention_period },
-  { accessorKey: 'start_date', header: LABELS.start_date },
-  { accessorKey: 'end_date', header: LABELS.end_date },
-  { accessorKey: 'document_count', header: LABELS.document_count },
+  { accessorKey: 'note', header: LABELS.archive_folder_note },
   { id: 'actions', header: '' },
 ]
 
@@ -56,39 +68,40 @@ const modalOpen = ref(false)
 const editing = ref<ArchiveFolderResponse | null>(null)
 const saving = ref(false)
 const state = reactive({
+  department_id: '' as string,
   index_code: '',
   title: '',
+  article_number: '',
   retention_period_id: '' as string,
-  start_date: '',
-  end_date: '',
+  note: '',
   year_id: undefined as number | undefined,
 })
 
 function openCreate() {
   editing.value = null
+  state.department_id = ''
   state.index_code = ''
   state.title = ''
+  state.article_number = ''
   state.retention_period_id = ''
-  state.start_date = ''
-  state.end_date = ''
+  state.note = ''
   state.year_id = yearFilter.value
   modalOpen.value = true
 }
 
 function openEdit(folder: ArchiveFolderResponse) {
   editing.value = folder
+  state.department_id = folder.department_id || ''
   state.index_code = folder.index_code
   state.title = folder.title
+  state.article_number = folder.article_number || ''
   state.retention_period_id = folder.retention_period_id || ''
-  state.start_date = folder.start_date
-  state.end_date = folder.end_date || ''
+  state.note = folder.note || ''
   state.year_id = folder.year_id ?? undefined
   modalOpen.value = true
 }
 
-const canSave = computed(() =>
-  !!state.index_code.trim() && !!state.title.trim() && !!state.retention_period_id && !!state.start_date,
-)
+const canSave = computed(() => !!state.index_code.trim() && !!state.title.trim())
 
 async function handleSave() {
   if (!canSave.value) return
@@ -97,9 +110,10 @@ async function handleSave() {
     const payload = {
       index_code: state.index_code.trim(),
       title: state.title.trim(),
+      department_id: state.department_id || null,
+      article_number: state.article_number.trim() || null,
       retention_period_id: state.retention_period_id || null,
-      start_date: state.start_date,
-      end_date: state.end_date || null,
+      note: state.note.trim() || null,
       year_id: state.year_id ?? null,
     }
     if (editing.value) {
@@ -133,13 +147,6 @@ async function handleDelete() {
     toast.add({ title: 'Xatolik', description: error?.data?.detail || "O'chirib bo'lmadi", color: 'error', icon: 'i-lucide-alert-circle' })
   }
 }
-
-function formatDate(date: string | null) {
-  if (!date) return '—'
-  const parts = date.split('-')
-  if (parts.length !== 3) return date
-  return `${parts[2]}.${parts[1]}.${parts[0]}`
-}
 </script>
 
 <template>
@@ -164,21 +171,28 @@ function formatDate(date: string | null) {
       <template #row_number-cell="{ row }">
         <span class="text-muted">{{ row.index + 1 }}</span>
       </template>
+      <template #department_name-cell="{ row }">
+        <span v-if="row.original.department_name">{{ row.original.department_name }}</span>
+        <span v-else class="text-muted">—</span>
+      </template>
+      <template #department_index_code-cell="{ row }">
+        <span v-if="row.original.department_index_code" class="font-mono text-sm">{{ row.original.department_index_code }}</span>
+        <span v-else class="text-muted">—</span>
+      </template>
       <template #index_code-cell="{ row }">
         <span class="font-semibold text-highlighted">{{ row.original.index_code }}</span>
+      </template>
+      <template #article_number-cell="{ row }">
+        <span v-if="row.original.article_number" class="font-mono text-sm">{{ row.original.article_number }}</span>
+        <span v-else class="text-muted">—</span>
       </template>
       <template #retention_period_name-cell="{ row }">
         <UBadge v-if="row.original.retention_period_name" :label="row.original.retention_period_name" variant="subtle" />
         <span v-else class="text-muted">—</span>
       </template>
-      <template #start_date-cell="{ row }">
-        <span class="text-sm">{{ formatDate(row.original.start_date) }}</span>
-      </template>
-      <template #end_date-cell="{ row }">
-        <span class="text-sm">{{ formatDate(row.original.end_date) }}</span>
-      </template>
-      <template #document_count-cell="{ row }">
-        <UBadge :label="`${row.original.document_count}`" color="neutral" variant="subtle" />
+      <template #note-cell="{ row }">
+        <span v-if="row.original.note" class="text-sm line-clamp-1">{{ row.original.note }}</span>
+        <span v-else class="text-muted">—</span>
       </template>
       <template #actions-cell="{ row }">
         <div class="flex gap-1 justify-end">
@@ -201,13 +215,28 @@ function formatDate(date: string | null) {
   <UModal v-model:open="modalOpen" :title="editing ? LABELS.edit_archive_folder : LABELS.add_archive_folder">
     <template #body>
       <div class="space-y-5">
+        <UFormField :label="LABELS.department_name">
+          <USelectMenu
+            v-model="state.department_id"
+            value-key="value"
+            :items="departmentItems"
+            :search-input="{ placeholder: 'Qidirish...' }"
+            :placeholder="`${LABELS.department_name}ni tanlang`"
+            icon="i-lucide-building"
+            size="lg"
+            class="w-full"
+          />
+        </UFormField>
         <UFormField :label="LABELS.index_code" required>
           <UInput v-model="state.index_code" placeholder="01-15" icon="i-lucide-hash" size="lg" class="w-full" />
         </UFormField>
         <UFormField :label="LABELS.title" required>
-          <UInput v-model="state.title" placeholder="Yig'ma jild sarlavhasi" size="lg" class="w-full" />
+          <UInput v-model="state.title" :placeholder="LABELS.title" size="lg" class="w-full" />
         </UFormField>
-        <UFormField :label="LABELS.retention_period" required>
+        <UFormField :label="LABELS.article_number">
+          <UInput v-model="state.article_number" :placeholder="LABELS.article_number" icon="i-lucide-list-ordered" size="lg" class="w-full" />
+        </UFormField>
+        <UFormField :label="LABELS.retention_period">
           <USelectMenu
             v-model="state.retention_period_id"
             value-key="value"
@@ -219,14 +248,9 @@ function formatDate(date: string | null) {
             class="w-full"
           />
         </UFormField>
-        <div class="grid grid-cols-2 gap-3">
-          <UFormField :label="LABELS.start_date" required>
-            <DatePicker v-model="state.start_date" placeholder="Boshlanish" size="md" />
-          </UFormField>
-          <UFormField :label="LABELS.end_date">
-            <DatePicker v-model="state.end_date" :min-date="state.start_date" placeholder="Tugash (ixtiyoriy)" size="md" />
-          </UFormField>
-        </div>
+        <UFormField :label="LABELS.archive_folder_note">
+          <UTextarea v-model="state.note" :rows="3" :placeholder="LABELS.archive_folder_note" class="w-full" />
+        </UFormField>
         <UFormField label="Yil">
           <USelect
             v-model="state.year_id"

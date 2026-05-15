@@ -3,8 +3,11 @@ import type { ArchiveFolderResponse } from '~/types'
 interface ArchiveFolderPayload {
   index_code?: string
   title?: string
+  department_id?: string | null
+  article_number?: string | null
+  note?: string | null
   retention_period_id?: string | null
-  start_date?: string
+  start_date?: string | null
   end_date?: string | null
   year_id?: number | null
 }

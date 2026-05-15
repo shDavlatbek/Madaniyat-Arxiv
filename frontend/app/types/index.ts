@@ -140,6 +140,7 @@ export interface PersonResponse {
 export interface DepartmentResponse {
   id: string
   name: string
+  index_code: string | null
   description: string | null
   is_active: boolean
   created_at: string
@@ -180,9 +181,14 @@ export interface ArchiveFolderResponse {
   id: string
   index_code: string
   title: string
+  department_id: string | null
+  department_name: string | null
+  department_index_code: string | null
+  article_number: string | null
+  note: string | null
   retention_period_id: string | null
   retention_period_name: string | null
-  start_date: string
+  start_date: string | null
   end_date: string | null
   year_id: number | null
   document_count: number

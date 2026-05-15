@@ -21,6 +21,9 @@ class ArchiveFolderCommandHandler:
         folder = ArchiveFolder(
             index_code=command.index_code,
             title=command.title,
+            department_id=command.department_id,
+            article_number=command.article_number,
+            note=command.note,
             retention_period_id=command.retention_period_id,
             start_date=command.start_date,
             end_date=command.end_date,
@@ -45,6 +48,9 @@ class ArchiveFolderCommandHandler:
         folder.update(
             index_code=command.index_code,
             title=command.title,
+            department_id=command.department_id,
+            article_number=command.article_number,
+            note=command.note,
             retention_period_id=command.retention_period_id,
             start_date=command.start_date,
             end_date=command.end_date,

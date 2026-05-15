@@ -113,6 +113,7 @@ class DepartmentModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    index_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
@@ -125,10 +126,17 @@ class ArchiveFolderModel(Base):
     id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
     index_code: Mapped[str] = mapped_column(String(100), nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
+    department_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True
+    )
+    article_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
     retention_period_id: Mapped[uuid.UUID | None] = mapped_column(
         GUID(), ForeignKey("retention_periods.id", ondelete="SET NULL"), nullable=True
     )
-    start_date: Mapped[date_type] = mapped_column(Date, nullable=False)
+    # Legacy date fields — kept for backwards compatibility with existing rows
+    # but no longer surfaced in the redesigned 7-field form.
+    start_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
     end_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
     year_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("years.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
@@ -136,6 +144,7 @@ class ArchiveFolderModel(Base):
 
     year: Mapped["YearModel | None"] = relationship()
     retention_period: Mapped["RetentionPeriodModel | None"] = relationship()
+    department: Mapped["DepartmentModel | None"] = relationship()
 
     __table_args__ = (UniqueConstraint("year_id", "index_code"),)
 

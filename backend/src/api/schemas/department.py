@@ -6,17 +6,20 @@ from pydantic import BaseModel, Field
 
 class CreateDepartmentRequest(BaseModel):
     name: str = Field(min_length=1, max_length=255)
+    index_code: str | None = Field(default=None, max_length=50)
     description: str | None = Field(default=None, max_length=10000)
 
 
 class UpdateDepartmentRequest(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
+    index_code: str | None = Field(default=None, max_length=50)
     description: str | None = Field(default=None, max_length=10000)
 
 
 class DepartmentResponse(BaseModel):
     id: uuid.UUID
     name: str
+    index_code: str | None
     description: str | None
     is_active: bool
     created_at: dt.datetime

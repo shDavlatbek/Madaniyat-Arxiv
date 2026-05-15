@@ -29,6 +29,7 @@ def _to_response(department: Department) -> DepartmentResponse:
     return DepartmentResponse(
         id=department.id,
         name=department.name,
+        index_code=department.index_code,
         description=department.description,
         is_active=department.is_active,
         created_at=department.created_at,
@@ -66,7 +67,11 @@ async def create_department(
     _: User = Depends(require_admin),
 ):
     department = await handler.create(
-        CreateDepartmentCommand(name=request.name, description=request.description)
+        CreateDepartmentCommand(
+            name=request.name,
+            index_code=request.index_code,
+            description=request.description,
+        )
     )
     return _to_response(department)
 
@@ -82,6 +87,7 @@ async def update_department(
         UpdateDepartmentCommand(
             department_id=department_id,
             name=request.name,
+            index_code=request.index_code,
             description=request.description,
         )
     )
