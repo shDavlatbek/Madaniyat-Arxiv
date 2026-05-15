@@ -8,7 +8,10 @@ from src.domain.document.value_objects import DocumentView
 # Required extra fields per document view (Hujjat ko'rinishi).
 # Locked in tasks/plan.md — internal/unknown require nothing beyond the common set.
 REQUIRED_EXTRAS_BY_VIEW: dict[DocumentView, tuple[str, ...]] = {
-    DocumentView.INCOMING: ("received_date", "origin_organization"),
+    # Kiruvchi (incoming): the redesigned form drops received_date /
+    # origin_organization; the remaining incoming fields (outgoing_*, note)
+    # are all optional. Columns stay in the schema so legacy data still loads.
+    DocumentView.INCOMING: (),
     DocumentView.OUTGOING: ("sent_date", "recipient_organization"),
     # Murojaat (appeal): the reference form marks no field as strictly required,
     # so the rich appeal field set is all optional — see tasks/todo.md.

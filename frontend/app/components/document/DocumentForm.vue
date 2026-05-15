@@ -97,9 +97,9 @@ const documentViewItems = [
 const languageItems = ["O'zbek", 'Rus', 'Ingliz']
 
 // Required view-specific extras — mirrors REQUIRED_EXTRAS_BY_VIEW in the backend schema.
-// Murojaat (appeal): the reference form marks no field as strictly required.
+// Kiruvchi (incoming) + Murojaat (appeal) currently mark no field as strictly required.
 const requiredExtrasByView: Record<string, string[]> = {
-  incoming: ['received_date', 'origin_organization'],
+  incoming: [],
   outgoing: ['sent_date', 'recipient_organization'],
   appeal: [],
   internal: [],
@@ -559,12 +559,6 @@ async function handleSubmit() {
           <!-- Conditional: incoming (Kiruvchi hujjat) -->
           <div v-if="state.document_view === 'incoming'" class="space-y-5 pt-4 border-t border-default">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <UFormField :label="LABELS.received_date" name="received_date" required>
-                <DatePicker v-model="state.received_date" size="lg" />
-              </UFormField>
-              <UFormField :label="LABELS.origin_organization" name="origin_organization" required>
-                <UInput v-model="state.origin_organization" icon="i-lucide-building" :placeholder="LABELS.origin_organization" size="lg" class="w-full" />
-              </UFormField>
               <UFormField :label="LABELS.outgoing_number" name="outgoing_number">
                 <UInput v-model="state.outgoing_number" icon="i-lucide-hash" :placeholder="LABELS.outgoing_number" size="lg" class="w-full" />
               </UFormField>

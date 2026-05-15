@@ -352,7 +352,7 @@ async function handleDelete() {
 
           <!-- Conditional: Kiruvchi hujjat (incoming) -->
           <UCard
-            v-if="doc.document_view === 'incoming' && (doc.received_date || doc.origin_organization || doc.outgoing_number || doc.outgoing_date || doc.note)"
+            v-if="doc.document_view === 'incoming' && (doc.outgoing_number || doc.outgoing_date || doc.note)"
           >
             <template #header>
               <div class="flex items-center gap-2">
@@ -361,14 +361,6 @@ async function handleDelete() {
               </div>
             </template>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div v-if="doc.received_date">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.received_date }}</p>
-                <p class="text-sm">{{ formatDate(doc.received_date) }}</p>
-              </div>
-              <div v-if="doc.origin_organization">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.origin_organization }}</p>
-                <p class="text-sm">{{ doc.origin_organization }}</p>
-              </div>
               <div v-if="doc.outgoing_number">
                 <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_number }}</p>
                 <p class="text-sm">{{ doc.outgoing_number }}</p>
