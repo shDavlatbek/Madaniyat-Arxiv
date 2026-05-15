@@ -114,7 +114,7 @@ Elasticsearch 8.x, Postgres 16, arq + Redis (queue), outbox-lite sync pattern.
 ## Phase 5: Elasticsearch indexing (metadata only, no OCR yet)
 
 - [x] **5.1** ES client + `documents-v1` index template + `documents` alias ✅ ICU plugin baked into custom ES image; ensure_index runs at FastAPI startup; uz_multi + uz_autocomplete analyzers verified on Latin + Cyrillic input
-- [ ] **5.2** Document indexer service (Postgres → ES with denormalized joins)
+- [x] **5.2** Document indexer service (Postgres → ES with denormalized joins) ✅ index_document/delete_document/index_bulk verified; 2 dev docs indexed, search by title + short_desc finds them, delete tolerates 404
 - [ ] **5.3** `search_index_jobs` outbox table + on-save / on-delete hook
 - [ ] **5.4** arq cron job: drain outbox → index/delete in ES
 - [ ] **5.5** Reindex CLI (`python -m src.scripts.reindex`)
