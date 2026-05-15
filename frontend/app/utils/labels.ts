@@ -92,6 +92,34 @@ export const DOCUMENT_VIEW_LABELS = {
   unknown: "Noma'lum",
 } as const
 
+/**
+ * OCR pipeline lifecycle — label / color / icon paired so badges stay
+ * consistent across the app. Color names map to Nuxt UI palette tokens.
+ */
+export const OCR_STATUS_LABELS = {
+  pending: 'OCR kutmoqda',
+  processing: 'OCR jarayonda',
+  done: 'OCR tayyor',
+  failed: 'OCR muvaffaqiyatsiz',
+  skipped: "OCR o'tkazib yuborildi",
+} as const
+
+export const OCR_STATUS_COLORS = {
+  pending: 'neutral',
+  processing: 'warning',
+  done: 'success',
+  failed: 'error',
+  skipped: 'neutral',
+} as const
+
+export const OCR_STATUS_ICONS = {
+  pending: 'i-lucide-clock',
+  processing: 'i-lucide-loader-2',
+  done: 'i-lucide-check-circle',
+  failed: 'i-lucide-alert-circle',
+  skipped: 'i-lucide-minus-circle',
+} as const
+
 export type LabelKey = keyof typeof LABELS
 
 export function label(key: LabelKey): string {

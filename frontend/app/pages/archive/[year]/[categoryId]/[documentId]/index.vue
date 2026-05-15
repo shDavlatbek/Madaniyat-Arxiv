@@ -16,7 +16,29 @@ const toast = useToast()
 const config = useRuntimeConfig()
 const deleteOpen = ref(false)
 
-const { data: doc } = await useAsyncData(`doc-${documentId.value}`, () => getDocument(documentId.value))
+const { data: doc, refresh: refreshDoc } = await useAsyncData(`doc-${documentId.value}`, () => getDocument(documentId.value))
+
+// While OCR is mid-flight on the main file or any attachment, poll every
+// 5 s so the badge transitions pending → processing → done without a manual
+// refresh. The interval clears as soon as nothing is processing anymore.
+const ocrPolling = ref<ReturnType<typeof setInterval> | null>(null)
+function isOcrInProgress() {
+  if (!doc.value) return false
+  if (doc.value.ocr_status === 'pending' || doc.value.ocr_status === 'processing') return true
+  return (doc.value.attachments || []).some(a => a.ocr_status === 'pending' || a.ocr_status === 'processing')
+}
+watchEffect(() => {
+  const inProgress = isOcrInProgress()
+  if (inProgress && !ocrPolling.value) {
+    ocrPolling.value = setInterval(() => { refreshDoc() }, 5000)
+  } else if (!inProgress && ocrPolling.value) {
+    clearInterval(ocrPolling.value)
+    ocrPolling.value = null
+  }
+})
+onBeforeUnmount(() => {
+  if (ocrPolling.value) clearInterval(ocrPolling.value)
+})
 const { data: fields } = await useAsyncData(`fields-${categoryId.value}`, () =>
   apiFetch<CategoryFieldResponse[]>(`/api/categories/${categoryId.value}/fields`)
 )
@@ -241,6 +263,16 @@ async function handleDelete() {
               <p class="text-sm font-medium text-highlighted">Biriktirilgan fayl</p>
               <p class="text-xs text-muted">Faylni yuklab olish mumkin</p>
             </div>
+            <UBadge
+              v-if="doc.ocr_status"
+              :label="OCR_STATUS_LABELS[doc.ocr_status]"
+              :icon="OCR_STATUS_ICONS[doc.ocr_status]"
+              :color="OCR_STATUS_COLORS[doc.ocr_status]"
+              variant="subtle"
+              size="sm"
+              :ui="{ leadingIcon: doc.ocr_status === 'processing' ? 'animate-spin' : '' }"
+              class="shrink-0"
+            />
             <UButton
               icon="i-lucide-download"
               label="Yuklab olish"
@@ -480,6 +512,16 @@ async function handleDelete() {
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-highlighted truncate">{{ att.original_filename }}</p>
                 </div>
+                <UBadge
+                  v-if="att.ocr_status"
+                  :label="OCR_STATUS_LABELS[att.ocr_status]"
+                  :icon="OCR_STATUS_ICONS[att.ocr_status]"
+                  :color="OCR_STATUS_COLORS[att.ocr_status]"
+                  variant="subtle"
+                  size="xs"
+                  :ui="{ leadingIcon: att.ocr_status === 'processing' ? 'animate-spin' : '' }"
+                  class="shrink-0"
+                />
                 <UButton
                   icon="i-lucide-download"
                   variant="ghost"

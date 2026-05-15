@@ -95,11 +95,16 @@ export interface DocumentResponse {
   outgoing_date: string | null
   signed_by: string | null
   note: string | null
+  // Phase 6 — OCR lifecycle (worker-managed; read-only on the FE)
+  ocr_status: OcrStatus
+  ocr_completed_at: string | null
   field_values: DocumentFieldValueResponse[]
   attachments: AttachmentResponse[]
   created_at: string
   updated_at: string
 }
+
+export type OcrStatus = 'pending' | 'processing' | 'done' | 'failed' | 'skipped'
 
 export interface DefaultFieldResponse {
   id: string
@@ -119,6 +124,8 @@ export interface AttachmentResponse {
   original_filename: string
   sort_order: number
   created_at: string
+  ocr_status: OcrStatus
+  ocr_completed_at: string | null
 }
 
 export interface PersonTenureResponse {

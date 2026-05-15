@@ -135,12 +135,12 @@ Elasticsearch 8.x, Postgres 16, arq + Redis (queue), outbox-lite sync pattern.
 - [x] **6.2** `documents.extracted_text` + `ocr_status` + same for attachments + migration ✅ 6 columns added, server_default='pending' backfills existing rows; entity/mapper/schema/response all carry the new fields; indexer pulls real values; PG + fresh SQLite migrations both clean
 - [x] **6.3** arq job: OCR on upload → write text → trigger reindex ✅ ocr_extract verified end-to-end: pending → processing → done, 7698 chars extracted from Uzbek Latin PDF, outbox row enqueued, ES nested attachment search finds the text. Also fixed cross-platform path bug (POSIX normalization at write time + in the SQLite→PG migrator).
 - [x] **6.4** Backfill CLI: OCR all existing documents ✅ 2 docs + 5 pending attachments processed in ~10s @ concurrency=4; re-run finds 0 candidates; --retry-failed flag for the failed-status retry loop
-- [ ] **6.5** UI badge: OCR status (pending / processing / done / failed)
+- [x] **6.5** UI badge: OCR status (pending / processing / done / failed) ✅ OCR_STATUS_LABELS/COLORS/ICONS in labels.ts; FE types carry ocr_status; detail page renders UBadge next to main file + each attachment; 5s polling while any item is processing
 
 ### Checkpoint — Phase 6
-- [ ] All existing docs have `ocr_status=done` or logged `failed`
-- [ ] New uploads auto-OCR within ~60s for typical 5-page PDF
-- [ ] Search a body phrase → document found
+- [x] All existing docs have `ocr_status=done` (verified via backfill CLI: 2 docs + 6 attachments = 8 done)
+- [x] New uploads auto-OCR (verified: 7698 chars from 5-page Uzbek Latin PDF in ~2s end-to-end, including queue + drain)
+- [x] Search a body phrase → document found (nested attachments.extracted_text:"Hakaton" hit returns the correct doc)
 - [ ] **Human review**
 
 ---
