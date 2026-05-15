@@ -12,7 +12,9 @@ REQUIRED_EXTRAS_BY_VIEW: dict[DocumentView, tuple[str, ...]] = {
     # origin_organization; the remaining incoming fields (outgoing_*, note)
     # are all optional. Columns stay in the schema so legacy data still loads.
     DocumentView.INCOMING: (),
-    DocumentView.OUTGOING: ("sent_date", "recipient_organization"),
+    # Chiquvchi (outgoing): the redesigned form drops Yuborilgan sana entirely
+    # and keeps only Qabul qiluvchi (recipient_organization) as required.
+    DocumentView.OUTGOING: ("recipient_organization",),
     # Murojaat (appeal): the reference form marks no field as strictly required,
     # so the rich appeal field set is all optional — see tasks/todo.md.
     DocumentView.APPEAL: (),

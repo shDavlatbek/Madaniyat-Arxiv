@@ -100,7 +100,7 @@ const languageItems = ["O'zbek", 'Rus', 'Ingliz']
 // Kiruvchi (incoming) + Murojaat (appeal) currently mark no field as strictly required.
 const requiredExtrasByView: Record<string, string[]> = {
   incoming: [],
-  outgoing: ['sent_date', 'recipient_organization'],
+  outgoing: ['recipient_organization'],
   appeal: [],
   internal: [],
   unknown: [],
@@ -517,9 +517,13 @@ async function handleSubmit() {
             </UFormField>
           </div>
 
-          <!-- Universal fields — apply to every view -->
+          <!-- Universal fields — Yuboruvchi + Tili are hidden for Chiquvchi (outgoing). -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <UFormField :label="LABELS.sender" name="sender">
+            <UFormField
+              v-if="state.document_view !== 'outgoing'"
+              :label="LABELS.sender"
+              name="sender"
+            >
               <UInput v-model="state.sender" icon="i-lucide-send" :placeholder="LABELS.sender" size="lg" class="w-full" />
             </UFormField>
 
@@ -534,7 +538,11 @@ async function handleSubmit() {
               />
             </UFormField>
 
-            <UFormField :label="LABELS.language" name="language">
+            <UFormField
+              v-if="state.document_view !== 'outgoing'"
+              :label="LABELS.language"
+              name="language"
+            >
               <USelectMenu
                 v-model="state.language"
                 :items="languageItems"
@@ -545,7 +553,7 @@ async function handleSubmit() {
               />
             </UFormField>
 
-            <div class="hidden md:block" />
+            <div v-if="state.document_view !== 'outgoing'" class="hidden md:block" />
 
             <UFormField :label="LABELS.related_document_number" name="related_document_number">
               <UInput v-model="state.related_document_number" icon="i-lucide-link" placeholder="123-A" size="lg" class="w-full" />
@@ -571,12 +579,9 @@ async function handleSubmit() {
             </UFormField>
           </div>
 
-          <!-- Conditional: outgoing (Chiquvchi hujjat) -->
+          <!-- Conditional: outgoing (Chiquvchi hujjat) — Yuborilgan sana is dropped. -->
           <div v-else-if="state.document_view === 'outgoing'" class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-default">
-            <UFormField :label="LABELS.sent_date" name="sent_date" required>
-              <DatePicker v-model="state.sent_date" size="lg" />
-            </UFormField>
-            <UFormField :label="LABELS.recipient_organization" name="recipient_organization" required>
+            <UFormField :label="LABELS.recipient_organization" name="recipient_organization" required class="md:col-span-2">
               <UInput v-model="state.recipient_organization" icon="i-lucide-building" :placeholder="LABELS.recipient_organization" size="lg" class="w-full" />
             </UFormField>
           </div>

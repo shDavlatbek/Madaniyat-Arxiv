@@ -46,7 +46,7 @@ export const LABELS = {
   received_date: 'Qabul qilingan sana',
   origin_organization: 'Kelib chiqqan tashkilot',
   sent_date: 'Yuborilgan sana',
-  recipient_organization: 'Qabul qiluvchi tashkilot',
+  recipient_organization: 'Qabul qiluvchi',
   applicant_full_name: 'Murojaatchi F.I.Sh.',
   applicant_phone: 'Murojaatchi telefoni',
 

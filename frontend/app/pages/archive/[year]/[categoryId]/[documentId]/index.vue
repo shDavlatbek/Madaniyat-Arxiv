@@ -311,9 +311,10 @@ async function handleDelete() {
             </div>
           </UCard>
 
-          <!-- Hujjat tasnifi (Phase 3 universal fields) -->
+          <!-- Hujjat tasnifi (Phase 3 universal fields) — Yuboruvchi + Tili are
+               hidden for Chiquvchi (outgoing) to match the form. -->
           <UCard
-            v-if="doc.document_type_name || doc.document_form || doc.sender || doc.language || doc.related_document_number || doc.related_document_date"
+            v-if="doc.document_type_name || doc.document_form || (doc.document_view !== 'outgoing' && (doc.sender || doc.language)) || doc.related_document_number || doc.related_document_date"
           >
             <template #header>
               <div class="flex items-center gap-2">
@@ -331,11 +332,11 @@ async function handleDelete() {
                 <p class="text-highlighted font-semibold mb-1">{{ LABELS.document_form }}</p>
                 <p class="text-sm">{{ doc.document_form }}</p>
               </div>
-              <div v-if="doc.sender">
+              <div v-if="doc.sender && doc.document_view !== 'outgoing'">
                 <p class="text-highlighted font-semibold mb-1">{{ LABELS.sender }}</p>
                 <p class="text-sm">{{ doc.sender }}</p>
               </div>
-              <div v-if="doc.language">
+              <div v-if="doc.language && doc.document_view !== 'outgoing'">
                 <p class="text-highlighted font-semibold mb-1">{{ LABELS.language }}</p>
                 <p class="text-sm">{{ doc.language }}</p>
               </div>
@@ -376,23 +377,17 @@ async function handleDelete() {
             </div>
           </UCard>
 
-          <!-- Conditional: Chiquvchi hujjat (outgoing) -->
-          <UCard v-else-if="doc.document_view === 'outgoing' && (doc.sent_date || doc.recipient_organization)">
+          <!-- Conditional: Chiquvchi hujjat (outgoing) — Yuborilgan sana is dropped. -->
+          <UCard v-else-if="doc.document_view === 'outgoing' && doc.recipient_organization">
             <template #header>
               <div class="flex items-center gap-2">
                 <UIcon name="i-lucide-send" class="text-primary" />
                 <span class="font-semibold">{{ DOCUMENT_VIEW_LABELS.outgoing }}</span>
               </div>
             </template>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div v-if="doc.sent_date">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.sent_date }}</p>
-                <p class="text-sm">{{ formatDate(doc.sent_date) }}</p>
-              </div>
-              <div v-if="doc.recipient_organization">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.recipient_organization }}</p>
-                <p class="text-sm">{{ doc.recipient_organization }}</p>
-              </div>
+            <div>
+              <p class="text-highlighted font-semibold mb-1">{{ LABELS.recipient_organization }}</p>
+              <p class="text-sm">{{ doc.recipient_organization }}</p>
             </div>
           </UCard>
 
