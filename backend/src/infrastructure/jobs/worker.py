@@ -102,12 +102,20 @@ async def ocr_extract(
             await s.commit()
             return "skipped"
 
+        file_path = Path(target.file_path)
+        if not file_path.exists():
+            log.error("ocr_extract: %s — file not found at %s", label, file_path)
+            target.ocr_status = "failed"
+            target.ocr_completed_at = datetime.utcnow()
+            await s.commit()
+            return "failed"
+
         target.ocr_status = "processing"
         await s.commit()
 
         loop = asyncio.get_running_loop()
         try:
-            text = await loop.run_in_executor(None, extract_text, Path(target.file_path))
+            text = await loop.run_in_executor(None, extract_text, file_path)
         except Exception:  # noqa: BLE001
             log.exception("ocr_extract: %s failed", label)
             target.ocr_status = "failed"
