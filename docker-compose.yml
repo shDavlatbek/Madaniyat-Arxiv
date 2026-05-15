@@ -30,7 +30,8 @@ services:
       retries: 5
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    build: ./docker/elasticsearch
+    image: arxiv-elasticsearch:8.15.3-icu
     restart: unless-stopped
     environment:
       - discovery.type=single-node

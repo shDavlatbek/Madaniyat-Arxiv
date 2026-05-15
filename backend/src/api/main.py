@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -5,11 +6,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from src.domain.shared.errors import AuthorizationError, DomainError, NotFoundError, ValidationError
+from src.infrastructure.search.es_client import close_es, get_es
+from src.infrastructure.search.index_template import ensure_index
+
+log = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Ensure the Elasticsearch index + alias exist before serving traffic.
+    # A transient ES outage on boot is logged but not fatal — the app stays
+    # available for non-search endpoints, and the next request that needs ES
+    # surfaces the underlying error.
+    try:
+        await ensure_index(get_es())
+    except Exception as exc:  # noqa: BLE001
+        log.warning("ensure_index failed on startup: %s", exc)
     yield
+    await close_es()
 
 
 app = FastAPI(
