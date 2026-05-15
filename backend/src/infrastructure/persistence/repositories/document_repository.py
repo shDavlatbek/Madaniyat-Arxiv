@@ -13,6 +13,7 @@ from src.infrastructure.persistence.models import (
     DocumentFieldValueModel,
     DocumentModel,
     PersonModel,
+    SearchIndexJobModel,
     YearModel,
 )
 
@@ -95,6 +96,11 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
 
         return [DocumentMapper.to_domain(m) for m in models], total
 
+    def _enqueue_index_job(self, document_id: uuid.UUID, op: str) -> None:
+        """Append a search-outbox row in the current transaction. The arq
+        worker drains it asynchronously (see Phase 5.4)."""
+        self._session.add(SearchIndexJobModel(document_id=document_id, op=op))
+
     async def save(self, document: Document) -> Document:
         existing = await self._session.get(DocumentModel, document.id)
         if existing:
@@ -125,6 +131,7 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
                 .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
             )
             result = await self._session.execute(stmt)
+            self._enqueue_index_job(document.id, "index")
             return DocumentMapper.to_domain(result.scalar_one())
         else:
             model = DocumentMapper.to_model(document)
@@ -144,10 +151,12 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
                 .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
             )
             result = await self._session.execute(stmt)
+            self._enqueue_index_job(model.id, "index")
             return DocumentMapper.to_domain(result.scalar_one())
 
     async def delete(self, document_id: uuid.UUID) -> None:
         model = await self._session.get(DocumentModel, document_id)
         if model:
+            self._enqueue_index_job(document_id, "delete")
             await self._session.delete(model)
             await self._session.flush()

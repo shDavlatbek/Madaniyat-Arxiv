@@ -340,3 +340,21 @@ class DocumentAttachmentModel(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
     document: Mapped["DocumentModel"] = relationship(back_populates="attachments")
+
+
+class SearchIndexJobModel(Base):
+    """Outbox: each row is a pending index/delete operation for the search worker.
+
+    Written in the same DB transaction as the document save/delete so durability
+    of the index job piggybacks on the durability of the data change. No FK to
+    ``documents`` — a row carrying ``op='delete'`` deliberately outlives the
+    deleted document, and an ``op='index'`` row for a now-deleted document is
+    handled at drain time (it converts to a delete).
+    """
+
+    __tablename__ = "search_index_jobs"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    document_id: Mapped[uuid.UUID] = mapped_column(GUID(), nullable=False)
+    op: Mapped[str] = mapped_column(String(10), nullable=False)  # "index" | "delete"
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
