@@ -106,6 +106,77 @@ export interface DocumentResponse {
 
 export type OcrStatus = 'pending' | 'processing' | 'done' | 'failed' | 'skipped'
 
+// ─── Phase 7 — Advanced search ───────────────────────────────────────────
+
+export type SearchSort = 'relevance' | 'date_desc' | 'date_asc'
+
+export interface SearchFilters {
+  year_value?: number[]
+  category_id?: string[]
+  document_view?: string[]
+  document_type_id?: string[]
+  archive_folder_id?: string[]
+  person_id?: string[]
+  date_from?: string
+  date_to?: string
+}
+
+export interface SearchRequest {
+  q?: string
+  filters?: SearchFilters
+  facets?: string[]
+  page?: number
+  page_size?: number
+  sort?: SearchSort
+}
+
+export interface SearchHighlight {
+  title?: string[] | null
+  short_desc?: string[] | null
+  extracted_text?: string[] | null
+  signer?: string[] | null
+  person_name?: string[] | null
+  note?: string[] | null
+  attachments?: string[] | null
+}
+
+export interface SearchHit {
+  id: string
+  score: number | null
+  title: string | null
+  document_number: string | null
+  short_desc: string | null
+  signer: string | null
+  archive_number: string | null
+  date: string | null
+  year_id: number | null
+  year_value: number | null
+  category_id: string | null
+  category_name: string | null
+  person_id: string | null
+  person_name: string | null
+  archive_folder_id: string | null
+  archive_folder_title: string | null
+  document_type_id: string | null
+  document_type_name: string | null
+  document_view: string | null
+  highlights: SearchHighlight
+}
+
+export interface FacetBucket {
+  value: string
+  count: number
+}
+
+export interface SearchResponse {
+  items: SearchHit[]
+  total: number
+  page: number
+  page_size: number
+  took_ms: number
+  facets: Record<string, FacetBucket[]>
+}
+
 export interface DefaultFieldResponse {
   id: string
   name: string

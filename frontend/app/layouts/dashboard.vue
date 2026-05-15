@@ -6,9 +6,31 @@ const { user, isAdmin, logout } = useAuth()
 const sidebarOpen = ref(true)
 const mobileSidebarOpen = ref(false)
 
+// ─── Global header search ─────────────────────────────────────────────────
+const headerQuery = ref('')
+const headerSearchRef = ref<any>(null)
+
+function goSearch() {
+  const q = headerQuery.value.trim()
+  navigateTo({ path: '/archive/search', query: q ? { q } : {} })
+}
+
+// `/` shortcut focuses the header input — but only when the user isn't
+// already typing somewhere else.
+function onKeydown(e: KeyboardEvent) {
+  if (e.key !== '/') return
+  const t = e.target as HTMLElement | null
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return
+  e.preventDefault()
+  headerSearchRef.value?.input?.focus?.()
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
+
 const navItems = computed<NavigationMenuItem[]>(() => {
   const items: NavigationMenuItem[] = [
     { label: 'Arxiv', icon: 'i-lucide-archive', to: '/archive' },
+    { label: 'Qidiruv', icon: 'i-lucide-search', to: '/archive/search' },
   ]
   if (isAdmin.value) {
     items.push(
@@ -114,14 +136,30 @@ const userMenuItems = computed(() => [
 
     <!-- Main content -->
     <div class="flex-1 flex flex-col overflow-hidden">
-      <!-- Top bar (mobile) -->
-      <div class="flex items-center gap-2 p-2 border-b border-default lg:hidden">
+      <!-- Top bar -->
+      <div class="flex items-center gap-2 px-3 py-2 border-b border-default">
         <UButton
           icon="i-lucide-menu"
           variant="ghost"
+          class="lg:hidden"
           @click="mobileSidebarOpen = !mobileSidebarOpen"
         />
-        <span class="font-bold text-sm text-highlighted">Arxiv tizimi</span>
+        <!-- Global search — `/` to focus, Enter to navigate -->
+        <form class="flex-1 max-w-xl" @submit.prevent="goSearch">
+          <UInput
+            ref="headerSearchRef"
+            v-model="headerQuery"
+            icon="i-lucide-search"
+            placeholder="Hujjatlarda qidirish..."
+            size="md"
+            class="w-full"
+            :ui="{ trailing: 'pe-2' }"
+          >
+            <template #trailing>
+              <kbd v-if="!headerQuery" class="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-default text-[10px] font-mono text-muted bg-elevated">/</kbd>
+            </template>
+          </UInput>
+        </form>
       </div>
 
       <!-- Page content -->
