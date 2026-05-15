@@ -20,6 +20,7 @@ from src.application.document.queries import GetDocumentQuery, ListDocumentsQuer
 from src.domain.document.entity import Document
 from src.domain.document.value_objects import DocumentView
 from src.domain.user.entity import User
+from src.infrastructure.jobs.arq_pool import get_arq_pool
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -245,6 +246,9 @@ async def upload_file(
         filename=file.filename or "document",
         content=content,
     ))
+    # Fire-and-forget OCR — failures don't block the upload response.
+    pool = await get_arq_pool()
+    await pool.enqueue_job("ocr_extract", str(document_id))
     return _to_response(doc)
 
 
@@ -275,6 +279,17 @@ async def upload_attachment(
         content=content,
         sort_order=sort_order,
     ))
+    # Enqueue OCR for the newest attachment. The handler returns the doc
+    # with all attachments sorted by sort_order; we pick the matching one
+    # by filename + sort_order on the assumption that filenames in a
+    # single upload are unique (matches the FE flow).
+    newest = next(
+        (a for a in doc.attachments if a.original_filename == (file.filename or "attachment.pdf")),
+        None,
+    )
+    if newest is not None:
+        pool = await get_arq_pool()
+        await pool.enqueue_job("ocr_extract", str(document_id), str(newest.id))
     return _to_response(doc)
 
 

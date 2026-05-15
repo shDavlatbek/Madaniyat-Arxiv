@@ -1,6 +1,6 @@
 import os
 import uuid
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import aiofiles
 
@@ -17,7 +17,9 @@ class FileStorageService:
         file_path.parent.mkdir(parents=True, exist_ok=True)
         async with aiofiles.open(file_path, "wb") as f:
             await f.write(file_content)
-        return str(file_path)
+        # Store POSIX-style paths so a Linux worker container can resolve a path
+        # written by a Windows backend (the OCR pipeline crosses that boundary).
+        return PurePosixPath(*file_path.parts).as_posix()
 
     async def get_file_path(self, stored_path: str) -> Path | None:
         path = Path(stored_path)

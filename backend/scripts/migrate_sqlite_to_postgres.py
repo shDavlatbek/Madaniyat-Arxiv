@@ -89,13 +89,21 @@ def _adapt_value(value: Any, col_type_name: str) -> Any:
     return value
 
 
+_PATH_COLUMNS = {"file_path"}
+
+
 def _adapt_row(row: dict, table: Table) -> dict:
     out: dict = {}
     for col_name, col in table.columns.items():
         if col_name not in row:
             continue
         type_name = type(col.type).__name__
-        out[col_name] = _adapt_value(row[col_name], type_name)
+        value = _adapt_value(row[col_name], type_name)
+        # Normalize Windows backslashes in stored file paths so a Linux
+        # OCR worker can resolve a path written by a Windows backend.
+        if col_name in _PATH_COLUMNS and isinstance(value, str):
+            value = value.replace("\\", "/")
+        out[col_name] = value
     return out
 
 

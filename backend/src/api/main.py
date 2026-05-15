@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from src.domain.shared.errors import AuthorizationError, DomainError, NotFoundError, ValidationError
+from src.infrastructure.jobs.arq_pool import close_arq_pool
 from src.infrastructure.persistence.database import async_session
 from src.infrastructure.search.es_client import close_es, get_es
 from src.infrastructure.search.index_template import ensure_index
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI):
         log.warning("ensure_index failed on startup: %s", exc)
     yield
     await close_es()
+    await close_arq_pool()
 
 
 app = FastAPI(

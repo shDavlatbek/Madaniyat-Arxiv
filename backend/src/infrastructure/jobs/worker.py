@@ -14,7 +14,11 @@ or via ``make worker``.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
+import uuid
+from datetime import datetime
+from pathlib import Path
 from urllib.parse import urlparse
 
 from arq import cron
@@ -22,8 +26,13 @@ from arq.connections import RedisSettings
 from sqlalchemy import select
 
 from src.infrastructure.config import settings
+from src.infrastructure.ocr.ocr_service import extract_text
 from src.infrastructure.persistence.database import async_session
-from src.infrastructure.persistence.models import SearchIndexJobModel
+from src.infrastructure.persistence.models import (
+    DocumentAttachmentModel,
+    DocumentModel,
+    SearchIndexJobModel,
+)
 from src.infrastructure.search.document_indexer import delete_document, index_document
 from src.infrastructure.search.es_client import close_es, get_es
 from src.infrastructure.search.index_template import ensure_index
@@ -50,6 +59,70 @@ async def health_check(ctx: dict) -> str:
     """Placeholder job — enqueue this to prove the worker is alive."""
     log.info("health_check: ok (job_id=%s)", ctx.get("job_id"))
     return "ok"
+
+
+async def ocr_extract(
+    ctx: dict,
+    document_id: str,
+    attachment_id: str | None = None,
+) -> str:
+    """Extract OCR text from a document's main file or one of its attachments.
+
+    Flow per row:
+      pending → processing  (flushed before the CPU work so the UI sees it)
+      processing → done    (success: text + completed_at written)
+      processing → failed  (any exception: status flipped, request not blocked)
+      processing → skipped (no file_path attached — nothing to OCR)
+
+    On success an outbox row is appended so the search drain reindexes the
+    document with the new text.
+
+    ``extract_text`` is CPU-bound; we hand it to a thread executor so the
+    arq event loop stays responsive to other jobs.
+    """
+    doc_uuid = uuid.UUID(document_id)
+    att_uuid = uuid.UUID(attachment_id) if attachment_id else None
+    log.info("ocr_extract: doc=%s attachment=%s", doc_uuid, att_uuid)
+
+    async with async_session() as s:
+        if att_uuid is None:
+            target = await s.get(DocumentModel, doc_uuid)
+            label = f"doc {doc_uuid}"
+        else:
+            target = await s.get(DocumentAttachmentModel, att_uuid)
+            label = f"attachment {att_uuid}"
+
+        if target is None:
+            log.warning("ocr_extract: %s vanished before processing — skipped", label)
+            return "missing"
+
+        if not target.file_path:
+            target.ocr_status = "skipped"
+            target.ocr_completed_at = datetime.utcnow()
+            await s.commit()
+            return "skipped"
+
+        target.ocr_status = "processing"
+        await s.commit()
+
+        loop = asyncio.get_running_loop()
+        try:
+            text = await loop.run_in_executor(None, extract_text, Path(target.file_path))
+        except Exception:  # noqa: BLE001
+            log.exception("ocr_extract: %s failed", label)
+            target.ocr_status = "failed"
+            target.ocr_completed_at = datetime.utcnow()
+            await s.commit()
+            return "failed"
+
+        target.extracted_text = text or None
+        target.ocr_status = "done"
+        target.ocr_completed_at = datetime.utcnow()
+        # Re-index so ES picks up the new extracted_text.
+        s.add(SearchIndexJobModel(document_id=doc_uuid, op="index"))
+        await s.commit()
+        log.info("ocr_extract: %s done (%d chars)", label, len(text or ""))
+        return "done"
 
 
 async def drain_search_outbox(ctx: dict) -> int:
@@ -117,7 +190,7 @@ async def shutdown(ctx: dict) -> None:
 class WorkerSettings:
     """arq picks this up by reference; see https://arq-docs.helpmanual.io/."""
 
-    functions = [health_check, drain_search_outbox]
+    functions = [health_check, drain_search_outbox, ocr_extract]
     # Every even second — close enough to "every 2 s" for a single-worker setup.
     cron_jobs = [
         cron(drain_search_outbox, second=set(range(0, 60, 2)), run_at_startup=True),
