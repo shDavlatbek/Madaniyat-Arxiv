@@ -52,7 +52,7 @@ const state = reactive<Record<string, any>>({
   archive_number: props.initialData?.archive_number || '',
   archive_folder_id: props.initialData?.archive_folder_id || undefined,
   // Phase 3 — document view + universal fields
-  document_view: props.initialData?.document_view || 'unknown',
+  document_view: props.initialData?.document_view || '—',
   document_type_id: props.initialData?.document_type_id || undefined,
   document_form: props.initialData?.document_form || '',
   sender: props.initialData?.sender || '',
@@ -134,7 +134,7 @@ const initialSnapshot = props.initialData
       person_id: props.initialData.person_id || undefined,
       archive_number: props.initialData.archive_number || '',
       archive_folder_id: props.initialData.archive_folder_id || undefined,
-      document_view: props.initialData.document_view || 'unknown',
+      document_view: props.initialData.document_view || '—',
       document_type_id: props.initialData.document_type_id || undefined,
       document_form: props.initialData.document_form || '',
       sender: props.initialData.sender || '',
@@ -358,7 +358,7 @@ const isDirty = computed(() => {
     person_id: state.person_id || undefined,
     archive_number: state.archive_number || '',
     archive_folder_id: state.archive_folder_id || undefined,
-    document_view: state.document_view || 'unknown',
+    document_view: state.document_view || '—',
     document_type_id: state.document_type_id || undefined,
     document_form: state.document_form || '',
     sender: state.sender || '',
@@ -553,7 +553,7 @@ async function handleSubmit() {
               />
             </UFormField>
 
-            <div v-if="state.document_view !== 'outgoing'" class="hidden md:block" />
+            <!-- <div v-if="state.document_view !== 'outgoing'" class="hidden md:block" /> -->
 
             <UFormField :label="LABELS.related_document_number" name="related_document_number">
               <UInput v-model="state.related_document_number" icon="i-lucide-link" placeholder="123-A" size="lg" class="w-full" />
@@ -671,9 +671,9 @@ async function handleSubmit() {
           </div>
 
           <!-- Conditional: internal (Ichki hujjat) — no extra fields -->
-          <p v-else-if="state.document_view === 'internal'" class="text-xs text-muted pt-4 border-t border-default">
+          <!-- <p v-else-if="state.document_view === 'internal'" class="text-xs text-muted pt-4 border-t border-default">
             Ichki hujjat uchun qo'shimcha maydon talab qilinmaydi.
-          </p>
+          </p> -->
         </UCard>
 
         <!-- Dynamic fields -->

@@ -14,28 +14,7 @@ Archive system for the Ministry of Culture of Uzbekistan (Madaniyat vazirligi Ar
 - **Auth**: JWT (username/password), bcrypt for hashing
 - **Package managers**: `uv` (Python), `npm` (frontend)
 
-## Commands
-
-```bash
-# Backend
-cd backend
-uv venv .venv && uv pip install -e .
-uv run alembic upgrade head
-uv run uvicorn src.api.main:app --reload        # http://localhost:8000
-
-# Frontend
-cd frontend
-npm install
-npm run dev                                      # http://localhost:3000
-npm run build                                    # production build
-
-# Database migrations
-cd backend
-uv run alembic revision --autogenerate -m "description"
-uv run alembic upgrade head
-```
-
-Default credentials: `admin` / `admin123`
+![1778683638837](image/CLAUDE/1778683638837.png)
 
 ## Architecture
 
@@ -78,6 +57,7 @@ frontend/app/
 - **File upload**: Two-step — create document first, then `POST /api/documents/{id}/file` with FormData. Download uses authenticated `fetch()` + blob URL (JWT required).
 - **PDF viewer**: Uses `pdfjs-dist` with authenticated fetch (blob URL) since file API requires JWT.
 - **DatePicker**: `UInputDate` + `UPopover` + `UCalendar` from Nuxt UI v4. Converts between `YYYY-MM-DD` string (backend) and `CalendarDate` (frontend).
+- **Person + tenures**: `Person` aggregate owns a list of `Tenure(position, start_date, end_date)`. `GET /api/persons/active?date=YYYY-MM-DD` returns persons whose tenure window covers that date (used to attribute documents to who was in office). Admin-managed at `/admin/persons`.
 
 ## API
 
@@ -99,6 +79,7 @@ frontend/app/
 /admin/categories                         # Categories CRUD + copy
 /admin/categories/:id/fields              # Category field management
 /admin/default-fields                     # Default field templates
+/admin/persons                            # Persons (with tenures) CRUD
 ```
 
 ## API Endpoints
@@ -130,6 +111,10 @@ GET|POST        /api/documents                 # GET: ?year_id&category_id&searc
 GET|PUT|DELETE  /api/documents/:id
 POST            /api/documents/:id/file        # upload (FormData)
 GET             /api/documents/:id/file        # download
+
+GET|POST        /api/persons                   # GET: ?search=
+GET|PUT|DELETE  /api/persons/:id
+GET             /api/persons/active            # ?date=YYYY-MM-DD (persons with tenure covering date)
 ```
 
 ## Theme

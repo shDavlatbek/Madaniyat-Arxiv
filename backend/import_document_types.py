@@ -102,7 +102,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--file",
-        default=str(Path(__file__).resolve().parent / "types.json"),
+        default=str(Path(__file__).resolve().parent / "data/types.json"),
         help="JSON fayl yo'li (default: backend/types.json)",
     )
     args = parser.parse_args()
