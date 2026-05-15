@@ -147,7 +147,7 @@ Elasticsearch 8.x, Postgres 16, arq + Redis (queue), outbox-lite sync pattern.
 
 ## Phase 7: Advanced search UI + API
 
-- [ ] **7.1** `POST /api/search` — full-text query + filters + facets + highlights
+- [x] **7.1** `POST /api/search` — full-text query + filters + facets + highlights ✅ query_builder + Pydantic schemas + route; nested attachment text matches via should clause; year_value filter convention matches CLAUDE.md; facets verified on 2 dev docs
 - [ ] **7.2** Frontend types + `useSearch()` composable
 - [ ] **7.3** `/archive/search` page — filters panel + result cards + highlights
 - [ ] **7.4** Global search box in dashboard header (`/` keyboard shortcut)

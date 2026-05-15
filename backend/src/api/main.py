@@ -81,6 +81,7 @@ from src.api.routes.department_routes import router as department_router
 from src.api.routes.archive_folder_routes import router as archive_folder_router
 from src.api.routes.document_type_routes import router as document_type_router
 from src.api.routes.reference_routes import router as reference_router
+from src.api.routes.search_routes import router as search_router
 
 app.include_router(auth_router)
 app.include_router(user_router)
@@ -92,6 +93,7 @@ app.include_router(department_router)
 app.include_router(archive_folder_router)
 app.include_router(document_type_router)
 app.include_router(reference_router)
+app.include_router(search_router)
 
 
 async def _check_postgres() -> bool:
