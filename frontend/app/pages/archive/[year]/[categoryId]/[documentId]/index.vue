@@ -279,35 +279,35 @@ async function handleDelete() {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <p class="text-highlighted font-semibold mb-1">Hujjat raqami</p>
-                <p class="text-sm">{{ doc.document_number }}</p>
+                <p class="text-sm text-muted mb-1">Hujjat raqami</p>
+                <p class="text-highlighted font-semibold">{{ doc.document_number }}</p>
               </div>
               <div>
-                <p class="text-highlighted font-semibold mb-1">Sana</p>
-                <p class="text-sm">{{ formatDate(doc.date) }}</p>
+                <p class="text-sm text-muted mb-1">Sana</p>
+                <p class="text-highlighted font-semibold">{{ formatDate(doc.date) }}</p>
               </div>
               <div>
-                <p class="text-highlighted font-semibold mb-1">Imzo qo'ygan shaxs</p>
-                <p class="text-sm">{{ doc.person_name || doc.signer || '-' }}</p>
+                <p class="text-sm text-muted mb-1">Imzo qo'ygan shaxs</p>
+                <p class="text-highlighted font-semibold">{{ doc.person_name || doc.signer || '-' }}</p>
                 <p v-if="doc.person_position" class="text-xs text-muted">{{ doc.person_position }}</p>
               </div>
               <div>
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.pages_total }}</p>
-                <p class="text-sm">{{ doc.pages || '-' }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.pages_total }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.pages || '-' }}</p>
               </div>
               <div>
-                <p class="text-highlighted font-semibold mb-1">Arxiv tartib raqami</p>
-                <p class="text-sm">{{ doc.archive_number || '-' }}</p>
+                <p class="text-sm text-muted mb-1">Arxiv tartib raqami</p>
+                <p class="text-highlighted font-semibold">{{ doc.archive_number || '-' }}</p>
               </div>
               <div v-if="lookupArchiveFolder(doc.archive_folder_id)">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.archive_folder }}</p>
-                <p class="text-sm">{{ lookupArchiveFolder(doc.archive_folder_id) }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.archive_folder }}</p>
+                <p class="text-highlighted font-semibold">{{ lookupArchiveFolder(doc.archive_folder_id) }}</p>
               </div>
             </div>
 
             <div v-if="doc.short_desc" class="mt-4 pt-4 border-t border-default">
-              <p class="text-highlighted font-semibold mb-1">{{ LABELS.short_desc }}</p>
-              <p class="text-sm">{{ doc.short_desc }}</p>
+              <p class="text-sm text-muted mb-1">{{ LABELS.short_desc }}</p>
+              <p class="text-highlighted font-semibold">{{ doc.short_desc }}</p>
             </div>
           </UCard>
 
@@ -326,28 +326,28 @@ async function handleDelete() {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div v-if="doc.document_type_name">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.document_type }}</p>
-                <p class="text-sm">{{ doc.document_type_name }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.document_type }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.document_type_name }}</p>
               </div>
               <div v-if="doc.document_form">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.document_form }}</p>
-                <p class="text-sm">{{ doc.document_form }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.document_form }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.document_form }}</p>
               </div>
               <div v-if="doc.sender && doc.document_view !== 'outgoing' && doc.document_view !== 'internal'">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.sender }}</p>
-                <p class="text-sm">{{ doc.sender }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.sender }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.sender }}</p>
               </div>
               <div v-if="doc.language && doc.document_view !== 'outgoing'">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.language }}</p>
-                <p class="text-sm">{{ doc.language }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.language }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.language }}</p>
               </div>
               <div v-if="doc.related_document_number">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.related_document_number }}</p>
-                <p class="text-sm">{{ doc.related_document_number }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.related_document_number }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.related_document_number }}</p>
               </div>
               <div v-if="doc.related_document_date">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.related_document_date }}</p>
-                <p class="text-sm">{{ formatDate(doc.related_document_date) }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.related_document_date }}</p>
+                <p class="text-highlighted font-semibold">{{ formatDate(doc.related_document_date) }}</p>
               </div>
             </div>
           </UCard>
@@ -364,17 +364,17 @@ async function handleDelete() {
             </template>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div v-if="doc.outgoing_number">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_number }}</p>
-                <p class="text-sm">{{ doc.outgoing_number }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.outgoing_number }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.outgoing_number }}</p>
               </div>
               <div v-if="doc.outgoing_date">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_date }}</p>
-                <p class="text-sm">{{ formatDate(doc.outgoing_date) }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.outgoing_date }}</p>
+                <p class="text-highlighted font-semibold">{{ formatDate(doc.outgoing_date) }}</p>
               </div>
             </div>
             <div v-if="doc.note" class="mt-4 pt-4 border-t border-default">
-              <p class="text-highlighted font-semibold mb-1">{{ LABELS.note }}</p>
-              <p class="text-sm whitespace-pre-wrap">{{ doc.note }}</p>
+              <p class="text-sm text-muted mb-1">{{ LABELS.note }}</p>
+              <p class="text-highlighted font-semibold whitespace-pre-wrap">{{ doc.note }}</p>
             </div>
           </UCard>
 
@@ -387,8 +387,8 @@ async function handleDelete() {
               </div>
             </template>
             <div>
-              <p class="text-highlighted font-semibold mb-1">{{ LABELS.recipient_organization }}</p>
-              <p class="text-sm">{{ doc.recipient_organization }}</p>
+              <p class="text-sm text-muted mb-1">{{ LABELS.recipient_organization }}</p>
+              <p class="text-highlighted font-semibold">{{ doc.recipient_organization }}</p>
             </div>
           </UCard>
 
@@ -402,42 +402,42 @@ async function handleDelete() {
             </template>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div v-if="lookupRegionName(doc.region_id)">
-                <p class="text-highlighted font-semibold mb-1">Hudud</p>
-                <p class="text-sm">{{ lookupRegionName(doc.region_id) }}</p>
+                <p class="text-sm text-muted mb-1">Hudud</p>
+                <p class="text-highlighted font-semibold">{{ lookupRegionName(doc.region_id) }}</p>
               </div>
               <div v-if="lookupRegionName(doc.country_id)">
-                <p class="text-highlighted font-semibold mb-1">Davlat</p>
-                <p class="text-sm">{{ lookupRegionName(doc.country_id) }}</p>
+                <p class="text-sm text-muted mb-1">Davlat</p>
+                <p class="text-highlighted font-semibold">{{ lookupRegionName(doc.country_id) }}</p>
               </div>
               <div v-if="lookupReceptionPlace(doc.reception_place_id)" class="sm:col-span-2">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.reception_place }}</p>
-                <p class="text-sm">{{ lookupReceptionPlace(doc.reception_place_id) }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.reception_place }}</p>
+                <p class="text-highlighted font-semibold">{{ lookupReceptionPlace(doc.reception_place_id) }}</p>
               </div>
               <div v-if="lookupAppealType(doc.appeal_type_id)">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.appeal_type }}</p>
-                <p class="text-sm">{{ lookupAppealType(doc.appeal_type_id) }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.appeal_type }}</p>
+                <p class="text-highlighted font-semibold">{{ lookupAppealType(doc.appeal_type_id) }}</p>
               </div>
               <div v-if="doc.person_type">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.person_type }}</p>
-                <p class="text-sm">{{ doc.person_type }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.person_type }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.person_type }}</p>
               </div>
               <div v-if="doc.outgoing_number">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_number }}</p>
-                <p class="text-sm">{{ doc.outgoing_number }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.outgoing_number }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.outgoing_number }}</p>
               </div>
               <div v-if="doc.outgoing_date">
-                <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_date }}</p>
-                <p class="text-sm">{{ formatDate(doc.outgoing_date) }}</p>
+                <p class="text-sm text-muted mb-1">{{ LABELS.outgoing_date }}</p>
+                <p class="text-highlighted font-semibold">{{ formatDate(doc.outgoing_date) }}</p>
               </div>
               <div v-if="doc.signed_by" class="sm:col-span-2">
-                <p class="text-highlighted font-semibold mb-1">{{ signedByLabel }}</p>
-                <p class="text-sm">{{ doc.signed_by }}</p>
+                <p class="text-sm text-muted mb-1">{{ signedByLabel }}</p>
+                <p class="text-highlighted font-semibold">{{ doc.signed_by }}</p>
               </div>
             </div>
 
             <div v-if="doc.note" class="mt-4 pt-4 border-t border-default">
-              <p class="text-highlighted font-semibold mb-1">{{ LABELS.note }}</p>
-              <p class="text-sm whitespace-pre-wrap">{{ doc.note }}</p>
+              <p class="text-sm text-muted mb-1">{{ LABELS.note }}</p>
+              <p class="text-highlighted font-semibold whitespace-pre-wrap">{{ doc.note }}</p>
             </div>
           </UCard>
 
@@ -452,8 +452,8 @@ async function handleDelete() {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div v-for="field in fields" :key="field.id">
-                <p class="text-highlighted font-semibold mb-1">{{ field.label }}</p>
-                <p class="text-sm">{{ getFieldValue(field.id) }}</p>
+                <p class="text-sm text-muted mb-1">{{ field.label }}</p>
+                <p class="text-highlighted font-semibold">{{ getFieldValue(field.id) }}</p>
               </div>
             </div>
           </UCard>
