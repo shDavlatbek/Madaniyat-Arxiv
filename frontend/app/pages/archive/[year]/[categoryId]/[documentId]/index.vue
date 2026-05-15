@@ -10,6 +10,8 @@ const documentId = computed(() => route.params.documentId as string)
 
 const { getDocument, deleteDocument } = useDocuments()
 const { apiFetch } = useApi()
+const { listRegions, listReceptionPlaces, listAppealTypes } = useReferences()
+const { list: listArchiveFolders } = useArchiveFolders()
 const toast = useToast()
 const config = useRuntimeConfig()
 const deleteOpen = ref(false)
@@ -19,9 +21,54 @@ const { data: fields } = await useAsyncData(`fields-${categoryId.value}`, () =>
   apiFetch<CategoryFieldResponse[]>(`/api/categories/${categoryId.value}/fields`)
 )
 
+// Reference data — resolve FK ids to display names (region/country/reception place/appeal type/archive folder).
+const { data: regionsData } = await useAsyncData('doc-view-regions', () => listRegions())
+const { data: receptionPlacesData } = await useAsyncData('doc-view-reception-places', () => listReceptionPlaces())
+const { data: appealTypesData } = await useAsyncData('doc-view-appeal-types', () => listAppealTypes())
+const { data: archiveFoldersData } = await useAsyncData('doc-view-archive-folders', () => listArchiveFolders())
+
 function getFieldValue(fieldId: string) {
   return doc.value?.field_values.find(fv => fv.category_field_id === fieldId)?.value || '-'
 }
+
+function lookupRegionName(id: string | null | undefined) {
+  if (!id) return null
+  return regionsData.value?.items.find(r => r.id === id)?.name || null
+}
+function lookupReceptionPlace(id: string | null | undefined) {
+  if (!id) return null
+  return receptionPlacesData.value?.items.find(p => p.id === id)?.name || null
+}
+function lookupAppealType(id: string | null | undefined) {
+  if (!id) return null
+  return appealTypesData.value?.items.find(t => t.id === id)?.name || null
+}
+function lookupArchiveFolder(id: string | null | undefined) {
+  if (!id) return null
+  const f = archiveFoldersData.value?.items.find(af => af.id === id)
+  return f ? `${f.index_code} — ${f.title}` : null
+}
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return '-'
+  return value.split('-').reverse().join('.')
+}
+
+// Pull the right "signed by" label depending on person type — a legal entity sends,
+// a natural person signs. Mirrors the form logic in DocumentForm.vue.
+const signedByLabel = computed(() =>
+  doc.value?.person_type === 'Yuridik shaxs' ? LABELS.signed_by_legal : LABELS.signed_by,
+)
+
+// Badge color per view — incoming green, outgoing blue, appeal amber, internal neutral.
+const documentViewColor = computed(() => {
+  switch (doc.value?.document_view) {
+    case 'incoming': return 'success' as const
+    case 'outgoing': return 'info' as const
+    case 'appeal': return 'warning' as const
+    default: return 'neutral' as const
+  }
+})
 
 const fileUrl = computed(() => {
   if (!doc.value?.file_path) return null
@@ -219,6 +266,14 @@ async function handleDelete() {
               <div class="flex items-center gap-2">
                 <UIcon name="i-lucide-file-text" class="text-primary" />
                 <span class="font-semibold">Asosiy ma'lumotlar</span>
+                <UBadge
+                  v-if="doc.document_view && doc.document_view !== 'unknown'"
+                  :label="DOCUMENT_VIEW_LABELS[doc.document_view]"
+                  :color="documentViewColor"
+                  variant="subtle"
+                  size="sm"
+                  class="ml-auto"
+                />
               </div>
             </template>
 
@@ -229,7 +284,7 @@ async function handleDelete() {
               </div>
               <div>
                 <p class="text-highlighted font-semibold mb-1">Sana</p>
-                <p class="text-sm">{{ doc.date ? doc.date.split('-').reverse().join('.') : '-' }}</p>
+                <p class="text-sm">{{ formatDate(doc.date) }}</p>
               </div>
               <div>
                 <p class="text-highlighted font-semibold mb-1">Imzo qo'ygan shaxs</p>
@@ -244,11 +299,143 @@ async function handleDelete() {
                 <p class="text-highlighted font-semibold mb-1">Arxiv tartib raqami</p>
                 <p class="text-sm">{{ doc.archive_number || '-' }}</p>
               </div>
+              <div v-if="lookupArchiveFolder(doc.archive_folder_id)">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.archive_folder }}</p>
+                <p class="text-sm">{{ lookupArchiveFolder(doc.archive_folder_id) }}</p>
+              </div>
             </div>
 
             <div v-if="doc.short_desc" class="mt-4 pt-4 border-t border-default">
               <p class="text-highlighted font-semibold mb-1">Qisqacha tavsif</p>
               <p class="text-sm">{{ doc.short_desc }}</p>
+            </div>
+          </UCard>
+
+          <!-- Hujjat tasnifi (Phase 3 universal fields) -->
+          <UCard
+            v-if="doc.document_type_name || doc.document_form || doc.sender || doc.language || doc.related_document_number || doc.related_document_date"
+          >
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-list-tree" class="text-primary" />
+                <span class="font-semibold">Hujjat tasnifi</span>
+              </div>
+            </template>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div v-if="doc.document_type_name">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.document_type }}</p>
+                <p class="text-sm">{{ doc.document_type_name }}</p>
+              </div>
+              <div v-if="doc.document_form">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.document_form }}</p>
+                <p class="text-sm">{{ doc.document_form }}</p>
+              </div>
+              <div v-if="doc.sender">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.sender }}</p>
+                <p class="text-sm">{{ doc.sender }}</p>
+              </div>
+              <div v-if="doc.language">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.language }}</p>
+                <p class="text-sm">{{ doc.language }}</p>
+              </div>
+              <div v-if="doc.related_document_number">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.related_document_number }}</p>
+                <p class="text-sm">{{ doc.related_document_number }}</p>
+              </div>
+              <div v-if="doc.related_document_date">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.related_document_date }}</p>
+                <p class="text-sm">{{ formatDate(doc.related_document_date) }}</p>
+              </div>
+            </div>
+          </UCard>
+
+          <!-- Conditional: Kiruvchi hujjat (incoming) -->
+          <UCard v-if="doc.document_view === 'incoming' && (doc.received_date || doc.origin_organization)">
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-inbox" class="text-primary" />
+                <span class="font-semibold">{{ DOCUMENT_VIEW_LABELS.incoming }}</span>
+              </div>
+            </template>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div v-if="doc.received_date">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.received_date }}</p>
+                <p class="text-sm">{{ formatDate(doc.received_date) }}</p>
+              </div>
+              <div v-if="doc.origin_organization">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.origin_organization }}</p>
+                <p class="text-sm">{{ doc.origin_organization }}</p>
+              </div>
+            </div>
+          </UCard>
+
+          <!-- Conditional: Chiquvchi hujjat (outgoing) -->
+          <UCard v-else-if="doc.document_view === 'outgoing' && (doc.sent_date || doc.recipient_organization)">
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-send" class="text-primary" />
+                <span class="font-semibold">{{ DOCUMENT_VIEW_LABELS.outgoing }}</span>
+              </div>
+            </template>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div v-if="doc.sent_date">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.sent_date }}</p>
+                <p class="text-sm">{{ formatDate(doc.sent_date) }}</p>
+              </div>
+              <div v-if="doc.recipient_organization">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.recipient_organization }}</p>
+                <p class="text-sm">{{ doc.recipient_organization }}</p>
+              </div>
+            </div>
+          </UCard>
+
+          <!-- Conditional: Murojaat (appeal) -->
+          <UCard v-else-if="doc.document_view === 'appeal'">
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-megaphone" class="text-primary" />
+                <span class="font-semibold">{{ DOCUMENT_VIEW_LABELS.appeal }}</span>
+              </div>
+            </template>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div v-if="lookupRegionName(doc.region_id)">
+                <p class="text-highlighted font-semibold mb-1">Hudud</p>
+                <p class="text-sm">{{ lookupRegionName(doc.region_id) }}</p>
+              </div>
+              <div v-if="lookupRegionName(doc.country_id)">
+                <p class="text-highlighted font-semibold mb-1">Davlat</p>
+                <p class="text-sm">{{ lookupRegionName(doc.country_id) }}</p>
+              </div>
+              <div v-if="lookupReceptionPlace(doc.reception_place_id)" class="sm:col-span-2">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.reception_place }}</p>
+                <p class="text-sm">{{ lookupReceptionPlace(doc.reception_place_id) }}</p>
+              </div>
+              <div v-if="lookupAppealType(doc.appeal_type_id)">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.appeal_type }}</p>
+                <p class="text-sm">{{ lookupAppealType(doc.appeal_type_id) }}</p>
+              </div>
+              <div v-if="doc.person_type">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.person_type }}</p>
+                <p class="text-sm">{{ doc.person_type }}</p>
+              </div>
+              <div v-if="doc.outgoing_number">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_number }}</p>
+                <p class="text-sm">{{ doc.outgoing_number }}</p>
+              </div>
+              <div v-if="doc.outgoing_date">
+                <p class="text-highlighted font-semibold mb-1">{{ LABELS.outgoing_date }}</p>
+                <p class="text-sm">{{ formatDate(doc.outgoing_date) }}</p>
+              </div>
+              <div v-if="doc.signed_by" class="sm:col-span-2">
+                <p class="text-highlighted font-semibold mb-1">{{ signedByLabel }}</p>
+                <p class="text-sm">{{ doc.signed_by }}</p>
+              </div>
+            </div>
+
+            <div v-if="doc.note" class="mt-4 pt-4 border-t border-default">
+              <p class="text-highlighted font-semibold mb-1">{{ LABELS.note }}</p>
+              <p class="text-sm whitespace-pre-wrap">{{ doc.note }}</p>
             </div>
           </UCard>
 
