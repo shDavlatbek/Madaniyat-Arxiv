@@ -125,7 +125,9 @@ class ArchiveFolderModel(Base):
     id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
     index_code: Mapped[str] = mapped_column(String(100), nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
-    retention_period: Mapped[str] = mapped_column(String(20), nullable=False)
+    retention_period_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("retention_periods.id", ondelete="SET NULL"), nullable=True
+    )
     start_date: Mapped[date_type] = mapped_column(Date, nullable=False)
     end_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
     year_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("years.id"), nullable=True)
@@ -133,6 +135,7 @@ class ArchiveFolderModel(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
     year: Mapped["YearModel | None"] = relationship()
+    retention_period: Mapped["RetentionPeriodModel | None"] = relationship()
 
     __table_args__ = (UniqueConstraint("year_id", "index_code"),)
 
@@ -171,6 +174,16 @@ class AppealTypeModel(Base):
     """Murojaat turi — kind of appeal (Ariza, Taklif, Shikoyat, So'rov)."""
 
     __tablename__ = "appeal_types"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+
+
+class RetentionPeriodModel(Base):
+    """Saqlash muddati — archival retention period reference (3 yil, Doimiy, …)."""
+
+    __tablename__ = "retention_periods"
 
     id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)

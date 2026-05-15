@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { ArchiveFolderResponse, RetentionPeriod, YearResponse } from '~/types'
+import type { ArchiveFolderResponse, YearResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
 
 const { apiFetch } = useApi()
 const { create, update, remove } = useArchiveFolders()
+const { listRetentionPeriods } = useReferences()
 const toast = useToast()
 
 // Year filter
@@ -22,6 +23,12 @@ const yearSelectItems = computed(() =>
   years.value.map(y => ({ label: `${y.value}`, value: y.id })),
 )
 
+// Retention period reference (Saqlash muddati) — seeded server-side.
+const { data: retentionData } = await useAsyncData('archive-folders-retention', () => listRetentionPeriods())
+const retentionItems = computed(() =>
+  (retentionData.value?.items || []).map(r => ({ label: r.name, value: r.id })),
+)
+
 // Folders list — refetches when the year filter changes
 const { data: foldersData, status, refresh } = await useAsyncData(
   'archive-folders',
@@ -37,17 +44,12 @@ const columns = [
   { id: 'row_number', header: 'T/r' },
   { accessorKey: 'index_code', header: LABELS.index_code },
   { accessorKey: 'title', header: LABELS.title },
-  { accessorKey: 'retention_period', header: LABELS.retention_period },
+  { accessorKey: 'retention_period_name', header: LABELS.retention_period },
   { accessorKey: 'start_date', header: LABELS.start_date },
   { accessorKey: 'end_date', header: LABELS.end_date },
   { accessorKey: 'document_count', header: LABELS.document_count },
   { id: 'actions', header: '' },
 ]
-
-const retentionItems = Object.entries(RETENTION_PERIOD_LABELS).map(([value, label]) => ({
-  label,
-  value: value as RetentionPeriod,
-}))
 
 // Create / edit modal
 const modalOpen = ref(false)
@@ -56,7 +58,7 @@ const saving = ref(false)
 const state = reactive({
   index_code: '',
   title: '',
-  retention_period: '' as RetentionPeriod | '',
+  retention_period_id: '' as string,
   start_date: '',
   end_date: '',
   year_id: undefined as number | undefined,
@@ -66,7 +68,7 @@ function openCreate() {
   editing.value = null
   state.index_code = ''
   state.title = ''
-  state.retention_period = ''
+  state.retention_period_id = ''
   state.start_date = ''
   state.end_date = ''
   state.year_id = yearFilter.value
@@ -77,7 +79,7 @@ function openEdit(folder: ArchiveFolderResponse) {
   editing.value = folder
   state.index_code = folder.index_code
   state.title = folder.title
-  state.retention_period = folder.retention_period
+  state.retention_period_id = folder.retention_period_id || ''
   state.start_date = folder.start_date
   state.end_date = folder.end_date || ''
   state.year_id = folder.year_id ?? undefined
@@ -85,7 +87,7 @@ function openEdit(folder: ArchiveFolderResponse) {
 }
 
 const canSave = computed(() =>
-  !!state.index_code.trim() && !!state.title.trim() && !!state.retention_period && !!state.start_date,
+  !!state.index_code.trim() && !!state.title.trim() && !!state.retention_period_id && !!state.start_date,
 )
 
 async function handleSave() {
@@ -95,7 +97,7 @@ async function handleSave() {
     const payload = {
       index_code: state.index_code.trim(),
       title: state.title.trim(),
-      retention_period: state.retention_period as RetentionPeriod,
+      retention_period_id: state.retention_period_id || null,
       start_date: state.start_date,
       end_date: state.end_date || null,
       year_id: state.year_id ?? null,
@@ -165,8 +167,9 @@ function formatDate(date: string | null) {
       <template #index_code-cell="{ row }">
         <span class="font-semibold text-highlighted">{{ row.original.index_code }}</span>
       </template>
-      <template #retention_period-cell="{ row }">
-        <UBadge :label="RETENTION_PERIOD_LABELS[row.original.retention_period]" variant="subtle" />
+      <template #retention_period_name-cell="{ row }">
+        <UBadge v-if="row.original.retention_period_name" :label="row.original.retention_period_name" variant="subtle" />
+        <span v-else class="text-muted">—</span>
       </template>
       <template #start_date-cell="{ row }">
         <span class="text-sm">{{ formatDate(row.original.start_date) }}</span>
@@ -205,9 +208,11 @@ function formatDate(date: string | null) {
           <UInput v-model="state.title" placeholder="Yig'ma jild sarlavhasi" size="lg" class="w-full" />
         </UFormField>
         <UFormField :label="LABELS.retention_period" required>
-          <USelect
-            v-model="state.retention_period"
+          <USelectMenu
+            v-model="state.retention_period_id"
+            value-key="value"
             :items="retentionItems"
+            :search-input="{ placeholder: 'Qidirish...' }"
             placeholder="Saqlash muddatini tanlang"
             icon="i-lucide-clock"
             size="lg"

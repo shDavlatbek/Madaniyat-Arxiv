@@ -3,7 +3,6 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime
 
-from src.domain.archive_folder.value_objects import RetentionPeriod
 from src.domain.shared.entity import Entity
 from src.domain.shared.errors import ValidationError
 
@@ -15,8 +14,9 @@ class ArchiveFolder(Entity):
         self,
         index_code: str,
         title: str,
-        retention_period: RetentionPeriod,
         start_date: date,
+        retention_period_id: uuid.UUID | None = None,
+        retention_period_name: str | None = None,
         end_date: date | None = None,
         year_id: int | None = None,
         id: uuid.UUID | None = None,
@@ -32,7 +32,10 @@ class ArchiveFolder(Entity):
             raise ValidationError("Archive folder end_date cannot precede start_date")
         self.index_code = index_code.strip()
         self.title = title.strip()
-        self.retention_period = retention_period
+        self.retention_period_id = retention_period_id
+        # Denormalized display name — populated by the mapper from the
+        # retention_periods reference table. Read-only at the domain level.
+        self.retention_period_name = retention_period_name
         self.start_date = start_date
         self.end_date = end_date
         self.year_id = year_id
@@ -41,7 +44,7 @@ class ArchiveFolder(Entity):
         self,
         index_code: str | None = None,
         title: str | None = None,
-        retention_period: RetentionPeriod | None = None,
+        retention_period_id: uuid.UUID | None = None,
         start_date: date | None = None,
         end_date: date | None = None,
         year_id: int | None = None,
@@ -54,8 +57,8 @@ class ArchiveFolder(Entity):
             if not title.strip():
                 raise ValidationError("Archive folder title cannot be empty")
             self.title = title.strip()
-        if retention_period is not None:
-            self.retention_period = retention_period
+        if retention_period_id is not None:
+            self.retention_period_id = retention_period_id
         if start_date is not None:
             self.start_date = start_date
         if end_date is not None:

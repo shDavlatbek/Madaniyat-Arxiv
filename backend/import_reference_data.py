@@ -1,10 +1,11 @@
 """
-Import Murojaat (appeal) reference data from JSON files into the database.
+Import reference data from JSON files into the database.
 
-Covers three tables:
-  - regions          <- data/region-local.json + data/region-abroad.json
-  - reception_places <- data/Qabul qilingan joy.json
-  - appeal_types     <- data/Murojaat turi.json
+Covers four tables:
+  - regions           <- data/region-local.json + data/region-abroad.json
+  - reception_places  <- data/Qabul qilingan joy.json
+  - appeal_types      <- data/Murojaat turi.json
+  - retention_periods <- data/Saqlash muddati.json
 
 Each JSON file is a list of objects with `id` (UUID string) and `name`
 (region files also carry `type`). Explicit UUIDs are preserved. The script is
@@ -37,6 +38,7 @@ from src.infrastructure.persistence.models import (
     AppealTypeModel,
     ReceptionPlaceModel,
     RegionModel,
+    RetentionPeriodModel,
 )
 
 
@@ -86,6 +88,7 @@ async def import_reference_data(data_dir: Path) -> None:
         region_rows.extend(_load(data_dir / filename))
     reception_rows = _load(data_dir / "Qabul qilingan joy.json")
     appeal_rows = _load(data_dir / "Murojaat turi.json")
+    retention_rows = _load(data_dir / "Saqlash muddati.json")
 
     engine = create_async_engine(settings.database_url, echo=False)
     session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -95,6 +98,7 @@ async def import_reference_data(data_dir: Path) -> None:
             ("Hududlar", RegionModel, region_rows, ("name", "type")),
             ("Qabul qilingan joylar", ReceptionPlaceModel, reception_rows, ("name",)),
             ("Murojaat turlari", AppealTypeModel, appeal_rows, ("name",)),
+            ("Saqlash muddatlari", RetentionPeriodModel, retention_rows, ("name",)),
         ):
             created, updated, skipped = await _sync(session, model, rows, fields)
             print(f"{label}: qo'shildi {created}, yangilandi {updated}, o'tkazib yuborildi {skipped}.")

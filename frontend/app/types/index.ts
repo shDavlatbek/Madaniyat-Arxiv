@@ -171,21 +171,17 @@ export interface AppealTypeResponse {
   name: string
 }
 
-export type RetentionPeriod =
-  | '3_years'
-  | '5_years'
-  | '10_years'
-  | '25_years'
-  | '50_years'
-  | '75_years'
-  | 'permanent'
-  | 'epk'
+export interface RetentionPeriodResponse {
+  id: string
+  name: string
+}
 
 export interface ArchiveFolderResponse {
   id: string
   index_code: string
   title: string
-  retention_period: RetentionPeriod
+  retention_period_id: string | null
+  retention_period_name: string | null
   start_date: string
   end_date: string | null
   year_id: number | null

@@ -1,8 +1,16 @@
-import type { AppealTypeResponse, ReceptionPlaceResponse, RegionResponse, RegionType } from '~/types'
+import type {
+  AppealTypeResponse,
+  ReceptionPlaceResponse,
+  RegionResponse,
+  RegionType,
+  RetentionPeriodResponse,
+} from '~/types'
 
 /**
- * Read-only access to the seed reference tables backing the Murojaat form:
- * regions (Hudud), reception places (Qabul qilingan joy), appeal types (Murojaat turi).
+ * Read-only access to the seed reference tables:
+ *   - Murojaat form: regions (Hudud), reception places (Qabul qilingan joy),
+ *     appeal types (Murojaat turi)
+ *   - Yig'ma jild form: retention periods (Saqlash muddati)
  */
 export const useReferences = () => {
   const { apiFetch } = useApi()
@@ -20,5 +28,9 @@ export const useReferences = () => {
     return apiFetch<{ items: AppealTypeResponse[] }>('/api/appeal-types')
   }
 
-  return { listRegions, listReceptionPlaces, listAppealTypes }
+  async function listRetentionPeriods() {
+    return apiFetch<{ items: RetentionPeriodResponse[] }>('/api/retention-periods')
+  }
+
+  return { listRegions, listReceptionPlaces, listAppealTypes, listRetentionPeriods }
 }

@@ -29,3 +29,12 @@ class AppealTypeResponse(BaseModel):
 
 class AppealTypeListResponse(BaseModel):
     items: list[AppealTypeResponse]
+
+
+class RetentionPeriodResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+
+
+class RetentionPeriodListResponse(BaseModel):
+    items: list[RetentionPeriodResponse]

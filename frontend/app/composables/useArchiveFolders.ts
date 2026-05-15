@@ -1,9 +1,9 @@
-import type { ArchiveFolderResponse, RetentionPeriod } from '~/types'
+import type { ArchiveFolderResponse } from '~/types'
 
 interface ArchiveFolderPayload {
   index_code?: string
   title?: string
-  retention_period?: RetentionPeriod
+  retention_period_id?: string | null
   start_date?: string
   end_date?: string | null
   year_id?: number | null

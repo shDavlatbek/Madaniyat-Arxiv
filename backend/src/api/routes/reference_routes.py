@@ -9,6 +9,8 @@ from src.api.schemas.reference import (
     ReceptionPlaceResponse,
     RegionListResponse,
     RegionResponse,
+    RetentionPeriodListResponse,
+    RetentionPeriodResponse,
 )
 from src.domain.user.entity import User
 from src.infrastructure.persistence.repositories.reference_repository import (
@@ -49,4 +51,15 @@ async def list_appeal_types(
     types = await repo.list_appeal_types()
     return AppealTypeListResponse(
         items=[AppealTypeResponse(id=t.id, name=t.name) for t in types]
+    )
+
+
+@router.get("/retention-periods", response_model=RetentionPeriodListResponse)
+async def list_retention_periods(
+    repo: SqlAlchemyReferenceRepository = Depends(get_reference_repository),
+    _: User = Depends(get_current_user),
+):
+    periods = await repo.list_retention_periods()
+    return RetentionPeriodListResponse(
+        items=[RetentionPeriodResponse(id=p.id, name=p.name) for p in periods]
     )

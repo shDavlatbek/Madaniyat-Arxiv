@@ -3,14 +3,12 @@ import uuid
 
 from pydantic import BaseModel, Field
 
-from src.domain.archive_folder.value_objects import RetentionPeriod
-
 
 class CreateArchiveFolderRequest(BaseModel):
     index_code: str = Field(min_length=1, max_length=100)
     title: str = Field(min_length=1, max_length=500)
-    retention_period: RetentionPeriod
     start_date: dt.date
+    retention_period_id: uuid.UUID | None = None
     end_date: dt.date | None = None
     year_id: int | None = None
 
@@ -18,7 +16,7 @@ class CreateArchiveFolderRequest(BaseModel):
 class UpdateArchiveFolderRequest(BaseModel):
     index_code: str | None = Field(default=None, min_length=1, max_length=100)
     title: str | None = Field(default=None, min_length=1, max_length=500)
-    retention_period: RetentionPeriod | None = None
+    retention_period_id: uuid.UUID | None = None
     start_date: dt.date | None = None
     end_date: dt.date | None = None
     year_id: int | None = None
@@ -28,7 +26,8 @@ class ArchiveFolderResponse(BaseModel):
     id: uuid.UUID
     index_code: str
     title: str
-    retention_period: RetentionPeriod
+    retention_period_id: uuid.UUID | None
+    retention_period_name: str | None
     start_date: dt.date
     end_date: dt.date | None
     year_id: int | None
