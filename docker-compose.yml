@@ -85,11 +85,11 @@ services:
       DATABASE_URL: postgresql+asyncpg://postgres:${DB_PASSWORD:-postgres}@db:5432/arxiv_db
       REDIS_URL: redis://redis:6379/0
       ELASTICSEARCH_URL: http://elasticsearch:9200
-    # Bind-mount so the OCR worker can read files the native backend
-    # writes during dev (uploads/{doc_id}/{filename}). In a full-prod
-    # "app" profile both backend and worker share the named uploads volume.
+    # Share the named uploads volume with the backend so the OCR worker
+    # can read files the backend wrote (uploads/{doc_id}/{filename}).
+    # For native-backend dev, swap this for `./backend/uploads:/app/uploads`.
     volumes:
-      - ./backend/uploads:/app/uploads
+      - uploads:/app/uploads
 
   backend:
     build: ./backend
