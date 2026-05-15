@@ -25,6 +25,8 @@ class DocumentMapper:
                 original_filename=a.original_filename,
                 sort_order=a.sort_order,
                 created_at=a.created_at,
+                ocr_status=a.ocr_status,
+                ocr_completed_at=a.ocr_completed_at,
             )
             for a in model.attachments
         ] if model.attachments else []
@@ -70,6 +72,8 @@ class DocumentMapper:
             outgoing_date=model.outgoing_date,
             signed_by=model.signed_by,
             note=model.note,
+            ocr_status=model.ocr_status,
+            ocr_completed_at=model.ocr_completed_at,
             field_values=field_values,
             attachments=attachments,
             created_at=model.created_at,

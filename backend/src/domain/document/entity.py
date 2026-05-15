@@ -52,6 +52,9 @@ class Document(AggregateRoot):
         outgoing_date: date | None = None,
         signed_by: str | None = None,
         note: str | None = None,
+        # Phase 6 — OCR lifecycle (worker-populated; never set by API callers)
+        ocr_status: str = "pending",
+        ocr_completed_at: datetime | None = None,
         field_values: list[DocumentFieldValue] | None = None,
         attachments: list[DocumentAttachment] | None = None,
         id: uuid.UUID | None = None,
@@ -98,6 +101,8 @@ class Document(AggregateRoot):
         self.outgoing_date = outgoing_date
         self.signed_by = signed_by
         self.note = note
+        self.ocr_status = ocr_status
+        self.ocr_completed_at = ocr_completed_at
         self.field_values = field_values or []
         self.attachments = attachments or []
 

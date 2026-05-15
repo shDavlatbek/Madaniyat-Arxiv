@@ -44,6 +44,9 @@ class DocumentAttachment:
     sort_order: int = 0
     id: uuid.UUID | None = None
     created_at: object | None = None
+    # Phase 6 — OCR lifecycle (worker-populated; never set by API callers)
+    ocr_status: str = "pending"
+    ocr_completed_at: object | None = None
 
     def __post_init__(self):
         if self.id is None:

@@ -94,16 +94,16 @@ def _build_es_doc(model: DocumentModel) -> dict[str, Any]:
         "date": _iso(model.date),
         "created_at": _iso(model.created_at),
         "updated_at": _iso(model.updated_at),
-        # ─── OCR text (populated by Phase 6) ─────────────────────────────
-        "extracted_text": None,
-        "ocr_status": "pending",
+        # ─── OCR text (filled by the Phase 6 worker; null until then) ───
+        "extracted_text": model.extracted_text,
+        "ocr_status": model.ocr_status,
         # ─── nested children ─────────────────────────────────────────────
         "attachments": [
             {
                 "id": str(a.id),
                 "original_filename": a.original_filename,
-                "extracted_text": None,
-                "ocr_status": "pending",
+                "extracted_text": a.extracted_text,
+                "ocr_status": a.ocr_status,
             }
             for a in (model.attachments or [])
         ],

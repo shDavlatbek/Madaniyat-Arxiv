@@ -2,7 +2,7 @@ import json
 import uuid
 from datetime import date as date_type, datetime
 
-from sqlalchemy import Boolean, Date, ForeignKey, Integer, String, Text, TypeDecorator, UniqueConstraint
+from sqlalchemy import Boolean, Date, ForeignKey, Index, Integer, String, Text, TypeDecorator, UniqueConstraint
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -299,6 +299,12 @@ class DocumentModel(Base):
     outgoing_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
     signed_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Phase 6 — OCR pipeline. extracted_text is the source of truth (PG)
+    # so we can reindex into ES without re-OCR. ocr_status tracks lifecycle:
+    # pending → processing → done | failed | skipped.
+    extracted_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ocr_status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="pending")
+    ocr_completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -337,6 +343,10 @@ class DocumentAttachmentModel(Base):
     file_path: Mapped[str] = mapped_column(String(1000), nullable=False)
     original_filename: Mapped[str] = mapped_column(String(500), nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # Phase 6 — same OCR lifecycle as DocumentModel.
+    extracted_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ocr_status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="pending")
+    ocr_completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
     document: Mapped["DocumentModel"] = relationship(back_populates="attachments")
@@ -358,3 +368,5 @@ class SearchIndexJobModel(Base):
     document_id: Mapped[uuid.UUID] = mapped_column(GUID(), nullable=False)
     op: Mapped[str] = mapped_column(String(10), nullable=False)  # "index" | "delete"
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+
+    __table_args__ = (Index("ix_search_index_jobs_created_at", "created_at"),)

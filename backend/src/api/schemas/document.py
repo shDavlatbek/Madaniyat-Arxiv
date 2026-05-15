@@ -137,6 +137,10 @@ class AttachmentResponse(BaseModel):
     original_filename: str
     sort_order: int
     created_at: dt.datetime
+    # Phase 6 — OCR lifecycle. extracted_text is intentionally not exposed;
+    # it lives in Postgres and feeds Elasticsearch but is not part of the API.
+    ocr_status: str = "pending"
+    ocr_completed_at: dt.datetime | None = None
 
 
 class DocumentFieldValueResponse(BaseModel):
@@ -187,6 +191,9 @@ class DocumentResponse(BaseModel):
     outgoing_date: dt.date | None
     signed_by: str | None
     note: str | None
+    # Phase 6 — OCR lifecycle (see AttachmentResponse for the note on extracted_text)
+    ocr_status: str = "pending"
+    ocr_completed_at: dt.datetime | None = None
     field_values: list[DocumentFieldValueResponse]
     attachments: list[AttachmentResponse] = Field(default_factory=list)
     created_at: dt.datetime

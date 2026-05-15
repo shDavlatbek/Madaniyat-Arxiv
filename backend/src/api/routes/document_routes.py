@@ -65,6 +65,8 @@ def _to_response(doc: Document) -> DocumentResponse:
         outgoing_date=doc.outgoing_date,
         signed_by=doc.signed_by,
         note=doc.note,
+        ocr_status=doc.ocr_status,
+        ocr_completed_at=doc.ocr_completed_at,
         field_values=[
             DocumentFieldValueResponse(category_field_id=fv.category_field_id, value=fv.value)
             for fv in doc.field_values
@@ -73,6 +75,7 @@ def _to_response(doc: Document) -> DocumentResponse:
             AttachmentResponse(
                 id=a.id, file_path=a.file_path, original_filename=a.original_filename,
                 sort_order=a.sort_order, created_at=a.created_at,
+                ocr_status=a.ocr_status, ocr_completed_at=a.ocr_completed_at,
             )
             for a in doc.attachments
         ],
