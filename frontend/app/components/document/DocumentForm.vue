@@ -520,7 +520,7 @@ async function handleSubmit() {
           <!-- Universal fields — Yuboruvchi + Tili are hidden for Chiquvchi (outgoing). -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <UFormField
-              v-if="state.document_view !== 'outgoing'"
+              v-if="state.document_view !== 'outgoing' && state.document_view !== 'internal'"
               :label="LABELS.sender"
               name="sender"
             >

@@ -311,10 +311,11 @@ async function handleDelete() {
             </div>
           </UCard>
 
-          <!-- Hujjat tasnifi (Phase 3 universal fields) — Yuboruvchi + Tili are
-               hidden for Chiquvchi (outgoing) to match the form. -->
+          <!-- Hujjat tasnifi (Phase 3 universal fields). Yuboruvchi is hidden for
+               Chiquvchi (outgoing) and Ichki (internal); Tili is hidden for
+               Chiquvchi only — both match the form's visibility rules. -->
           <UCard
-            v-if="doc.document_type_name || doc.document_form || (doc.document_view !== 'outgoing' && (doc.sender || doc.language)) || doc.related_document_number || doc.related_document_date"
+            v-if="doc.document_type_name || doc.document_form || (doc.sender && doc.document_view !== 'outgoing' && doc.document_view !== 'internal') || (doc.language && doc.document_view !== 'outgoing') || doc.related_document_number || doc.related_document_date"
           >
             <template #header>
               <div class="flex items-center gap-2">
@@ -332,7 +333,7 @@ async function handleDelete() {
                 <p class="text-highlighted font-semibold mb-1">{{ LABELS.document_form }}</p>
                 <p class="text-sm">{{ doc.document_form }}</p>
               </div>
-              <div v-if="doc.sender && doc.document_view !== 'outgoing'">
+              <div v-if="doc.sender && doc.document_view !== 'outgoing' && doc.document_view !== 'internal'">
                 <p class="text-highlighted font-semibold mb-1">{{ LABELS.sender }}</p>
                 <p class="text-sm">{{ doc.sender }}</p>
               </div>
