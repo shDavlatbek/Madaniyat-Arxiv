@@ -88,6 +88,24 @@ make migrate                      # apply pending migrations
 make migration m="add foo table"  # autogenerate a new revision
 ```
 
+## Search workflows
+
+```sh
+make worker                                       # start the arq drain
+cd backend && uv run python -m scripts.reindex    # enqueue every doc
+cd backend && uv run python -m scripts.reindex --year 2024
+cd backend && uv run python -m scripts.reindex --since 2024-01-01
+cd backend && uv run python -m scripts.reindex --dry-run
+```
+
+The reindex CLI appends outbox rows; the running `arq` worker drains them
+the same way it handles live writes. Run after schema changes that affect
+denormalized fields, mapping updates, or alias swaps.
+
+`GET /api/health` reports the live status of Postgres, Elasticsearch, and
+Redis. Returns `200` only when all three are healthy; `503` with per-dep
+status when any is down.
+
 ## Project layout
 
 ```

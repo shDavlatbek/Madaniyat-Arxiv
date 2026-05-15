@@ -117,14 +117,14 @@ Elasticsearch 8.x, Postgres 16, arq + Redis (queue), outbox-lite sync pattern.
 - [x] **5.2** Document indexer service (Postgres → ES with denormalized joins) ✅ index_document/delete_document/index_bulk verified; 2 dev docs indexed, search by title + short_desc finds them, delete tolerates 404
 - [x] **5.3** `search_index_jobs` outbox table + on-save / on-delete hook ✅ save→outbox(index), update→outbox(index), delete→outbox(delete) — all three verified through SqlAlchemyDocumentRepository
 - [x] **5.4** arq cron job: drain outbox → index/delete in ES ✅ drain_search_outbox runs every 2s; 10 inserts → drained in 0.26s → 10 ES docs; 10 deletes → drained → 0 ES docs
-- [ ] **5.5** Reindex CLI (`python -m src.scripts.reindex`)
-- [ ] **5.6** `/api/health` reports ES + Redis status
+- [x] **5.5** Reindex CLI (`python -m scripts.reindex`) ✅ flags --year/--since/--dry-run; PG=2 → enqueue → drain → ES=2 verified
+- [x] **5.6** `/api/health` reports ES + Redis status ✅ 200 all-ok / 503 degraded matrix verified across stop+restart of ES
 
 ### Checkpoint — Phase 5
-- [ ] Every existing document searchable via `documents` alias
-- [ ] CRUD changes reflected in ES within 5s
-- [ ] Reindex CLI works
-- [ ] Existing search UI still uses ILIKE (cut-over in Phase 7)
+- [x] Every existing document searchable via `documents` alias (PG=2, ES=2 after reindex)
+- [x] CRUD changes reflected in ES within 5s (verified 10-batch drain in 0.26s)
+- [x] Reindex CLI works
+- [x] Existing search UI still uses ILIKE (cut-over in Phase 7)
 - [ ] **Human review**
 
 ---

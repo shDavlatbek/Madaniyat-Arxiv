@@ -1,11 +1,15 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
+import redis.asyncio as aioredis
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
 from src.domain.shared.errors import AuthorizationError, DomainError, NotFoundError, ValidationError
+from src.infrastructure.persistence.database import async_session
 from src.infrastructure.search.es_client import close_es, get_es
 from src.infrastructure.search.index_template import ensure_index
 
@@ -88,6 +92,47 @@ app.include_router(document_type_router)
 app.include_router(reference_router)
 
 
+async def _check_postgres() -> bool:
+    try:
+        async with async_session() as s:
+            await asyncio.wait_for(s.execute(text("SELECT 1")), timeout=1.0)
+        return True
+    except Exception as exc:  # noqa: BLE001
+        log.warning("health: postgres down — %s", exc)
+        return False
+
+
+async def _check_elasticsearch() -> bool:
+    try:
+        await asyncio.wait_for(get_es().cluster.health(), timeout=1.0)
+        return True
+    except Exception as exc:  # noqa: BLE001
+        log.warning("health: elasticsearch down — %s", exc)
+        return False
+
+
+async def _check_redis() -> bool:
+    client = aioredis.from_url(app_settings.redis_url, socket_connect_timeout=1)
+    try:
+        await asyncio.wait_for(client.ping(), timeout=1.0)
+        return True
+    except Exception as exc:  # noqa: BLE001
+        log.warning("health: redis down — %s", exc)
+        return False
+    finally:
+        await client.aclose()
+
+
 @app.get("/api/health")
 async def health_check():
-    return {"status": "ok"}
+    pg_ok, es_ok, redis_ok = await asyncio.gather(
+        _check_postgres(), _check_elasticsearch(), _check_redis()
+    )
+    body = {
+        "status": "ok" if (pg_ok and es_ok and redis_ok) else "degraded",
+        "postgres": "ok" if pg_ok else "down",
+        "elasticsearch": "ok" if es_ok else "down",
+        "redis": "ok" if redis_ok else "down",
+    }
+    status_code = 200 if body["status"] == "ok" else 503
+    return JSONResponse(content=body, status_code=status_code)
