@@ -18,7 +18,10 @@ class SqlAlchemyUserRepository(UserRepository):
         stmt = (
             select(UserModel)
             .where(UserModel.id == user_id)
-            .options(selectinload(UserModel.department))
+            .options(
+                selectinload(UserModel.department),
+                selectinload(UserModel.music_school),
+            )
         )
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
@@ -28,14 +31,20 @@ class SqlAlchemyUserRepository(UserRepository):
         stmt = (
             select(UserModel)
             .where(UserModel.username == username)
-            .options(selectinload(UserModel.department))
+            .options(
+                selectinload(UserModel.department),
+                selectinload(UserModel.music_school),
+            )
         )
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return UserMapper.to_domain(model) if model else None
 
     async def find_all(self, page: int = 1, page_size: int = 20, search: str | None = None) -> tuple[list[User], int]:
-        stmt = select(UserModel).options(selectinload(UserModel.department))
+        stmt = select(UserModel).options(
+            selectinload(UserModel.department),
+            selectinload(UserModel.music_school),
+        )
         count_stmt = select(func.count()).select_from(UserModel)
 
         if search:
@@ -61,12 +70,15 @@ class SqlAlchemyUserRepository(UserRepository):
             existing = UserMapper.to_model(user)
             self._session.add(existing)
             await self._session.flush()
-        # Re-select with the department joined so to_domain has no lazy-load,
+        # Re-select with the relationships joined so to_domain has no lazy-load,
         # and server-side onupdate timestamps are refreshed.
         stmt = (
             select(UserModel)
             .where(UserModel.id == existing.id)
-            .options(selectinload(UserModel.department))
+            .options(
+                selectinload(UserModel.department),
+                selectinload(UserModel.music_school),
+            )
         )
         result = await self._session.execute(stmt)
         return UserMapper.to_domain(result.scalar_one())

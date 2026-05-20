@@ -29,6 +29,8 @@ def _to_response(user: User) -> UserResponse:
         is_active=user.is_active,
         department_id=user.department_id,
         department_name=user.department_name,
+        music_school_id=user.music_school_id,
+        music_school_name=user.music_school_name,
         created_at=user.created_at,
         updated_at=user.updated_at,
     )
@@ -60,6 +62,7 @@ async def create_user(
         email=request.email,
         is_active=request.is_active,
         department_id=request.department_id,
+        music_school_id=request.music_school_id,
     ))
     return _to_response(user)
 
@@ -88,6 +91,7 @@ async def update_user(
         role=request.role,
         is_active=request.is_active,
         department_id=request.department_id,
+        music_school_id=request.music_school_id,
     ))
     return _to_response(user)
 

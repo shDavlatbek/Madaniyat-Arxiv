@@ -65,6 +65,16 @@ export const LABELS = {
   signed_by: 'Kim tomonidan imzolangan (F.I.O)',
   signed_by_legal: 'Kim tomonidan yuborilgan',
   note: 'Eslatma',
+
+  // Musiqa maktabi arxivi
+  music_school: 'Musiqa maktabi',
+  music_schools: 'Musiqa maktablari',
+  specialty: "Mutaxassislik (cholg'u)",
+  graduation_year: 'Bitirgan yili',
+  diploma_serial: 'Diplom seriyasi',
+  diploma_number: 'Diplom raqami',
+  given_date: 'Berilgan sana',
+  student_full_name: "O'quvchi F.I.Sh.",
 } as const
 
 /** Hudud — the synthetic "Xorijiy davlat" option in the region select. */

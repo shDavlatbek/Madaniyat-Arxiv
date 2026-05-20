@@ -27,6 +27,7 @@ class UserCommandHandler:
             role=UserRole(command.role),
             is_active=command.is_active,
             department_id=command.department_id,
+            music_school_id=command.music_school_id,
         )
         return await self._user_repo.save(user)
 
@@ -42,6 +43,7 @@ class UserCommandHandler:
             role=role,
             is_active=command.is_active,
             department_id=command.department_id,
+            music_school_id=command.music_school_id,
         )
         return await self._user_repo.save(user)
 

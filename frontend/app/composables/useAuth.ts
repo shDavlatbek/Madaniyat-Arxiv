@@ -7,6 +7,9 @@ export const useAuth = () => {
   const user = computed(() => userCookie.value)
   const loggedIn = computed(() => !!token.value && !!userCookie.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
+  const isMusicSchool = computed(() => user.value?.role === 'music_school')
+  const musicSchoolId = computed(() => user.value?.music_school_id)
+  const musicSchoolName = computed(() => user.value?.music_school_name)
 
   const { apiFetch } = useApi()
 
@@ -37,5 +40,5 @@ export const useAuth = () => {
     }
   }
 
-  return { user, loggedIn, isAdmin, token, login, logout, fetchMe }
+  return { user, loggedIn, isAdmin, isMusicSchool, musicSchoolId, musicSchoolName, token, login, logout, fetchMe }
 }

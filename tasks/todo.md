@@ -55,9 +55,9 @@ User model and roles are **not** modified in this iteration.
   - [x] Yig'ma jild (archive folder) select — year-scoped ✅ commit `f1f4dac`
   - [x] `document_view` select + conditional view-specific fields ✅ commit `abe4160`
   - [x] universal fields (sender, document_form, language, related_document_*) ✅ commit `abe4160`
-- [~] **3.5** Document edit + detail pages updated to show/edit new fields
+- [x] **3.5** Document edit + detail pages updated to show/edit new fields
   - [x] Edit page — shared `DocumentForm.vue` already renders/edits new fields (`abe4160`)
-  - [ ] Detail page (`[documentId]/index.vue`) — render Phase 3 fields read-only
+  - [x] Detail page (`[documentId]/index.vue`) — render Phase 3 fields read-only
 
 ### Ad-hoc (user-requested mid-Phase-3)
 - [x] **User ↔ Department link** — `users.department_id`, full vertical

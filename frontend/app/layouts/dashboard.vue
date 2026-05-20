@@ -2,7 +2,7 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const route = useRoute()
-const { user, isAdmin, logout } = useAuth()
+const { user, isAdmin, isMusicSchool, logout } = useAuth()
 const sidebarOpen = ref(true)
 const mobileSidebarOpen = ref(false)
 
@@ -27,7 +27,9 @@ function onKeydown(e: KeyboardEvent) {
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
-const navItems = computed<NavigationMenuItem[]>(() => {
+const mainNavItems = computed<NavigationMenuItem[]>(() => {
+  if (isMusicSchool.value) return []
+
   const items: NavigationMenuItem[] = [
     { label: 'Arxiv', icon: 'i-lucide-archive', to: '/archive' },
     { label: 'Qidiruv', icon: 'i-lucide-search', to: '/archive/search' },
@@ -41,6 +43,18 @@ const navItems = computed<NavigationMenuItem[]>(() => {
       { label: 'Shaxslar', icon: 'i-lucide-user-check', to: '/admin/persons' },
       { label: 'Foydalanuvchilar', icon: 'i-lucide-users', to: '/admin/users' },
     )
+  }
+  return items
+})
+
+const musicSchoolNavItems = computed<NavigationMenuItem[]>(() => {
+  const items: NavigationMenuItem[] = []
+  if (isMusicSchool.value || isAdmin.value) {
+    items.push({ label: 'Maktab arxivi', icon: 'i-lucide-music-4', to: '/music-school-archive' })
+    items.push({ label: 'Mutaxassisliklar', icon: 'i-lucide-settings-2', to: '/music-school-specialties' })
+  }
+  if (isAdmin.value) {
+    items.push({ label: 'Musiqa maktablari', icon: 'i-lucide-school', to: '/admin/music-schools' })
   }
   return items
 })
@@ -102,21 +116,47 @@ const userMenuItems = computed(() => [
       </div>
 
       <!-- Navigation -->
-      <nav class="flex-1 overflow-y-auto p-3">
-        <UNavigationMenu
-          :items="navItems"
-          orientation="vertical"
-          :ui="{
-            list: 'flex flex-col gap-1.5',
-            link: [
-              'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150',
-              'text-muted hover:text-highlighted hover:bg-accented/60',
-              !sidebarOpen && 'justify-center px-2',
-            ].filter(Boolean).join(' '),
-            linkLeadingIcon: 'size-5 shrink-0',
-            linkActive: 'text-primary bg-primary/10 hover:bg-primary/15 hover:text-primary',
-          }"
-        />
+      <nav class="flex-1 overflow-y-auto p-3 space-y-4">
+        <!-- Main Archive -->
+        <div v-if="mainNavItems.length > 0">
+          <UNavigationMenu
+            :items="mainNavItems"
+            orientation="vertical"
+            :ui="{
+              list: 'flex flex-col gap-1.5',
+              link: [
+                'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150',
+                'text-muted hover:text-highlighted hover:bg-accented/60',
+                !sidebarOpen && 'justify-center px-2',
+              ].filter(Boolean).join(' '),
+              linkLeadingIcon: 'size-5 shrink-0',
+              linkActive: 'text-primary bg-primary/10 hover:bg-primary/15 hover:text-primary',
+            }"
+          />
+        </div>
+
+        <!-- Section separator and Music School Archive -->
+        <div v-if="musicSchoolNavItems.length > 0">
+          <div v-if="mainNavItems.length > 0" class="px-3 py-2 flex items-center gap-2">
+            <div class="h-px flex-1 bg-default" />
+            <span v-if="sidebarOpen" class="text-[10px] font-bold tracking-wider uppercase text-primary">Musiqa maktabi</span>
+            <div class="h-px flex-1 bg-default" />
+          </div>
+          <UNavigationMenu
+            :items="musicSchoolNavItems"
+            orientation="vertical"
+            :ui="{
+              list: 'flex flex-col gap-1.5',
+              link: [
+                'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150',
+                'text-muted hover:text-highlighted hover:bg-accented/60',
+                !sidebarOpen && 'justify-center px-2',
+              ].filter(Boolean).join(' '),
+              linkLeadingIcon: 'size-5 shrink-0 text-primary',
+              linkActive: 'text-primary bg-primary/10 hover:bg-primary/15 hover:text-primary',
+            }"
+          />
+        </div>
       </nav>
 
       <!-- Footer - user menu -->

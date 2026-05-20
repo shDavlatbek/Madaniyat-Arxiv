@@ -24,7 +24,7 @@ const total = computed(() => data.value?.total || 0)
 const columns = [
   { accessorKey: 'username', header: 'Login' },
   { accessorKey: 'name', header: 'Ism' },
-  { accessorKey: 'department_name', header: LABELS.department },
+  { accessorKey: 'department_name', header: `${LABELS.department} / Musiqa maktabi` },
   { accessorKey: 'role', header: 'Rol' },
   { accessorKey: 'is_active', header: 'Holat' },
   { id: 'actions', header: '' },
@@ -61,7 +61,11 @@ async function handleDelete() {
         <span class="font-semibold text-highlighted">{{ row.original.username }}</span>
       </template>
       <template #department_name-cell="{ row }">
-        <span v-if="row.original.department_name" class="text-sm">{{ row.original.department_name }}</span>
+        <span v-if="row.original.role === 'music_school' && row.original.music_school_name" class="text-sm inline-flex items-center gap-1">
+          <UIcon name="i-lucide-school" class="text-primary size-4 shrink-0" />
+          {{ row.original.music_school_name }}
+        </span>
+        <span v-else-if="row.original.department_name" class="text-sm">{{ row.original.department_name }}</span>
         <span v-else class="text-sm text-muted">—</span>
       </template>
       <template #is_active-cell="{ row }">

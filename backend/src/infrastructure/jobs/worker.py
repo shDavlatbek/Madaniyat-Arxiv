@@ -31,11 +31,20 @@ from src.infrastructure.persistence.database import async_session
 from src.infrastructure.persistence.models import (
     DocumentAttachmentModel,
     DocumentModel,
+    MusicSchoolDocumentModel,
     SearchIndexJobModel,
 )
-from src.infrastructure.search.document_indexer import delete_document, index_document
+from src.infrastructure.search.document_indexer import (
+    delete_document as delete_general_document,
+    index_document as index_general_document,
+)
+from src.infrastructure.search.music_document_indexer import (
+    delete_document as delete_music_document,
+    index_document as index_music_document,
+)
 from src.infrastructure.search.es_client import close_es, get_es
-from src.infrastructure.search.index_template import ensure_index
+from src.infrastructure.search.index_template import ensure_index as ensure_general_index
+from src.infrastructure.search.music_index_template import ensure_index as ensure_music_index
 
 log = logging.getLogger("worker")
 
@@ -85,9 +94,13 @@ async def ocr_extract(
     log.info("ocr_extract: doc=%s attachment=%s", doc_uuid, att_uuid)
 
     async with async_session() as s:
+        entity_type = "general"
         if att_uuid is None:
             target = await s.get(DocumentModel, doc_uuid)
-            label = f"doc {doc_uuid}"
+            if target is None:
+                target = await s.get(MusicSchoolDocumentModel, doc_uuid)
+                entity_type = "music_school"
+            label = f"{entity_type} doc {doc_uuid}"
         else:
             target = await s.get(DocumentAttachmentModel, att_uuid)
             label = f"attachment {att_uuid}"
@@ -127,23 +140,12 @@ async def ocr_extract(
         target.ocr_status = "done"
         target.ocr_completed_at = datetime.utcnow()
         # Re-index so ES picks up the new extracted_text.
-        s.add(SearchIndexJobModel(document_id=doc_uuid, op="index"))
+        s.add(SearchIndexJobModel(document_id=doc_uuid, op="index", entity_type=entity_type))
         await s.commit()
         log.info("ocr_extract: %s done (%d chars)", label, len(text or ""))
         return "done"
-
-
 async def drain_search_outbox(ctx: dict) -> int:
-    """Drain up to ``DRAIN_BATCH_SIZE`` rows from ``search_index_jobs``.
-
-    Each row is processed independently: on success the outbox row is deleted
-    in the same transaction; on Elasticsearch failure the row stays so the
-    next tick retries. A row whose ``document_id`` no longer exists in
-    Postgres collapses to a delete via :func:`index_document`'s internal
-    handling — it's idempotent.
-
-    Returns the number of rows processed (useful in tests).
-    """
+    """Drain up to ``DRAIN_BATCH_SIZE`` rows from ``search_index_jobs``."""
     es = get_es()
     processed = 0
     async with async_session() as s:
@@ -158,20 +160,23 @@ async def drain_search_outbox(ctx: dict) -> int:
 
         for row in rows:
             try:
+                is_music = row.entity_type == "music_school"
                 if row.op == "index":
-                    await index_document(es, s, row.document_id)
+                    if is_music:
+                        await index_music_document(es, s, row.document_id)
+                    else:
+                        await index_general_document(es, s, row.document_id)
                 elif row.op == "delete":
-                    await delete_document(es, row.document_id)
+                    if is_music:
+                        await delete_music_document(es, row.document_id)
+                    else:
+                        await delete_general_document(es, row.document_id)
                 else:
                     log.warning("drain: unknown op %r on row %s — dropping", row.op, row.id)
                 await s.delete(row)
                 await s.flush()
                 processed += 1
             except Exception:  # noqa: BLE001
-                # Bail without committing the row delete; it retries next tick.
-                # The earlier rows in this batch are already flushed and will
-                # be committed below — that's intentional: partial progress is
-                # safer than rolling back successful work for one failure.
                 log.exception("drain: failed for outbox row %s op=%s", row.id, row.op)
                 break
 
@@ -185,9 +190,13 @@ async def drain_search_outbox(ctx: dict) -> int:
 async def startup(ctx: dict) -> None:
     log.info("worker startup: redis=%s, elasticsearch=%s", settings.redis_url, settings.elasticsearch_url)
     try:
-        await ensure_index(get_es())
+        await ensure_general_index(get_es())
     except Exception as exc:  # noqa: BLE001
-        log.warning("ensure_index failed at worker startup: %s", exc)
+        log.warning("ensure_general_index failed at worker startup: %s", exc)
+    try:
+        await ensure_music_index(get_es())
+    except Exception as exc:  # noqa: BLE001
+        log.warning("ensure_music_index failed at worker startup: %s", exc)
 
 
 async def shutdown(ctx: dict) -> None:

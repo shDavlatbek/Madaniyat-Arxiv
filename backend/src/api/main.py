@@ -12,7 +12,8 @@ from src.domain.shared.errors import AuthorizationError, DomainError, NotFoundEr
 from src.infrastructure.jobs.arq_pool import close_arq_pool
 from src.infrastructure.persistence.database import async_session
 from src.infrastructure.search.es_client import close_es, get_es
-from src.infrastructure.search.index_template import ensure_index
+from src.infrastructure.search.index_template import ensure_index as ensure_general_index
+from src.infrastructure.search.music_index_template import ensure_index as ensure_music_index
 
 log = logging.getLogger(__name__)
 
@@ -24,9 +25,13 @@ async def lifespan(app: FastAPI):
     # available for non-search endpoints, and the next request that needs ES
     # surfaces the underlying error.
     try:
-        await ensure_index(get_es())
+        await ensure_general_index(get_es())
     except Exception as exc:  # noqa: BLE001
-        log.warning("ensure_index failed on startup: %s", exc)
+        log.warning("ensure_general_index failed on startup: %s", exc)
+    try:
+        await ensure_music_index(get_es())
+    except Exception as exc:  # noqa: BLE001
+        log.warning("ensure_music_index failed on startup: %s", exc)
     yield
     await close_es()
     await close_arq_pool()
@@ -82,6 +87,9 @@ from src.api.routes.archive_folder_routes import router as archive_folder_router
 from src.api.routes.document_type_routes import router as document_type_router
 from src.api.routes.reference_routes import router as reference_router
 from src.api.routes.search_routes import router as search_router
+from src.api.routes.music_school_routes import router as music_school_router
+from src.api.routes.music_school_document_routes import router as music_school_document_router
+from src.api.routes.music_school_specialty_routes import router as music_school_specialty_router
 
 app.include_router(auth_router)
 app.include_router(user_router)
@@ -94,6 +102,9 @@ app.include_router(archive_folder_router)
 app.include_router(document_type_router)
 app.include_router(reference_router)
 app.include_router(search_router)
+app.include_router(music_school_router)
+app.include_router(music_school_document_router)
+app.include_router(music_school_specialty_router)
 
 
 async def _check_postgres() -> bool:

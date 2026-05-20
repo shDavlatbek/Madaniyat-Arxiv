@@ -102,3 +102,41 @@ def get_document_type_query_handler(session: AsyncSession = Depends(get_session)
 # Reference data (regions, reception places, appeal types) — read-only seed tables
 def get_reference_repository(session: AsyncSession = Depends(get_session)) -> SqlAlchemyReferenceRepository:
     return SqlAlchemyReferenceRepository(session)
+
+
+# Music School Reference CRUD & Listing
+from src.infrastructure.persistence.repositories.music_school_repository import SqlAlchemyMusicSchoolRepository
+
+def get_music_school_repository(session: AsyncSession = Depends(get_session)) -> SqlAlchemyMusicSchoolRepository:
+    return SqlAlchemyMusicSchoolRepository(session)
+
+
+# Music School Document command & query handlers
+from src.infrastructure.persistence.repositories.music_school_document_repository import SqlAlchemyMusicSchoolDocumentRepository
+from src.application.music_school_document.handlers import MusicSchoolDocumentCommandHandler, MusicSchoolDocumentQueryHandler
+
+def get_music_school_document_command_handler(
+    session: AsyncSession = Depends(get_session)
+) -> MusicSchoolDocumentCommandHandler:
+    return MusicSchoolDocumentCommandHandler(
+        document_repo=SqlAlchemyMusicSchoolDocumentRepository(session),
+        file_storage=FileStorageService(),
+    )
+
+
+def get_music_school_document_query_handler(
+    session: AsyncSession = Depends(get_session)
+) -> MusicSchoolDocumentQueryHandler:
+    return MusicSchoolDocumentQueryHandler(SqlAlchemyMusicSchoolDocumentRepository(session))
+
+
+# Music School Specialty Repository dependency
+from src.infrastructure.persistence.repositories.music_school_specialty_repository import SqlAlchemyMusicSchoolSpecialtyRepository
+from src.domain.music_school_specialty.repository import MusicSchoolSpecialtyRepository
+
+def get_music_school_specialty_repository(
+    session: AsyncSession = Depends(get_session)
+) -> MusicSchoolSpecialtyRepository:
+    return SqlAlchemyMusicSchoolSpecialtyRepository(session)
+
+

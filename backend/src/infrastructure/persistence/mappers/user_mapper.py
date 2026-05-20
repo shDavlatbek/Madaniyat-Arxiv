@@ -16,6 +16,8 @@ class UserMapper:
             is_active=model.is_active,
             department_id=model.department_id,
             department_name=model.department.name if model.department else None,
+            music_school_id=model.music_school_id,
+            music_school_name=model.music_school.name if model.music_school else None,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
@@ -31,6 +33,7 @@ class UserMapper:
             role=entity.role.value,
             is_active=entity.is_active,
             department_id=entity.department_id,
+            music_school_id=entity.music_school_id,
         )
 
     @staticmethod
@@ -42,3 +45,5 @@ class UserMapper:
         model.role = entity.role.value
         model.is_active = entity.is_active
         model.department_id = entity.department_id
+        model.music_school_id = entity.music_school_id
+

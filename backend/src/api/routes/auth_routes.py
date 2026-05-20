@@ -58,6 +58,8 @@ def _user_response(user: User) -> UserResponse:
         is_active=user.is_active,
         department_id=user.department_id,
         department_name=user.department_name,
+        music_school_id=user.music_school_id,
+        music_school_name=user.music_school_name,
         created_at=user.created_at,
         updated_at=user.updated_at,
     )

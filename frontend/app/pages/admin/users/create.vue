@@ -7,6 +7,7 @@ definePageMeta({ layout: 'dashboard' })
 const route = useRoute()
 const { apiFetch } = useApi()
 const { list: listDepartments } = useDepartments()
+const { listSchools } = useMusicSchool()
 const toast = useToast()
 const loading = ref(false)
 
@@ -18,6 +19,14 @@ const departmentItems = computed(() =>
   (departmentsData.value?.items || []).map(d => ({ label: d.name, value: d.id })),
 )
 
+// Music schools for the Musiqa maktabi select
+const { data: schoolsData } = await useAsyncData('users-create-schools', () =>
+  listSchools(),
+)
+const schoolItems = computed(() =>
+  (schoolsData.value?.items || []).map(s => ({ label: s.name, value: s.id })),
+)
+
 const schema = z.object({
   username: z.string().min(2, 'Kamida 2 belgi'),
   name: z.string().min(1, 'Ism kiritilishi shart'),
@@ -26,6 +35,7 @@ const schema = z.object({
   email: z.string().email().optional().or(z.literal('')),
   is_active: z.boolean(),
   department_id: z.string().optional(),
+  music_school_id: z.string().optional(),
 })
 
 const state = reactive({
@@ -37,16 +47,25 @@ const state = reactive({
   is_active: true,
   // Pre-select department when arriving from a Bo'lim card ("Xodim qo'shish")
   department_id: (route.query.department_id as string) || undefined,
+  music_school_id: undefined as string | undefined,
 })
 
-const roleOptions = ['admin', 'user', 'viewer']
+const roleOptions = ['admin', 'user', 'viewer', 'music_school']
 
 async function handleSubmit() {
+  if (state.role === 'music_school' && !state.music_school_id) {
+    toast.add({ title: 'Xatolik', description: 'Musiqa maktabini tanlash shart', color: 'error', icon: 'i-lucide-alert-circle' })
+    return
+  }
   loading.value = true
   try {
     await apiFetch('/api/users', {
       method: 'POST',
-      body: { ...state, department_id: state.department_id || null },
+      body: { 
+        ...state, 
+        department_id: state.role !== 'music_school' ? (state.department_id || null) : null,
+        music_school_id: state.role === 'music_school' ? (state.music_school_id || null) : null
+      },
     })
     toast.add({ title: 'Muvaffaqiyat', description: 'Foydalanuvchi yaratildi', color: 'success', icon: 'i-lucide-check-circle' })
     navigateTo('/admin/users')
@@ -82,7 +101,7 @@ async function handleSubmit() {
             <UFormField label="Rol" name="role">
               <USelect v-model="state.role" :items="roleOptions" size="lg" />
             </UFormField>
-            <UFormField :label="LABELS.department" name="department_id">
+            <UFormField v-if="state.role !== 'music_school'" :label="LABELS.department" name="department_id">
               <USelectMenu
                 v-model="state.department_id"
                 value-key="value"
@@ -90,6 +109,18 @@ async function handleSubmit() {
                 :search-input="{ placeholder: 'Qidirish...' }"
                 placeholder="Bo'limni tanlang"
                 icon="i-lucide-building-2"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField v-else :label="LABELS.music_school" name="music_school_id" required>
+              <USelectMenu
+                v-model="state.music_school_id"
+                value-key="value"
+                :items="schoolItems"
+                :search-input="{ placeholder: 'Qidirish...' }"
+                placeholder="Musiqa maktabini tanlang"
+                icon="i-lucide-school"
                 size="lg"
                 class="w-full"
               />
@@ -110,3 +141,4 @@ async function handleSubmit() {
     </div>
   </PagePanel>
 </template>
+

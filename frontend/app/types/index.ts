@@ -7,6 +7,8 @@ export interface UserResponse {
   is_active: boolean
   department_id: string | null
   department_name: string | null
+  music_school_id: string | null
+  music_school_name: string | null
   created_at: string
   updated_at: string
 }
@@ -280,3 +282,91 @@ export interface PaginatedResponse<T> {
   page: number
   page_size: number
 }
+
+
+export interface MusicSchoolResponse {
+  id: string
+  name: string
+  code: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface MusicSchoolDocumentResponse {
+  id: string
+  student_full_name: string
+  music_school_id: string
+  music_school_name: string | null
+  specialty_id: string
+  specialty: string | null
+  graduation_year: number
+  diploma_serial: string
+  diploma_number: string
+  given_date: string
+  description: string | null
+  file_path: string | null
+  ocr_status: OcrStatus
+  ocr_completed_at: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface MusicSchoolSpecialtyResponse {
+  id: string
+  music_school_id: string
+  name: string
+  created_at: string
+  updated_at: string
+}
+
+export interface MusicSchoolSearchFilters {
+  music_school_id?: string[]
+  graduation_year?: number[]
+  specialty?: string[]
+  date_from?: string
+  date_to?: string
+}
+
+export interface MusicSchoolSearchRequest {
+  q?: string
+  filters?: MusicSchoolSearchFilters
+  facets?: string[]
+  page?: number
+  page_size?: number
+  sort?: SearchSort
+}
+
+export interface MusicSchoolSearchHighlight {
+  student_full_name?: string[] | null
+  specialty?: string[] | null
+  description?: string[] | null
+  extracted_text?: string[] | null
+}
+
+export interface MusicSchoolSearchHit {
+  id: string
+  score: number | null
+  student_full_name: string | null
+  music_school_id: string | null
+  music_school_name: string | null
+  specialty: string | null
+  graduation_year: number | null
+  diploma_serial: string | null
+  diploma_number: string | null
+  given_date: string | null
+  description: string | null
+  file_path: string | null
+  ocr_status: OcrStatus | null
+  highlights: MusicSchoolSearchHighlight
+}
+
+export interface MusicSchoolSearchResponse {
+  items: MusicSchoolSearchHit[]
+  total: number
+  page: number
+  page_size: number
+  took_ms: number
+  facets: Record<string, FacetBucket[]>
+}
+

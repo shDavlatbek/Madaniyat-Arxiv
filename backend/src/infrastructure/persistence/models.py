@@ -51,6 +51,16 @@ class Base(DeclarativeBase):
     pass
 
 
+class MusicSchoolModel(Base):
+    __tablename__ = "music_schools"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    code: Mapped[str | None] = mapped_column(String(50), unique=True, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+
+
 class UserModel(Base):
     __tablename__ = "users"
 
@@ -64,10 +74,15 @@ class UserModel(Base):
     department_id: Mapped[uuid.UUID | None] = mapped_column(
         GUID(), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True
     )
+    music_school_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(), ForeignKey("music_schools.id", ondelete="SET NULL"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
     department: Mapped["DepartmentModel | None"] = relationship()
+    music_school: Mapped["MusicSchoolModel | None"] = relationship()
+
 
 
 class YearModel(Base):
@@ -367,6 +382,56 @@ class SearchIndexJobModel(Base):
     id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
     document_id: Mapped[uuid.UUID] = mapped_column(GUID(), nullable=False)
     op: Mapped[str] = mapped_column(String(10), nullable=False)  # "index" | "delete"
+    entity_type: Mapped[str | None] = mapped_column(String(50), nullable=True, server_default="general")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
     __table_args__ = (Index("ix_search_index_jobs_created_at", "created_at"),)
+
+
+class MusicSchoolSpecialtyModel(Base):
+    __tablename__ = "music_school_specialties"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    music_school_id: Mapped[uuid.UUID] = mapped_column(
+        GUID(), ForeignKey("music_schools.id", ondelete="CASCADE"), nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    music_school: Mapped["MusicSchoolModel"] = relationship()
+
+    __table_args__ = (
+        UniqueConstraint("music_school_id", "name", name="uq_music_school_specialty_name"),
+    )
+
+
+class MusicSchoolDocumentModel(Base):
+    __tablename__ = "music_school_documents"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
+    student_full_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    music_school_id: Mapped[uuid.UUID] = mapped_column(
+        GUID(), ForeignKey("music_schools.id", ondelete="RESTRICT"), nullable=False
+    )
+    specialty_id: Mapped[uuid.UUID] = mapped_column(
+        GUID(), ForeignKey("music_school_specialties.id", ondelete="RESTRICT"), nullable=False
+    )
+    graduation_year: Mapped[int] = mapped_column(Integer, nullable=False)
+    diploma_serial: Mapped[str] = mapped_column(String(50), nullable=False)
+    diploma_number: Mapped[str] = mapped_column(String(50), nullable=False)
+    given_date: Mapped[date_type] = mapped_column(Date, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    file_path: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    
+    extracted_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ocr_status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="pending")
+    ocr_completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    
+    created_by: Mapped[uuid.UUID | None] = mapped_column(GUID(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    music_school: Mapped["MusicSchoolModel"] = relationship()
+    specialty: Mapped["MusicSchoolSpecialtyModel"] = relationship()
+

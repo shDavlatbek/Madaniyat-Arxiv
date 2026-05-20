@@ -7,6 +7,9 @@ from src.domain.shared.entity import Entity
 from src.domain.user.value_objects import UserRole
 
 
+_UNDEFINED = object()
+
+
 class User(Entity):
     def __init__(
         self,
@@ -18,6 +21,8 @@ class User(Entity):
         is_active: bool = True,
         department_id: uuid.UUID | None = None,
         department_name: str | None = None,
+        music_school_id: uuid.UUID | None = None,
+        music_school_name: str | None = None,
         id: uuid.UUID | None = None,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
@@ -32,10 +37,25 @@ class User(Entity):
         self.department_id = department_id
         # Read-only — populated by the mapper from the joined department row.
         self.department_name = department_name
+        self.music_school_id = music_school_id
+        # Read-only — populated by the mapper from the joined music school row.
+        self.music_school_name = music_school_name
+
+        # Enforce validation on role and school/department isolation in __init__
+        if self.role == UserRole.MUSIC_SCHOOL:
+            if not self.music_school_id:
+                raise ValueError("Musiqa maktabi operatori uchun musiqa maktabini tanlash shart")
+            self.department_id = None
+        else:
+            self.music_school_id = None
 
     @property
     def is_admin(self) -> bool:
         return self.role == UserRole.ADMIN
+
+    @property
+    def is_music_school(self) -> bool:
+        return self.role == UserRole.MUSIC_SCHOOL
 
     def update(
         self,
@@ -43,7 +63,8 @@ class User(Entity):
         email: str | None = None,
         role: UserRole | None = None,
         is_active: bool | None = None,
-        department_id: uuid.UUID | None = None,
+        department_id: uuid.UUID | None | object = _UNDEFINED,
+        music_school_id: uuid.UUID | None | object = _UNDEFINED,
     ) -> None:
         if name is not None:
             self.name = name
@@ -53,8 +74,21 @@ class User(Entity):
             self.role = role
         if is_active is not None:
             self.is_active = is_active
-        if department_id is not None:
+            
+        if department_id is not _UNDEFINED:
             self.department_id = department_id
+        if music_school_id is not _UNDEFINED:
+            self.music_school_id = music_school_id
+
+        # Enforce validation on role and school/department isolation
+        from src.domain.shared.errors import ValidationError
+        if self.role == UserRole.MUSIC_SCHOOL:
+            if not self.music_school_id:
+                raise ValidationError("Musiqa maktabi operatori uchun musiqa maktabini tanlash shart")
+            self.department_id = None
+        else:
+            self.music_school_id = None
+
         self.updated_at = datetime.utcnow()
 
     def change_password(self, new_hashed_password: str) -> None:
