@@ -1,4 +1,7 @@
 from fastapi import APIRouter, Depends, Query
+import json
+from pathlib import Path
+from typing import Any
 
 from src.api.dependencies import get_reference_repository
 from src.api.middleware.auth import get_current_user
@@ -18,6 +21,34 @@ from src.infrastructure.persistence.repositories.reference_repository import (
 )
 
 router = APIRouter(prefix="/api", tags=["references"])
+
+# Resolve the path to the data files
+DATA_DIR = Path(__file__).resolve().parent.parent.parent / "infrastructure" / "persistence" / "data"
+REGIONS_PATH = DATA_DIR / "regions.json"
+DISTRICTS_PATH = DATA_DIR / "districts.json"
+
+_cached_regions: list[dict[str, Any]] | None = None
+_cached_districts: list[dict[str, Any]] | None = None
+
+def get_regions_data() -> list[dict[str, Any]]:
+    global _cached_regions
+    if _cached_regions is None:
+        if REGIONS_PATH.exists():
+            with open(REGIONS_PATH, encoding="utf-8-sig") as f:
+                _cached_regions = json.load(f)
+        else:
+            _cached_regions = []
+    return _cached_regions
+
+def get_districts_data() -> list[dict[str, Any]]:
+    global _cached_districts
+    if _cached_districts is None:
+        if DISTRICTS_PATH.exists():
+            with open(DISTRICTS_PATH, encoding="utf-8-sig") as f:
+                _cached_districts = json.load(f)
+        else:
+            _cached_districts = []
+    return _cached_districts
 
 
 @router.get("/regions", response_model=RegionListResponse)
@@ -63,3 +94,14 @@ async def list_retention_periods(
     return RetentionPeriodListResponse(
         items=[RetentionPeriodResponse(id=p.id, name=p.name) for p in periods]
     )
+
+
+@router.get("/locations/regions")
+async def list_location_regions(_: User = Depends(get_current_user)):
+    return get_regions_data()
+
+
+@router.get("/locations/districts")
+async def list_location_districts(_: User = Depends(get_current_user)):
+    return get_districts_data()
+

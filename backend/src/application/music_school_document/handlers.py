@@ -40,6 +40,9 @@ class MusicSchoolDocumentCommandHandler:
             diploma_number=command.diploma_number,
             given_date=command.given_date,
             description=command.description,
+            passport_series=command.passport_series,
+            passport_number=command.passport_number,
+            pinfl=command.pinfl,
             created_by=command.created_by,
         )
         return await self._document_repo.save(document)
@@ -58,6 +61,9 @@ class MusicSchoolDocumentCommandHandler:
             diploma_number=command.diploma_number,
             given_date=command.given_date,
             description=command.description,
+            passport_series=command.passport_series,
+            passport_number=command.passport_number,
+            pinfl=command.pinfl,
         )
         return await self._document_repo.save(document)
 

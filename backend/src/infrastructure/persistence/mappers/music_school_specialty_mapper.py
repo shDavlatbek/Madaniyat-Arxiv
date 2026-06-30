@@ -22,6 +22,6 @@ class MusicSchoolSpecialtyMapper:
         )
 
     @staticmethod
-    def update_model(model: MusicSchoolSpecialtyModel, entity: MusicSchool) -> None:
+    def update_model(model: MusicSchoolSpecialtyModel, entity: MusicSchoolSpecialty) -> None:
         model.name = entity.name
         model.music_school_id = entity.music_school_id

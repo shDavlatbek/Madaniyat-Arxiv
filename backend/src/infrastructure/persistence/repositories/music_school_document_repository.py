@@ -59,6 +59,9 @@ class SqlAlchemyMusicSchoolDocumentRepository(MusicSchoolDocumentRepository):
                 MusicSchoolDocumentModel.student_full_name.ilike(f"%{search}%"),
                 MusicSchoolDocumentModel.diploma_serial.ilike(f"%{search}%"),
                 MusicSchoolDocumentModel.diploma_number.ilike(f"%{search}%"),
+                MusicSchoolDocumentModel.passport_series.ilike(f"%{search}%"),
+                MusicSchoolDocumentModel.passport_number.ilike(f"%{search}%"),
+                MusicSchoolDocumentModel.pinfl.ilike(f"%{search}%"),
                 MusicSchoolDocumentModel.description.ilike(f"%{search}%"),
             )
             stmt = stmt.where(search_filter)

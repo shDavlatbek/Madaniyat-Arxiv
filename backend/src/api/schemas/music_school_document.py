@@ -30,6 +30,9 @@ class CreateMusicSchoolDocumentRequest(BaseModel):
     diploma_number: str = Field(min_length=1, max_length=50)
     given_date: dt.date
     description: str | None = None
+    passport_series: str | None = Field(default=None, max_length=10)
+    passport_number: str | None = Field(default=None, max_length=20)
+    pinfl: str | None = Field(default=None, max_length=14)
 
 
 class UpdateMusicSchoolDocumentRequest(BaseModel):
@@ -41,6 +44,9 @@ class UpdateMusicSchoolDocumentRequest(BaseModel):
     diploma_number: str | None = Field(default=None, min_length=1, max_length=50)
     given_date: dt.date | None = None
     description: str | None = None
+    passport_series: str | None = Field(default=None, max_length=10)
+    passport_number: str | None = Field(default=None, max_length=20)
+    pinfl: str | None = Field(default=None, max_length=14)
 
 
 class MusicSchoolDocumentResponse(BaseModel):
@@ -56,6 +62,9 @@ class MusicSchoolDocumentResponse(BaseModel):
     given_date: dt.date
     description: str | None
     file_path: str | None
+    passport_series: str | None
+    passport_number: str | None
+    pinfl: str | None
     ocr_status: str
     ocr_completed_at: dt.datetime | None
     created_by: uuid.UUID | None
@@ -95,6 +104,9 @@ class MusicSchoolSearchHighlight(BaseModel):
     specialty: list[str] | None = None
     description: list[str] | None = None
     extracted_text: list[str] | None = None
+    passport_series: list[str] | None = None
+    passport_number: list[str] | None = None
+    pinfl: list[str] | None = None
 
 
 class MusicSchoolSearchHit(BaseModel):
@@ -111,6 +123,9 @@ class MusicSchoolSearchHit(BaseModel):
     given_date: dt.date | None = None
     description: str | None = None
     file_path: str | None = None
+    passport_series: str | None = None
+    passport_number: str | None = None
+    pinfl: str | None = None
     ocr_status: str | None = None
     highlights: MusicSchoolSearchHighlight = Field(default_factory=MusicSchoolSearchHighlight)
 

@@ -11,6 +11,8 @@ class MusicSchool(Entity):
         self,
         name: str,
         code: str | None = None,
+        region: str | None = None,
+        district: str | None = None,
         id: uuid.UUID | None = None,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
@@ -20,11 +22,15 @@ class MusicSchool(Entity):
             raise ValueError("Music school name cannot be empty")
         self.name = name.strip()
         self.code = code.strip() if code else None
+        self.region = region.strip() if region else None
+        self.district = district.strip() if district else None
 
     def update(
         self,
         name: str | None = None,
         code: str | None = None,
+        region: str | None = None,
+        district: str | None = None,
     ) -> None:
         if name is not None:
             if not name.strip():
@@ -32,4 +38,8 @@ class MusicSchool(Entity):
             self.name = name.strip()
         if code is not None:
             self.code = code.strip() or None
+        if region is not None:
+            self.region = region.strip() or None
+        if district is not None:
+            self.district = district.strip() or None
         self.updated_at = datetime.utcnow()

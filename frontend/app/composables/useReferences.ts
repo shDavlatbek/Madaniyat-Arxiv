@@ -6,6 +6,23 @@ import type {
   RetentionPeriodResponse,
 } from '~/types'
 
+export interface LocationRegion {
+  id: number
+  soato_id: number
+  name_uz: string
+  name_oz: string
+  name_ru: string
+}
+
+export interface LocationDistrict {
+  id: number
+  region_id: number
+  soato_id: number
+  name_uz: string
+  name_oz: string
+  name_ru: string
+}
+
 /**
  * Read-only access to the seed reference tables:
  *   - Murojaat form: regions (Hudud), reception places (Qabul qilingan joy),
@@ -32,5 +49,21 @@ export const useReferences = () => {
     return apiFetch<{ items: RetentionPeriodResponse[] }>('/api/retention-periods')
   }
 
-  return { listRegions, listReceptionPlaces, listAppealTypes, listRetentionPeriods }
+  async function listLocationRegions() {
+    return apiFetch<LocationRegion[]>('/api/locations/regions')
+  }
+
+  async function listLocationDistricts() {
+    return apiFetch<LocationDistrict[]>('/api/locations/districts')
+  }
+
+  return {
+    listRegions,
+    listReceptionPlaces,
+    listAppealTypes,
+    listRetentionPeriods,
+    listLocationRegions,
+    listLocationDistricts,
+  }
 }
+

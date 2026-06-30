@@ -288,6 +288,8 @@ export interface MusicSchoolResponse {
   id: string
   name: string
   code: string | null
+  region: string | null
+  district: string | null
   created_at: string
   updated_at: string
 }
@@ -305,6 +307,9 @@ export interface MusicSchoolDocumentResponse {
   given_date: string
   description: string | null
   file_path: string | null
+  passport_series: string | null
+  passport_number: string | null
+  pinfl: string | null
   ocr_status: OcrStatus
   ocr_completed_at: string | null
   created_by: string | null
@@ -342,6 +347,9 @@ export interface MusicSchoolSearchHighlight {
   specialty?: string[] | null
   description?: string[] | null
   extracted_text?: string[] | null
+  passport_series?: string[] | null
+  passport_number?: string[] | null
+  pinfl?: string[] | null
 }
 
 export interface MusicSchoolSearchHit {
@@ -357,6 +365,9 @@ export interface MusicSchoolSearchHit {
   given_date: string | null
   description: string | null
   file_path: string | null
+  passport_series: string | null
+  passport_number: string | null
+  pinfl: string | null
   ocr_status: OcrStatus | null
   highlights: MusicSchoolSearchHighlight
 }

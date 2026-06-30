@@ -15,6 +15,9 @@ class CreateMusicSchoolDocumentCommand:
     diploma_number: str
     given_date: dt.date
     description: str | None = None
+    passport_series: str | None = None
+    passport_number: str | None = None
+    pinfl: str | None = None
     created_by: uuid.UUID | None = None
 
 
@@ -29,6 +32,9 @@ class UpdateMusicSchoolDocumentCommand:
     diploma_number: str | None = None
     given_date: dt.date | None = None
     description: str | None = None
+    passport_series: str | None = None
+    passport_number: str | None = None
+    pinfl: str | None = None
 
 
 @dataclass(frozen=True)

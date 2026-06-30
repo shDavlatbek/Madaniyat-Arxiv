@@ -28,6 +28,7 @@ function isOcrInProgress() {
   return (doc.value.attachments || []).some(a => a.ocr_status === 'pending' || a.ocr_status === 'processing')
 }
 watchEffect(() => {
+  if (!import.meta.client) return
   const inProgress = isOcrInProgress()
   if (inProgress && !ocrPolling.value) {
     ocrPolling.value = setInterval(() => { refreshDoc() }, 5000)

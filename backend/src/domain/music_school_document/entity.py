@@ -18,6 +18,9 @@ class MusicSchoolDocument(Entity):
         given_date: date,
         description: str | None = None,
         file_path: str | None = None,
+        passport_series: str | None = None,
+        passport_number: str | None = None,
+        pinfl: str | None = None,
         extracted_text: str | None = None,
         ocr_status: str = "pending",
         ocr_completed_at: datetime | None = None,
@@ -48,6 +51,9 @@ class MusicSchoolDocument(Entity):
         self.given_date = given_date
         self.description = description
         self.file_path = file_path
+        self.passport_series = passport_series.strip().upper() if passport_series else None
+        self.passport_number = passport_number.strip() if passport_number else None
+        self.pinfl = pinfl.strip() if pinfl else None
         self.extracted_text = extracted_text
         self.ocr_status = ocr_status
         self.ocr_completed_at = ocr_completed_at
@@ -67,6 +73,9 @@ class MusicSchoolDocument(Entity):
         diploma_number: str | None = None,
         given_date: date | None = None,
         description: str | None = None,
+        passport_series: str | None = None,
+        passport_number: str | None = None,
+        pinfl: str | None = None,
     ) -> None:
         if student_full_name is not None:
             if not student_full_name.strip():
@@ -90,6 +99,12 @@ class MusicSchoolDocument(Entity):
             self.given_date = given_date
         if description is not None:
             self.description = description
+        if passport_series is not None:
+            self.passport_series = passport_series.strip().upper() or None
+        if passport_number is not None:
+            self.passport_number = passport_number.strip() or None
+        if pinfl is not None:
+            self.pinfl = pinfl.strip() or None
             
         self.updated_at = datetime.utcnow()
 

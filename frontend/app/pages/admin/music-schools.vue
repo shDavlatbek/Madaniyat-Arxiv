@@ -1,14 +1,68 @@
 <script setup lang="ts">
 import type { MusicSchoolResponse } from '~/types'
+import type { LocationRegion, LocationDistrict } from '~/composables/useReferences'
 
 definePageMeta({ layout: 'dashboard' })
 
 const { listSchools, createSchool, updateSchool, deleteSchool } = useMusicSchool()
+const { listLocationRegions, listLocationDistricts } = useReferences()
 const toast = useToast()
 
 const schools = ref<MusicSchoolResponse[]>([])
 const loading = ref(false)
 const searchQ = ref('')
+
+// Region and district references fetched from the backend
+const regions = ref<LocationRegion[]>([])
+const districts = ref<LocationDistrict[]>([])
+
+// Create / edit modal state
+const modalOpen = ref(false)
+const editing = ref<MusicSchoolResponse | null>(null)
+const state = reactive({ name: '', code: '', region: undefined as string | undefined, district: '' })
+const saving = ref(false)
+
+// Region options computed from fetched data
+const regionOptions = computed(() =>
+  regions.value.map(r => ({ label: r.name_uz, value: r.name_uz }))
+)
+
+// Active selected region object
+const selectedRegionObj = computed(() => {
+  return regions.value.find(r => r.name_uz === state.region)
+})
+
+// Cascading District options
+const districtOptions = computed(() => {
+  if (!selectedRegionObj.value) return []
+  return districts.value
+    .filter(d => d.region_id === selectedRegionObj.value.id)
+    .map(d => ({ label: d.name_uz, value: d.name_uz }))
+})
+
+// Watch region to reset district if it's no longer valid
+watch(
+  () => state.region,
+  (newReg, oldReg) => {
+    if (newReg === undefined) {
+      state.district = ''
+      return
+    }
+    const regionObj = regions.value.find(r => r.name_uz === newReg)
+    if (!regionObj) {
+      state.district = ''
+      return
+    }
+    const validDistricts = districts.value
+      .filter(d => d.region_id === regionObj.id)
+      .map(d => d.name_uz)
+    
+    // Only clear if the current district is set but not valid for the new region
+    if (state.district && !validDistricts.includes(state.district)) {
+      state.district = ''
+    }
+  }
+)
 
 async function fetchSchools() {
   loading.value = true
@@ -27,6 +81,19 @@ async function fetchSchools() {
   }
 }
 
+async function fetchReferences() {
+  try {
+    const [regionsRes, districtsRes] = await Promise.all([
+      listLocationRegions(),
+      listLocationDistricts(),
+    ])
+    regions.value = regionsRes
+    districts.value = districtsRes
+  } catch (error) {
+    console.error('Hududlar ro‘yxatini yuklashda xatolik:', error)
+  }
+}
+
 // Debounce search
 watch(searchQ, () => {
   fetchSchools()
@@ -34,6 +101,7 @@ watch(searchQ, () => {
 
 onMounted(() => {
   fetchSchools()
+  fetchReferences()
 })
 
 const breadcrumbItems = [
@@ -41,16 +109,12 @@ const breadcrumbItems = [
   { label: 'Musiqa maktablari', icon: 'i-lucide-school' },
 ]
 
-// Create / edit modal
-const modalOpen = ref(false)
-const editing = ref<MusicSchoolResponse | null>(null)
-const state = reactive({ name: '', code: '' })
-const saving = ref(false)
-
 function openCreate() {
   editing.value = null
   state.name = ''
   state.code = ''
+  state.region = undefined
+  state.district = ''
   modalOpen.value = true
 }
 
@@ -58,6 +122,8 @@ function openEdit(school: MusicSchoolResponse) {
   editing.value = school
   state.name = school.name
   state.code = school.code || ''
+  state.region = school.region || undefined
+  state.district = school.district || ''
   modalOpen.value = true
 }
 
@@ -68,6 +134,8 @@ async function handleSave() {
     const payload = {
       name: state.name.trim(),
       code: state.code.trim() || null,
+      region: state.region || null,
+      district: state.district.trim() || null,
     }
     if (editing.value) {
       await updateSchool(editing.value.id, payload)
@@ -165,13 +233,18 @@ async function handleDelete() {
           <div class="flex items-start gap-2">
             <UIcon name="i-lucide-school" class="mt-0.5 shrink-0 text-primary" />
             <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-2 flex-wrap pb-1">
                 <h3 class="font-semibold leading-snug text-highlighted truncate">{{ school.name }}</h3>
                 <UBadge v-if="school.code" :label="school.code" variant="subtle" size="xs" />
               </div>
-              <p class="mt-1 text-xs text-muted">
+              <p class="text-xs text-muted">
                 Kodi: {{ school.code || 'Mavjud emas' }}
               </p>
+              <!-- Region & District Location Badges -->
+              <div v-if="school.region || school.district" class="mt-2.5 flex gap-1.5 flex-wrap">
+                <UBadge v-if="school.region" :label="school.region" variant="soft" color="primary" size="xs" icon="i-lucide-map-pin" />
+                <UBadge v-if="school.district" :label="school.district" variant="subtle" color="neutral" size="xs" />
+              </div>
             </div>
           </div>
 
@@ -210,6 +283,7 @@ async function handleDelete() {
             @keydown.enter="handleSave"
           />
         </UFormField>
+        
         <UFormField label="Maktab kodi (Identifikator)" help="Ixtiyoriy yagona kod">
           <UInput
             v-model="state.code"
@@ -219,8 +293,34 @@ async function handleDelete() {
             class="w-full"
           />
         </UFormField>
+
+        <!-- Location Fields -->
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Viloyat / Hudud">
+            <USelectMenu
+              v-model="state.region"
+              :items="regionOptions"
+              value-key="value"
+              placeholder="Viloyatni tanlang"
+              class="w-full"
+              size="lg"
+            />
+          </UFormField>
+          <UFormField label="Tuman / Shahar">
+            <USelectMenu
+              v-model="state.district"
+              :items="districtOptions"
+              value-key="value"
+              placeholder="Tumanni tanlang"
+              class="w-full"
+              size="lg"
+              :disabled="!state.region"
+            />
+          </UFormField>
+        </div>
       </div>
     </template>
+    
     <template #footer>
       <div class="flex justify-end gap-2">
         <UButton variant="ghost" label="Bekor qilish" @click="modalOpen = false" />

@@ -18,6 +18,9 @@ class MusicSchoolDocumentMapper:
             given_date=model.given_date,
             description=model.description,
             file_path=model.file_path,
+            passport_series=model.passport_series,
+            passport_number=model.passport_number,
+            pinfl=model.pinfl,
             extracted_text=model.extracted_text,
             ocr_status=model.ocr_status,
             ocr_completed_at=model.ocr_completed_at,
@@ -39,6 +42,9 @@ class MusicSchoolDocumentMapper:
             given_date=entity.given_date,
             description=entity.description,
             file_path=entity.file_path,
+            passport_series=entity.passport_series,
+            passport_number=entity.passport_number,
+            pinfl=entity.pinfl,
             extracted_text=entity.extracted_text,
             ocr_status=entity.ocr_status,
             ocr_completed_at=entity.ocr_completed_at,
@@ -56,6 +62,9 @@ class MusicSchoolDocumentMapper:
         model.given_date = entity.given_date
         model.description = entity.description
         model.file_path = entity.file_path
+        model.passport_series = entity.passport_series
+        model.passport_number = entity.passport_number
+        model.pinfl = entity.pinfl
         model.extracted_text = entity.extracted_text
         model.ocr_status = entity.ocr_status
         model.ocr_completed_at = entity.ocr_completed_at

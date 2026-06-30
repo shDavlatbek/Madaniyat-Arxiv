@@ -60,6 +60,9 @@ def _to_response(doc: MusicSchoolDocument) -> MusicSchoolDocumentResponse:
         given_date=doc.given_date,
         description=doc.description,
         file_path=doc.file_path,
+        passport_series=doc.passport_series,
+        passport_number=doc.passport_number,
+        pinfl=doc.pinfl,
         ocr_status=doc.ocr_status,
         ocr_completed_at=doc.ocr_completed_at,
         created_by=doc.created_by,
@@ -132,6 +135,9 @@ async def create_document(
             diploma_number=request.diploma_number,
             given_date=request.given_date,
             description=request.description,
+            passport_series=request.passport_series,
+            passport_number=request.passport_number,
+            pinfl=request.pinfl,
             created_by=current_user.id,
         )
     )
@@ -175,6 +181,9 @@ async def update_document(
             diploma_number=request.diploma_number,
             given_date=request.given_date,
             description=request.description,
+            passport_series=request.passport_series,
+            passport_number=request.passport_number,
+            pinfl=request.pinfl,
         )
     )
     return _to_response(updated)
@@ -213,13 +222,9 @@ async def upload_file(
         )
     )
 
-    # Fire-and-forget OCR job matching standard document upload
-    try:
-        pool = await get_arq_pool()
-        await pool.enqueue_job("ocr_extract", str(document_id))
-    except Exception as e:
-        log.exception("Failed to enqueue OCR extract job: %s", e)
-
+    # Fire-and-forget OCR — failures don't block the upload response.
+    pool = await get_arq_pool()
+    await pool.enqueue_job("ocr_extract", str(document_id))
     return _to_response(updated)
 
 
@@ -262,6 +267,9 @@ async def search_documents(
                     "specialty^2",
                     "diploma_serial",
                     "diploma_number",
+                    "passport_series",
+                    "passport_number",
+                    "pinfl",
                     "description",
                     "extracted_text",
                 ],
@@ -307,6 +315,9 @@ async def search_documents(
             "fields": {
                 "student_full_name": {"number_of_fragments": 0},
                 "specialty": {"number_of_fragments": 0},
+                "passport_series": {"number_of_fragments": 0},
+                "passport_number": {"number_of_fragments": 0},
+                "pinfl": {"number_of_fragments": 0},
                 "description": {},
                 "extracted_text": {},
             },
@@ -351,12 +362,18 @@ async def search_documents(
                 given_date=src.get("given_date"),
                 description=src.get("description"),
                 file_path=src.get("file_path"),
+                passport_series=src.get("passport_series"),
+                passport_number=src.get("passport_number"),
+                pinfl=src.get("pinfl"),
                 ocr_status=src.get("ocr_status"),
                 highlights=MusicSchoolSearchHighlight(
                     student_full_name=hl.get("student_full_name"),
                     specialty=hl.get("specialty"),
                     description=hl.get("description"),
                     extracted_text=hl.get("extracted_text"),
+                    passport_series=hl.get("passport_series"),
+                    passport_number=hl.get("passport_number"),
+                    pinfl=hl.get("pinfl"),
                 ),
             )
         )

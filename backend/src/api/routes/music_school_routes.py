@@ -21,6 +21,8 @@ def _to_response(school: MusicSchool) -> MusicSchoolResponse:
         id=school.id,
         name=school.name,
         code=school.code,
+        region=school.region,
+        district=school.district,
         created_at=school.created_at,
         updated_at=school.updated_at,
     )
@@ -65,7 +67,7 @@ async def create_music_school(
             detail="Bunday nomli musiqa maktabi allaqachon mavjud",
         )
 
-    school = MusicSchool(name=request.name, code=request.code)
+    school = MusicSchool(name=request.name, code=request.code, region=request.region, district=request.district)
     saved = await repo.save(school)
     return _to_response(saved)
 
@@ -84,7 +86,7 @@ async def update_music_school(
             detail="Musiqa maktabi topilmadi",
         )
 
-    school.update(name=request.name, code=request.code)
+    school.update(name=request.name, code=request.code, region=request.region, district=request.district)
     saved = await repo.save(school)
     return _to_response(saved)
 

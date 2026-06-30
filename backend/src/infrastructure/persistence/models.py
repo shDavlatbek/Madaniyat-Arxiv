@@ -57,8 +57,11 @@ class MusicSchoolModel(Base):
     id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     code: Mapped[str | None] = mapped_column(String(50), unique=True, nullable=True)
+    region: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    district: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+
 
 
 class UserModel(Base):
@@ -424,6 +427,10 @@ class MusicSchoolDocumentModel(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     file_path: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     
+    passport_series: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    passport_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    pinfl: Mapped[str | None] = mapped_column(String(14), nullable=True)
+
     extracted_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     ocr_status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="pending")
     ocr_completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
