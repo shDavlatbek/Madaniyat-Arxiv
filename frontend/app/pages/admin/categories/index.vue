@@ -39,8 +39,7 @@ const categories = computed(() => {
 })
 
 const columns = [
-  { accessorKey: 'name', header: 'Nomi' },
-  { id: 'year', header: 'Yil' },
+  { id: 'year', header: 'Nomenklatura (yil)' },
   { id: 'fields_count', header: 'Maydonlar' },
   { id: 'actions', header: '' },
 ]
@@ -109,16 +108,13 @@ async function handleDelete() {
       />
     </template>
     <UTable :data="categories" :columns="columns" :loading="status === 'pending'">
-      <template #name-cell="{ row }">
+      <template #year-cell="{ row }">
         <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-folder" class="text-primary shrink-0" />
+          <UIcon name="i-lucide-calendar" class="text-primary shrink-0" />
           <NuxtLink :to="`/admin/categories/${row.original.id}/edit`" class="font-semibold text-primary hover:underline">
-            {{ row.original.name }}
+            {{ getYearValue(row.original.year_id) }}
           </NuxtLink>
         </div>
-      </template>
-      <template #year-cell="{ row }">
-        <span class="font-medium">{{ getYearValue(row.original.year_id) }}</span>
       </template>
       <template #fields_count-cell="{ row }">
         <UBadge :label="`${row.original.fields?.length || 0} maydon`" variant="subtle" />

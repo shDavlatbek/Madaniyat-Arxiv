@@ -32,6 +32,8 @@ def _to_response(department: Department) -> DepartmentResponse:
         index_code=department.index_code,
         description=department.description,
         is_active=department.is_active,
+        year_id=department.year_id,
+        year_value=department.year_value,
         created_at=department.created_at,
         updated_at=department.updated_at,
     )
@@ -71,6 +73,7 @@ async def create_department(
             name=request.name,
             index_code=request.index_code,
             description=request.description,
+            year_id=request.year_id,
         )
     )
     return _to_response(department)
@@ -89,6 +92,7 @@ async def update_department(
             name=request.name,
             index_code=request.index_code,
             description=request.description,
+            year_id=request.year_id,
         )
     )
     return _to_response(department)

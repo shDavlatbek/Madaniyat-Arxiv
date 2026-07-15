@@ -40,10 +40,12 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
 
     async def find_all_with_counts(
         self, year_id: int | None = None, search: str | None = None
-    ) -> list[tuple[ArchiveFolder, int]]:
-        # Single round-trip: LEFT JOIN documents + COUNT, grouped per folder.
+    ) -> list[tuple[ArchiveFolder, int, int]]:
+        # Single round-trip: LEFT JOIN documents, COUNT + SUM(pages), grouped per
+        # folder. pages_sum is the automatic total-sheets sum ("avtomatik summa").
+        pages_sum = func.coalesce(func.sum(DocumentModel.pages), 0)
         stmt = (
-            select(ArchiveFolderModel, func.count(DocumentModel.id))
+            select(ArchiveFolderModel, func.count(DocumentModel.id), pages_sum)
             .outerjoin(DocumentModel, DocumentModel.archive_folder_id == ArchiveFolderModel.id)
             .options(selectinload(ArchiveFolderModel.retention_period), selectinload(ArchiveFolderModel.department))
             .group_by(ArchiveFolderModel.id)
@@ -54,7 +56,10 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
             stmt = stmt.where(ArchiveFolderModel.title.ilike(f"%{search}%"))
         stmt = stmt.order_by(ArchiveFolderModel.index_code)
         result = await self._session.execute(stmt)
-        return [(ArchiveFolderMapper.to_domain(m), count) for m, count in result.all()]
+        return [
+            (ArchiveFolderMapper.to_domain(m), count, int(psum or 0))
+            for m, count, psum in result.all()
+        ]
 
     async def save(self, folder: ArchiveFolder) -> ArchiveFolder:
         existing = await self._session.get(ArchiveFolderModel, folder.id)

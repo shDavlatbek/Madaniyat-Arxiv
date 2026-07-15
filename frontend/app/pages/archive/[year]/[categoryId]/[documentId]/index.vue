@@ -328,10 +328,6 @@ async function handleDelete() {
                 <p class="text-sm text-muted mb-1">{{ LABELS.pages_total }}</p>
                 <p class="text-highlighted font-semibold">{{ doc.pages || '-' }}</p>
               </div>
-              <div>
-                <p class="text-sm text-muted mb-1">Arxiv tartib raqami</p>
-                <p class="text-highlighted font-semibold">{{ doc.archive_number || '-' }}</p>
-              </div>
               <div v-if="lookupArchiveFolder(doc.archive_folder_id)">
                 <p class="text-sm text-muted mb-1">{{ LABELS.archive_folder }}</p>
                 <p class="text-highlighted font-semibold">{{ lookupArchiveFolder(doc.archive_folder_id) }}</p>

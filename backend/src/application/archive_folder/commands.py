@@ -11,8 +11,10 @@ class CreateArchiveFolderCommand:
     title: str
     department_id: uuid.UUID | None = None
     article_number: str | None = None
+    list_number: str | None = None
     note: str | None = None
     retention_period_id: uuid.UUID | None = None
+    total_sheets: int | None = None
     start_date: date | None = None
     end_date: date | None = None
     year_id: int | None = None
@@ -25,8 +27,10 @@ class UpdateArchiveFolderCommand:
     title: str | None = None
     department_id: uuid.UUID | None = None
     article_number: str | None = None
+    list_number: str | None = None
     note: str | None = None
     retention_period_id: uuid.UUID | None = None
+    total_sheets: int | None = None
     start_date: date | None = None
     end_date: date | None = None
     year_id: int | None = None

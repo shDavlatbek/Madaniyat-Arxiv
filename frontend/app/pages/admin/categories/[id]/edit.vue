@@ -22,27 +22,37 @@ const { data: yearsData } = await useAsyncData('years-for-cat', () =>
 const years = computed(() => yearsData.value?.items || [])
 const yearItems = computed(() => years.value.map(y => ({ label: String(y.value), value: y.id })))
 
+// Nomenklatura = yil: identified only by its year. No manual name/sort_order.
 const schema = z.object({
-  name: z.string().min(1, 'Nom kiritilishi shart'),
-  description: z.string().optional(),
-  sort_order: z.coerce.number(),
   year_id: z.number({ required_error: 'Yil tanlanishi shart' }),
+  description: z.string().optional(),
 })
 
 const state = reactive({
-  name: category.value?.name || '',
   description: category.value?.description || '',
-  sort_order: category.value?.sort_order || 0,
   year_id: category.value?.year_id || undefined as number | undefined,
 })
 
 const initialState = JSON.stringify(state)
 const isDirty = computed(() => JSON.stringify(state) !== initialState)
 
+const headerLabel = computed(() => {
+  const yv = years.value.find(y => y.id === (state.year_id ?? category.value?.year_id))?.value
+  return yv ? String(yv) : (category.value?.name || '')
+})
+
 async function handleSubmit() {
   loading.value = true
   try {
-    await apiFetch(`/api/categories/${catId.value}`, { method: 'PUT', body: state })
+    // Nomenklatura is named after its year (name == year value).
+    const yearValue = years.value.find(y => y.id === state.year_id)?.value
+    const body = {
+      name: String(yearValue ?? ''),
+      year_id: state.year_id,
+      description: state.description || null,
+      sort_order: 0,
+    }
+    await apiFetch(`/api/categories/${catId.value}`, { method: 'PUT', body })
     toast.add({ title: 'Muvaffaqiyat', description: 'Nomenklatura yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
     navigateTo('/admin/categories')
   } catch (error: any) {
@@ -120,7 +130,7 @@ async function handleFieldDelete() {
 </script>
 
 <template>
-  <PagePanel :title="`Tahrirlash: ${category?.name || ''}`" icon="i-lucide-folder-pen">
+  <PagePanel :title="`Tahrirlash: ${headerLabel}`" icon="i-lucide-folder-pen">
     <template #headerLeft>
       <UButton icon="i-lucide-arrow-left" variant="ghost" color="neutral" to="/admin/categories" />
     </template>
@@ -142,20 +152,11 @@ async function handleFieldDelete() {
               </template>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <UFormField label="Nomi" name="name" required help="Foydalanuvchilarga ko'rinadigan nom">
-                  <UInput v-model="state.name" icon="i-lucide-folder" placeholder="Buyruqlar" size="lg" class="w-full" />
-                </UFormField>
-                <UFormField label="Yil" name="year_id" required>
+                <UFormField label="Yil" name="year_id" required help="Nomenklatura shu yilga tegishli">
                   <USelect v-model="state.year_id" :items="yearItems" placeholder="Yilni tanlang" icon="i-lucide-calendar" size="lg" class="w-full" />
                 </UFormField>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <UFormField label="Tavsif" name="description" help="Ixtiyoriy">
                   <UTextarea v-model="state.description" :rows="3" placeholder="Nomenklatura haqida..." class="w-full" />
-                </UFormField>
-                <UFormField label="Tartib raqami" name="sort_order" help="Kichik raqam birinchi chiqadi">
-                  <UInput v-model="state.sort_order" type="number" icon="i-lucide-arrow-up-down" size="lg" class="w-40" />
                 </UFormField>
               </div>
             </UCard>

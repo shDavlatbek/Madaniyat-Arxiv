@@ -5,8 +5,10 @@ interface ArchiveFolderPayload {
   title?: string
   department_id?: string | null
   article_number?: string | null
+  list_number?: string | null
   note?: string | null
   retention_period_id?: string | null
+  total_sheets?: number | null
   start_date?: string | null
   end_date?: string | null
   year_id?: number | null

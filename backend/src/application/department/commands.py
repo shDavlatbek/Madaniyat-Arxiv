@@ -9,6 +9,7 @@ class CreateDepartmentCommand:
     name: str
     index_code: str | None = None
     description: str | None = None
+    year_id: int | None = None
 
 
 @dataclass
@@ -17,6 +18,7 @@ class UpdateDepartmentCommand:
     name: str | None = None
     index_code: str | None = None
     description: str | None = None
+    year_id: int | None = None
 
 
 @dataclass

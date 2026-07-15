@@ -223,6 +223,8 @@ export interface DepartmentResponse {
   index_code: string | null
   description: string | null
   is_active: boolean
+  year_id: number | null
+  year_value: number | null
   created_at: string
   updated_at: string
 }
@@ -265,9 +267,12 @@ export interface ArchiveFolderResponse {
   department_name: string | null
   department_index_code: string | null
   article_number: string | null
+  list_number: string | null
   note: string | null
   retention_period_id: string | null
   retention_period_name: string | null
+  total_sheets: number | null
+  documents_pages_sum: number
   start_date: string | null
   end_date: string | null
   year_id: number | null

@@ -31,9 +31,11 @@ class ArchiveFolder(Entity):
         department_name: str | None = None,
         department_index_code: str | None = None,
         article_number: str | None = None,
+        list_number: str | None = None,
         note: str | None = None,
         retention_period_id: uuid.UUID | None = None,
         retention_period_name: str | None = None,
+        total_sheets: int | None = None,
         start_date: date | None = None,
         end_date: date | None = None,
         year_id: int | None = None,
@@ -52,8 +54,10 @@ class ArchiveFolder(Entity):
         self.title = title.strip()
         self.department_id = department_id
         self.article_number = article_number.strip() if article_number else None
+        self.list_number = list_number.strip() if list_number else None
         self.note = note
         self.retention_period_id = retention_period_id
+        self.total_sheets = total_sheets
         # Denormalized display fields populated by the mapper.
         self.department_name = department_name
         self.department_index_code = department_index_code
@@ -68,8 +72,10 @@ class ArchiveFolder(Entity):
         title: str | None = None,
         department_id: uuid.UUID | None = None,
         article_number: str | None = None,
+        list_number: str | None = None,
         note: str | None = None,
         retention_period_id: uuid.UUID | None = None,
+        total_sheets: int | None = None,
         start_date: date | None = None,
         end_date: date | None = None,
         year_id: int | None = None,
@@ -86,10 +92,14 @@ class ArchiveFolder(Entity):
             self.department_id = department_id
         if article_number is not None:
             self.article_number = article_number.strip() or None
+        if list_number is not None:
+            self.list_number = list_number.strip() or None
         if note is not None:
             self.note = note
         if retention_period_id is not None:
             self.retention_period_id = retention_period_id
+        if total_sheets is not None:
+            self.total_sheets = total_sheets
         if start_date is not None:
             self.start_date = start_date
         if end_date is not None:

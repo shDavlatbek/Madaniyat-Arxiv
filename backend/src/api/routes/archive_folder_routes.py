@@ -23,7 +23,9 @@ from src.domain.user.entity import User
 router = APIRouter(prefix="/api/archive-folders", tags=["archive-folders"])
 
 
-def _to_response(folder: ArchiveFolder, document_count: int = 0) -> ArchiveFolderResponse:
+def _to_response(
+    folder: ArchiveFolder, document_count: int = 0, documents_pages_sum: int = 0
+) -> ArchiveFolderResponse:
     return ArchiveFolderResponse(
         id=folder.id,
         index_code=folder.index_code,
@@ -32,9 +34,12 @@ def _to_response(folder: ArchiveFolder, document_count: int = 0) -> ArchiveFolde
         department_name=folder.department_name,
         department_index_code=folder.department_index_code,
         article_number=folder.article_number,
+        list_number=folder.list_number,
         note=folder.note,
         retention_period_id=folder.retention_period_id,
         retention_period_name=folder.retention_period_name,
+        total_sheets=folder.total_sheets,
+        documents_pages_sum=documents_pages_sum,
         start_date=folder.start_date,
         end_date=folder.end_date,
         year_id=folder.year_id,
@@ -52,7 +57,9 @@ async def list_archive_folders(
     _: User = Depends(get_current_user),
 ):
     folders = await handler.list_folders(ListArchiveFoldersQuery(year_id=year_id, search=search))
-    return ArchiveFolderListResponse(items=[_to_response(f, count) for f, count in folders])
+    return ArchiveFolderListResponse(
+        items=[_to_response(f, count, pages_sum) for f, count, pages_sum in folders]
+    )
 
 
 @router.get("/{folder_id}", response_model=ArchiveFolderResponse)
@@ -77,8 +84,10 @@ async def create_archive_folder(
             title=request.title,
             department_id=request.department_id,
             article_number=request.article_number,
+            list_number=request.list_number,
             note=request.note,
             retention_period_id=request.retention_period_id,
+            total_sheets=request.total_sheets,
             start_date=request.start_date,
             end_date=request.end_date,
             year_id=request.year_id,
@@ -101,8 +110,10 @@ async def update_archive_folder(
             title=request.title,
             department_id=request.department_id,
             article_number=request.article_number,
+            list_number=request.list_number,
             note=request.note,
             retention_period_id=request.retention_period_id,
+            total_sheets=request.total_sheets,
             start_date=request.start_date,
             end_date=request.end_date,
             year_id=request.year_id,

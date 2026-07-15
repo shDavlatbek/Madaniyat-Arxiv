@@ -11,6 +11,8 @@ class DepartmentMapper:
             index_code=model.index_code,
             description=model.description,
             is_active=model.is_active,
+            year_id=model.year_id,
+            year_value=model.year.value if model.year else None,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
@@ -23,6 +25,7 @@ class DepartmentMapper:
             index_code=entity.index_code,
             description=entity.description,
             is_active=entity.is_active,
+            year_id=entity.year_id,
         )
 
     @staticmethod
@@ -31,3 +34,4 @@ class DepartmentMapper:
         model.index_code = entity.index_code
         model.description = entity.description
         model.is_active = entity.is_active
+        model.year_id = entity.year_id

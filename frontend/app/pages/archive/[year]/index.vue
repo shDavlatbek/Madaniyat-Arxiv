@@ -23,7 +23,6 @@ const filterTitle = ref('')
 const filterShortDesc = ref('')
 const filterSigner = ref('')
 const filterDocNumber = ref('')
-const filterArchiveNumber = ref('')
 
 // Create document modal - category selection
 const createOpen = ref(false)
@@ -79,7 +78,7 @@ watch(selectedYearFilter, () => {
 })
 
 // Reset page when any filter changes
-watch([search, dateFrom, dateTo, filterTitle, filterShortDesc, filterSigner, filterDocNumber, filterArchiveNumber], () => {
+watch([search, dateFrom, dateTo, filterTitle, filterShortDesc, filterSigner, filterDocNumber], () => {
   page.value = 1
 })
 
@@ -134,10 +133,6 @@ const documents = computed(() => {
     const q = filterDocNumber.value.toLowerCase()
     docs = docs.filter(d => d.document_number?.toLowerCase().includes(q))
   }
-  if (filterArchiveNumber.value) {
-    const q = filterArchiveNumber.value.toLowerCase()
-    docs = docs.filter(d => d.archive_number?.toLowerCase().includes(q))
-  }
   return docs
 })
 const total = computed(() => docsData.value?.total || 0)
@@ -175,7 +170,6 @@ const columns = computed(() => {
   cols.push(
     { accessorKey: 'signer', header: 'Imzo' },
     { accessorKey: 'document_number', header: 'Tartib raqami' },
-    { accessorKey: 'archive_number', header: 'Arxiv tartib raqami' },
     { accessorKey: 'date', header: 'Qabul qilingan sana' },
   )
   return cols
@@ -183,7 +177,7 @@ const columns = computed(() => {
 
 const hasActiveFilters = computed(() =>
   !!selectedCategoryId.value || !!selectedYearFilter.value || !!search.value || !!dateFrom.value || !!dateTo.value
-  || !!filterTitle.value || !!filterShortDesc.value || !!filterSigner.value || !!filterDocNumber.value || !!filterArchiveNumber.value
+  || !!filterTitle.value || !!filterShortDesc.value || !!filterSigner.value || !!filterDocNumber.value
   || Object.values(fieldFilters.value).some(v => v?.trim())
 )
 
@@ -197,7 +191,6 @@ function clearAllFilters() {
   filterShortDesc.value = ''
   filterSigner.value = ''
   filterDocNumber.value = ''
-  filterArchiveNumber.value = ''
   fieldFilters.value = {}
   page.value = 1
 }
@@ -350,12 +343,6 @@ function clearAllFilters() {
           <UInput v-model="filterDocNumber" size="sm" placeholder="" class="w-full" />
         </div>
       </template>
-      <template #archive_number-header>
-        <div class="flex flex-col items-center gap-1">
-          <span class="font-bold">Arxiv tartib raqami</span>
-          <UInput v-model="filterArchiveNumber" size="sm" placeholder="" class="w-full" />
-        </div>
-      </template>
       <template #date-header>
         <div class="flex flex-col items-center gap-2">
           <span class="font-bold">Qabul qilingan sana</span>
@@ -389,9 +376,6 @@ function clearAllFilters() {
       </template>
       <template #document_number-cell="{ row }">
         <span class="font-mono text-base text-primary font-bold">{{ row.original.document_number }}</span>
-      </template>
-      <template #archive_number-cell="{ row }">
-        <span class="font-mono text-base text-highlighted">{{ row.original.archive_number || '-' }}</span>
       </template>
       <template #date-cell="{ row }">
         <span class="text-base text-highlighted whitespace-nowrap font-medium">{{ formatDate(row.original.date) }}</span>

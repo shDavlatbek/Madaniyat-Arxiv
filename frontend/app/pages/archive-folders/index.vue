@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ArchiveFolderResponse, DepartmentResponse, YearResponse } from '~/types'
+import type { ArchiveFolderResponse, DepartmentResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
 
@@ -8,21 +8,6 @@ const { create, update, remove } = useArchiveFolders()
 const { listRetentionPeriods } = useReferences()
 const { list: listDepartments } = useDepartments()
 const toast = useToast()
-
-// Year filter (kept as organizational scope even though Yil isn't a column)
-const yearFilter = ref<number | undefined>(undefined)
-
-const { data: yearsData } = await useAsyncData('archive-folders-years', () =>
-  apiFetch<{ items: YearResponse[] }>('/api/years?active_only=false'),
-)
-const years = computed(() => yearsData.value?.items || [])
-const yearFilterItems = computed(() => [
-  { label: 'Barcha yillar', value: undefined as number | undefined },
-  ...years.value.map(y => ({ label: `${y.value}`, value: y.id })),
-])
-const yearSelectItems = computed(() =>
-  years.value.map(y => ({ label: `${y.value}`, value: y.id })),
-)
 
 // Reference data
 const { data: retentionData } = await useAsyncData('archive-folders-retention', () => listRetentionPeriods())
@@ -39,18 +24,19 @@ const departmentItems = computed(() =>
   })),
 )
 
-// Folders list — refetches when the year filter changes
+// Folders list
 const { data: foldersData, status, refresh } = await useAsyncData(
   'archive-folders',
-  () => {
-    const q = yearFilter.value != null ? `?year_id=${yearFilter.value}` : ''
-    return apiFetch<{ items: ArchiveFolderResponse[] }>(`/api/archive-folders${q}`)
-  },
-  { watch: [yearFilter] },
+  () => apiFetch<{ items: ArchiveFolderResponse[] }>('/api/archive-folders'),
 )
 const folders = computed(() => foldersData.value?.items || [])
 
-// 7-field column set per partner-system contract.
+function fmtDate(d: string | null): string {
+  if (!d) return '—'
+  const p = d.split('-')
+  return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d
+}
+
 const columns = [
   { id: 'row_number', header: 'T/r' },
   { accessorKey: 'department_name', header: LABELS.department_name },
@@ -58,7 +44,10 @@ const columns = [
   { accessorKey: 'index_code', header: LABELS.index_code },
   { accessorKey: 'title', header: LABELS.title },
   { accessorKey: 'article_number', header: LABELS.article_number },
+  { accessorKey: 'list_number', header: LABELS.list_number },
   { accessorKey: 'retention_period_name', header: LABELS.retention_period },
+  { id: 'dates', header: 'Sanalar' },
+  { id: 'sheets', header: LABELS.total_sheets },
   { accessorKey: 'note', header: LABELS.archive_folder_note },
   { id: 'actions', header: '' },
 ]
@@ -72,10 +61,21 @@ const state = reactive({
   index_code: '',
   title: '',
   article_number: '',
+  list_number: '',
   retention_period_id: '' as string,
+  total_sheets: undefined as number | undefined,
+  start_date: '',
+  end_date: '',
   note: '',
-  year_id: undefined as number | undefined,
 })
+
+// "Bo'lim indeksi" auto-shown under the selected department.
+const selectedDepartment = computed(() =>
+  departments.value.find(d => d.id === state.department_id) || null,
+)
+
+// "Avtomatik summa" — sum of the editing folder's documents' pages.
+const autoPagesSum = computed(() => editing.value?.documents_pages_sum ?? 0)
 
 function openCreate() {
   editing.value = null
@@ -83,9 +83,12 @@ function openCreate() {
   state.index_code = ''
   state.title = ''
   state.article_number = ''
+  state.list_number = ''
   state.retention_period_id = ''
+  state.total_sheets = undefined
+  state.start_date = ''
+  state.end_date = ''
   state.note = ''
-  state.year_id = yearFilter.value
   modalOpen.value = true
 }
 
@@ -95,9 +98,12 @@ function openEdit(folder: ArchiveFolderResponse) {
   state.index_code = folder.index_code
   state.title = folder.title
   state.article_number = folder.article_number || ''
+  state.list_number = folder.list_number || ''
   state.retention_period_id = folder.retention_period_id || ''
+  state.total_sheets = folder.total_sheets ?? undefined
+  state.start_date = folder.start_date || ''
+  state.end_date = folder.end_date || ''
   state.note = folder.note || ''
-  state.year_id = folder.year_id ?? undefined
   modalOpen.value = true
 }
 
@@ -112,9 +118,12 @@ async function handleSave() {
       title: state.title.trim(),
       department_id: state.department_id || null,
       article_number: state.article_number.trim() || null,
+      list_number: state.list_number.trim() || null,
       retention_period_id: state.retention_period_id || null,
+      total_sheets: state.total_sheets ?? null,
+      start_date: state.start_date || null,
+      end_date: state.end_date || null,
       note: state.note.trim() || null,
-      year_id: state.year_id ?? null,
     }
     if (editing.value) {
       await update(editing.value.id, payload)
@@ -156,17 +165,6 @@ async function handleDelete() {
       <UButton icon="i-lucide-plus" :label="LABELS.add_archive_folder" @click="openCreate" />
     </template>
 
-    <template #toolbar>
-      <USelect
-        v-model="yearFilter"
-        :items="yearFilterItems"
-        placeholder="Barcha yillar"
-        icon="i-lucide-calendar"
-        size="sm"
-        class="w-48"
-      />
-    </template>
-
     <UTable :data="folders" :columns="columns" :loading="status === 'pending'">
       <template #row_number-cell="{ row }">
         <span class="text-muted">{{ row.index + 1 }}</span>
@@ -185,6 +183,22 @@ async function handleDelete() {
       <template #article_number-cell="{ row }">
         <span v-if="row.original.article_number" class="font-mono text-sm">{{ row.original.article_number }}</span>
         <span v-else class="text-muted">—</span>
+      </template>
+      <template #list_number-cell="{ row }">
+        <span v-if="row.original.list_number" class="font-mono text-sm">{{ row.original.list_number }}</span>
+        <span v-else class="text-muted">—</span>
+      </template>
+      <template #dates-cell="{ row }">
+        <span v-if="row.original.start_date || row.original.end_date" class="text-sm whitespace-nowrap">
+          {{ fmtDate(row.original.start_date) }} – {{ fmtDate(row.original.end_date) }}
+        </span>
+        <span v-else class="text-muted">—</span>
+      </template>
+      <template #sheets-cell="{ row }">
+        <div class="flex items-center gap-1.5 whitespace-nowrap">
+          <span class="font-semibold text-highlighted">{{ row.original.total_sheets ?? '—' }}</span>
+          <span v-if="row.original.documents_pages_sum" class="text-xs text-muted">({{ row.original.documents_pages_sum }})</span>
+        </div>
       </template>
       <template #retention_period_name-cell="{ row }">
         <UBadge v-if="row.original.retention_period_name" :label="row.original.retention_period_name" variant="subtle" />
@@ -226,6 +240,12 @@ async function handleDelete() {
             size="lg"
             class="w-full"
           />
+          <template #help>
+            <span v-if="selectedDepartment">
+              {{ LABELS.department_index_code }}:
+              <span class="font-mono text-highlighted">{{ selectedDepartment.index_code || '—' }}</span>
+            </span>
+          </template>
         </UFormField>
         <UFormField :label="LABELS.index_code" required>
           <UInput v-model="state.index_code" placeholder="01-15" icon="i-lucide-hash" size="lg" class="w-full" />
@@ -233,9 +253,14 @@ async function handleDelete() {
         <UFormField :label="LABELS.title" required>
           <UInput v-model="state.title" :placeholder="LABELS.title" size="lg" class="w-full" />
         </UFormField>
-        <UFormField :label="LABELS.article_number">
-          <UInput v-model="state.article_number" :placeholder="LABELS.article_number" icon="i-lucide-list-ordered" size="lg" class="w-full" />
-        </UFormField>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <UFormField :label="LABELS.article_number">
+            <UInput v-model="state.article_number" :placeholder="LABELS.article_number" icon="i-lucide-list-ordered" size="lg" class="w-full" />
+          </UFormField>
+          <UFormField :label="LABELS.list_number">
+            <UInput v-model="state.list_number" :placeholder="LABELS.list_number" icon="i-lucide-hash" size="lg" class="w-full" />
+          </UFormField>
+        </div>
         <UFormField :label="LABELS.retention_period">
           <USelectMenu
             v-model="state.retention_period_id"
@@ -248,18 +273,32 @@ async function handleDelete() {
             class="w-full"
           />
         </UFormField>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <UFormField :label="LABELS.start_date">
+            <DatePicker v-model="state.start_date" size="lg" />
+          </UFormField>
+          <UFormField :label="LABELS.end_date">
+            <DatePicker v-model="state.end_date" size="lg" :min-date="state.start_date || undefined" />
+          </UFormField>
+        </div>
+        <UFormField :label="LABELS.total_sheets">
+          <UInput v-model="state.total_sheets" type="number" :min="0" icon="i-lucide-layers" size="lg" class="w-full" :placeholder="LABELS.total_sheets" />
+          <template #help>
+            <span v-if="editing" class="inline-flex items-center gap-2">
+              Avtomatik summa (hujjatlar varaqlari): <span class="font-semibold text-highlighted">{{ autoPagesSum }}</span>
+              <UButton
+                v-if="autoPagesSum"
+                label="Qo'llash"
+                size="xs"
+                variant="link"
+                class="p-0"
+                @click="state.total_sheets = autoPagesSum"
+              />
+            </span>
+          </template>
+        </UFormField>
         <UFormField :label="LABELS.archive_folder_note">
           <UTextarea v-model="state.note" :rows="3" :placeholder="LABELS.archive_folder_note" class="w-full" />
-        </UFormField>
-        <UFormField label="Yil">
-          <USelect
-            v-model="state.year_id"
-            :items="yearSelectItems"
-            placeholder="Yilni tanlang (ixtiyoriy)"
-            icon="i-lucide-calendar"
-            size="lg"
-            class="w-full"
-          />
         </UFormField>
       </div>
     </template>

@@ -49,7 +49,6 @@ const state = reactive<Record<string, any>>({
   short_desc: props.initialData?.short_desc || '',
   pages: props.initialData?.pages || undefined,
   person_id: props.initialData?.person_id || undefined,
-  archive_number: props.initialData?.archive_number || '',
   archive_folder_id: props.initialData?.archive_folder_id || undefined,
   // Phase 3 — document view + universal fields
   document_view: props.initialData?.document_view || '—',
@@ -115,7 +114,6 @@ const schema = computed(() => {
     short_desc: z.string().optional(),
     pages: z.coerce.number().optional(),
     person_id: z.string().optional(),
-    archive_number: z.string().optional(),
   }
   for (const key of requiredExtrasByView[state.document_view] || []) {
     shape[key] = z.string().min(1, 'Bu maydon majburiy')
@@ -132,7 +130,6 @@ const initialSnapshot = props.initialData
       short_desc: props.initialData.short_desc || '',
       pages: props.initialData.pages || undefined,
       person_id: props.initialData.person_id || undefined,
-      archive_number: props.initialData.archive_number || '',
       archive_folder_id: props.initialData.archive_folder_id || undefined,
       document_view: props.initialData.document_view || '—',
       document_type_id: props.initialData.document_type_id || undefined,
@@ -356,7 +353,6 @@ const isDirty = computed(() => {
     short_desc: state.short_desc || '',
     pages: state.pages || undefined,
     person_id: state.person_id || undefined,
-    archive_number: state.archive_number || '',
     archive_folder_id: state.archive_folder_id || undefined,
     document_view: state.document_view || '—',
     document_type_id: state.document_type_id || undefined,
@@ -462,17 +458,13 @@ async function handleSubmit() {
             </UFormField>
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <UFormField label="Sana" name="date" required>
               <DatePicker v-model="state.date" size="lg" :min-date="dateMinDate" :max-date="dateMaxDate" />
             </UFormField>
 
             <UFormField :label="LABELS.pages_total" name="pages">
               <UInput v-model="state.pages" type="number" icon="i-lucide-book-open" size="lg" class="w-full" />
-            </UFormField>
-
-            <UFormField label="Arxiv tartib raqami" name="archive_number" class="md:col-span-2">
-              <UInput v-model="state.archive_number" icon="i-lucide-archive" placeholder="Arxiv tartib raqami" size="lg" class="w-full" />
             </UFormField>
           </div>
 

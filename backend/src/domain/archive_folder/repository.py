@@ -16,8 +16,8 @@ class ArchiveFolderRepository(ABC):
     @abstractmethod
     async def find_all_with_counts(
         self, year_id: int | None = None, search: str | None = None
-    ) -> list[tuple[ArchiveFolder, int]]:
-        """Return (folder, document_count) pairs in one round-trip."""
+    ) -> list[tuple[ArchiveFolder, int, int]]:
+        """Return (folder, document_count, documents_pages_sum) tuples in one round-trip."""
         ...
 
     @abstractmethod

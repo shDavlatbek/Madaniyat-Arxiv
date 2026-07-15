@@ -156,8 +156,13 @@ class DepartmentModel(Base):
     index_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    year_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("years.id", ondelete="SET NULL"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    year: Mapped["YearModel | None"] = relationship()
 
 
 class ArchiveFolderModel(Base):
@@ -170,12 +175,16 @@ class ArchiveFolderModel(Base):
         GUID(), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True
     )
     article_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # "Ro'yxat raqami" — registry/list number, surfaced after "Modda raqami".
+    list_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
     retention_period_id: Mapped[uuid.UUID | None] = mapped_column(
         GUID(), ForeignKey("retention_periods.id", ondelete="SET NULL"), nullable=True
     )
-    # Legacy date fields — kept for backwards compatibility with existing rows
-    # but no longer surfaced in the redesigned 7-field form.
+    # "Umumiy varaqlar soni" — manually-entered total sheet count. The automatic
+    # sum of the folder's documents' pages is computed at query time, not stored.
+    total_sheets: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # start_date / end_date are re-surfaced by the redesigned form.
     start_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
     end_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
     year_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("years.id"), nullable=True)

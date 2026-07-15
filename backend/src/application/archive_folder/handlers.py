@@ -23,8 +23,10 @@ class ArchiveFolderCommandHandler:
             title=command.title,
             department_id=command.department_id,
             article_number=command.article_number,
+            list_number=command.list_number,
             note=command.note,
             retention_period_id=command.retention_period_id,
+            total_sheets=command.total_sheets,
             start_date=command.start_date,
             end_date=command.end_date,
             year_id=command.year_id,
@@ -50,8 +52,10 @@ class ArchiveFolderCommandHandler:
             title=command.title,
             department_id=command.department_id,
             article_number=command.article_number,
+            list_number=command.list_number,
             note=command.note,
             retention_period_id=command.retention_period_id,
+            total_sheets=command.total_sheets,
             start_date=command.start_date,
             end_date=command.end_date,
             year_id=command.year_id,
@@ -69,7 +73,7 @@ class ArchiveFolderQueryHandler:
     def __init__(self, archive_folder_repo: ArchiveFolderRepository):
         self._repo = archive_folder_repo
 
-    async def list_folders(self, query: ListArchiveFoldersQuery) -> list[tuple[ArchiveFolder, int]]:
+    async def list_folders(self, query: ListArchiveFoldersQuery) -> list[tuple[ArchiveFolder, int, int]]:
         return await self._repo.find_all_with_counts(year_id=query.year_id, search=query.search)
 
     async def get_folder(self, query: GetArchiveFolderQuery) -> ArchiveFolder:

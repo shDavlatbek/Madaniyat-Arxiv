@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DepartmentResponse } from '~/types'
+import type { DepartmentResponse, YearResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
 
@@ -12,6 +12,13 @@ const { data: departmentsData, status, refresh } = await useAsyncData('admin-dep
 )
 const departments = computed(() => departmentsData.value?.items || [])
 
+const { data: yearsData } = await useAsyncData('admin-departments-years', () =>
+  apiFetch<{ items: YearResponse[] }>('/api/years?active_only=false'),
+)
+const yearItems = computed(() =>
+  (yearsData.value?.items || []).map(y => ({ label: String(y.value), value: y.id })),
+)
+
 const breadcrumbItems = [
   { label: 'Arxivist', icon: 'i-lucide-archive', to: '/archive' },
   { label: LABELS.departments, icon: 'i-lucide-building-2' },
@@ -20,7 +27,7 @@ const breadcrumbItems = [
 // Create / edit modal
 const modalOpen = ref(false)
 const editing = ref<DepartmentResponse | null>(null)
-const state = reactive({ name: '', index_code: '', description: '' })
+const state = reactive({ name: '', index_code: '', description: '', year_id: undefined as number | undefined })
 const saving = ref(false)
 
 function openCreate() {
@@ -28,6 +35,7 @@ function openCreate() {
   state.name = ''
   state.index_code = ''
   state.description = ''
+  state.year_id = undefined
   modalOpen.value = true
 }
 
@@ -36,6 +44,7 @@ function openEdit(department: DepartmentResponse) {
   state.name = department.name
   state.index_code = department.index_code || ''
   state.description = department.description || ''
+  state.year_id = department.year_id ?? undefined
   modalOpen.value = true
 }
 
@@ -47,6 +56,7 @@ async function handleSave() {
       name: state.name.trim(),
       index_code: state.index_code.trim() || null,
       description: state.description.trim() || null,
+      year_id: state.year_id ?? null,
     }
     if (editing.value) {
       await update(editing.value.id, payload)
@@ -127,6 +137,7 @@ async function toggleActive(department: DepartmentResponse) {
               <div class="flex items-center gap-2">
                 <h3 class="font-semibold leading-snug text-highlighted truncate">{{ department.name }}</h3>
                 <UBadge v-if="department.index_code" :label="department.index_code" variant="subtle" size="xs" />
+                <UBadge v-if="department.year_value" :label="String(department.year_value)" variant="subtle" color="primary" size="xs" icon="i-lucide-calendar" />
               </div>
               <p v-if="department.description" class="mt-1 text-sm text-muted line-clamp-2">
                 {{ department.description }}
@@ -198,6 +209,16 @@ async function toggleActive(department: DepartmentResponse) {
             v-model="state.index_code"
             placeholder="01"
             icon="i-lucide-hash"
+            size="lg"
+            class="w-full"
+          />
+        </UFormField>
+        <UFormField :label="LABELS.department_year">
+          <USelect
+            v-model="state.year_id"
+            :items="yearItems"
+            placeholder="Yilni tanlang (ixtiyoriy)"
+            icon="i-lucide-calendar"
             size="lg"
             class="w-full"
           />
