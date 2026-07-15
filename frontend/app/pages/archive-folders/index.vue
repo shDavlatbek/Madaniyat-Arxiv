@@ -292,7 +292,7 @@ async function handleDelete() {
                 size="xs"
                 variant="link"
                 class="p-0"
-                @click="state.total_sheets = autoPagesSum"
+                @click="() => { state.total_sheets = autoPagesSum }"
               />
             </span>
           </template>
