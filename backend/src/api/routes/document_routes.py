@@ -28,7 +28,6 @@ router = APIRouter(prefix="/api/documents", tags=["documents"])
 def _to_response(doc: Document) -> DocumentResponse:
     return DocumentResponse(
         id=doc.id,
-        year_id=doc.year_value or doc.year_id,
         category_id=doc.category_id,
         title=doc.title,
         document_number=doc.document_number,
@@ -87,7 +86,6 @@ def _to_response(doc: Document) -> DocumentResponse:
 
 @router.get("", response_model=DocumentListResponse)
 async def list_documents(
-    year_id: int | None = Query(None),
     category_id: uuid.UUID | None = Query(None),
     search: str | None = Query(None),
     date_from: str | None = Query(None),
@@ -108,7 +106,6 @@ async def list_documents(
             parsed_filters = {}
 
     docs, total = await handler.list_documents(ListDocumentsQuery(
-        year_id=year_id,
         category_id=category_id,
         search=search,
         date_from=date_from,
@@ -129,7 +126,6 @@ async def create_document(
     current_user: User = Depends(get_current_user),
 ):
     doc = await handler.create(CreateDocumentCommand(
-        year_id=request.year_id,
         category_id=request.category_id,
         title=request.title,
         document_number=request.document_number,

@@ -9,7 +9,6 @@ from src.domain.document.value_objects import DocumentView
 
 @dataclass
 class CreateDocumentCommand:
-    year_id: int
     category_id: uuid.UUID
     title: str
     document_number: str

@@ -4,7 +4,6 @@ import type { CategoryResponse } from '~/types'
 definePageMeta({ layout: 'dashboard' })
 
 const route = useRoute()
-const year = computed(() => Number(route.params.year))
 const categoryId = computed(() => route.params.categoryId as string)
 const documentId = computed(() => route.params.documentId as string)
 
@@ -14,10 +13,10 @@ const toast = useToast()
 
 const { data: doc } = await useAsyncData(`doc-edit-${documentId.value}`, () => getDocument(documentId.value))
 
-// Fetch categories for this year
+// Fetch nomenklaturas (for the "change nomenklatura" selector)
 const { data: categoriesData } = await useAsyncData(
-  `categories-edit-${year.value}`,
-  () => apiFetch<{ items: CategoryResponse[] }>(`/api/years/${year.value}/categories`)
+  'categories-edit',
+  () => apiFetch<{ items: CategoryResponse[] }>('/api/categories')
 )
 const categories = computed(() => categoriesData.value?.items || [])
 const currentCategory = computed(() => categories.value.find((c: CategoryResponse) => c.id === categoryId.value))
@@ -68,7 +67,7 @@ async function handleSubmit(data: Record<string, any>, file?: File, attachments?
       }
     }
     toast.add({ title: 'Muvaffaqiyat', description: 'Hujjat yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
-    navigateTo(`/archive/${year.value}/${selectedCategoryId.value}/${documentId.value}`)
+    navigateTo(`/archive/${selectedCategoryId.value}/${documentId.value}`)
   } catch (error: any) {
     toast.add({ title: 'Xatolik', description: error?.data?.detail || 'Yangilab bo\'lmadi', color: 'error', icon: 'i-lucide-alert-circle' })
   }
@@ -78,7 +77,7 @@ async function handleSubmit(data: Record<string, any>, file?: File, attachments?
 <template>
   <PagePanel title="Hujjatni tahrirlash" icon="i-lucide-file-pen">
     <template #headerLeft>
-      <UButton icon="i-lucide-arrow-left" variant="ghost" :to="`/archive/${year}/${categoryId}/${documentId}`" />
+      <UButton icon="i-lucide-arrow-left" variant="ghost" :to="`/archive/${categoryId}/${documentId}`" />
     </template>
     <template #headerRight>
       <UBadge v-if="currentCategory" :label="currentCategory.name" variant="subtle" icon="i-lucide-folder" />

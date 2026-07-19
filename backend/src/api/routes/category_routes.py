@@ -10,7 +10,6 @@ from src.api.schemas.category import (
     CategoryFieldResponse,
     CategoryListResponse,
     CategoryResponse,
-    CopyCategoryRequest,
     CreateCategoryRequest,
     CreateDefaultFieldRequest,
     DefaultFieldListResponse,
@@ -21,7 +20,6 @@ from src.api.schemas.category import (
 )
 from src.application.category.commands import (
     AddFieldCommand,
-    CopyCategoryCommand,
     CreateCategoryCommand,
     CreateDefaultFieldCommand,
     DeleteCategoryCommand,
@@ -32,7 +30,7 @@ from src.application.category.commands import (
     UpdateFieldCommand,
 )
 from src.application.category.handlers import CategoryCommandHandler, CategoryQueryHandler
-from src.application.category.queries import GetCategoryFieldsQuery, ListAllCategoriesQuery, ListCategoriesByYearQuery, ListDefaultFieldsQuery
+from src.application.category.queries import GetCategoryFieldsQuery, ListAllCategoriesQuery, ListDefaultFieldsQuery
 from src.domain.category.entity import Category, CategoryField, DefaultField
 from src.domain.user.entity import User
 
@@ -58,7 +56,7 @@ def _field_to_response(f: CategoryField) -> CategoryFieldResponse:
 def _to_response(cat: Category) -> CategoryResponse:
     return CategoryResponse(
         id=cat.id, name=cat.name, code=cat.code, description=cat.description,
-        sort_order=cat.sort_order, year_id=cat.year_id,
+        sort_order=cat.sort_order,
         fields=[_field_to_response(f) for f in cat.fields],
         created_at=cat.created_at, updated_at=cat.updated_at,
     )
@@ -70,16 +68,6 @@ def _default_field_to_response(f: DefaultField) -> DefaultFieldResponse:
         is_required=f.is_required, sort_order=f.sort_order, options=f.options,
         placeholder=f.placeholder, created_at=f.created_at,
     )
-
-
-@router.get("/api/years/{year_id}/categories", response_model=CategoryListResponse)
-async def list_categories_by_year(
-    year_id: int,
-    handler: CategoryQueryHandler = Depends(get_category_query_handler),
-    _: User = Depends(get_current_user),
-):
-    categories = await handler.list_by_year(ListCategoriesByYearQuery(year_id=year_id))
-    return CategoryListResponse(items=[_to_response(c) for c in categories])
 
 
 @router.get("/api/categories", response_model=CategoryListResponse)
@@ -99,7 +87,7 @@ async def create_category(
 ):
     category = await handler.create(CreateCategoryCommand(
         name=request.name, code=_slugify(request.name), description=request.description,
-        sort_order=request.sort_order, year_id=request.year_id,
+        sort_order=request.sort_order,
     ))
     return _to_response(category)
 
@@ -115,7 +103,6 @@ async def update_category(
         category_id=category_id, name=request.name,
         code=_slugify(request.name) if request.name else None,
         description=request.description, sort_order=request.sort_order,
-        year_id=request.year_id,
     ))
     return _to_response(category)
 
@@ -127,19 +114,6 @@ async def delete_category(
     _: User = Depends(require_admin),
 ):
     await handler.delete(DeleteCategoryCommand(category_id=category_id))
-
-
-@router.post("/api/categories/{category_id}/copy", response_model=CategoryResponse, status_code=201)
-async def copy_category(
-    category_id: uuid.UUID,
-    request: CopyCategoryRequest,
-    handler: CategoryCommandHandler = Depends(get_category_command_handler),
-    _: User = Depends(require_admin),
-):
-    category = await handler.copy_category(CopyCategoryCommand(
-        source_category_id=category_id, target_year_id=request.target_year_id,
-    ))
-    return _to_response(category)
 
 
 @router.get("/api/categories/{category_id}/fields", response_model=list[CategoryFieldResponse])

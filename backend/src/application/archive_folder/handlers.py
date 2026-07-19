@@ -13,10 +13,10 @@ class ArchiveFolderCommandHandler:
         self._repo = archive_folder_repo
 
     async def create(self, command: CreateArchiveFolderCommand) -> ArchiveFolder:
-        existing = await self._repo.find_by_index_code(command.year_id, command.index_code.strip())
+        existing = await self._repo.find_by_index_code(command.index_code.strip())
         if existing:
             raise ValidationError(
-                f"Archive folder with index '{command.index_code}' already exists for this year"
+                f"Archive folder with index '{command.index_code}' already exists"
             )
         folder = ArchiveFolder(
             index_code=command.index_code,
@@ -29,7 +29,6 @@ class ArchiveFolderCommandHandler:
             total_sheets=command.total_sheets,
             start_date=command.start_date,
             end_date=command.end_date,
-            year_id=command.year_id,
         )
         return await self._repo.save(folder)
 
@@ -39,12 +38,11 @@ class ArchiveFolderCommandHandler:
             raise NotFoundError("ArchiveFolder", str(command.folder_id))
 
         new_index = command.index_code.strip() if command.index_code is not None else folder.index_code
-        new_year = command.year_id if command.year_id is not None else folder.year_id
-        if (new_index, new_year) != (folder.index_code, folder.year_id):
-            clash = await self._repo.find_by_index_code(new_year, new_index)
+        if new_index != folder.index_code:
+            clash = await self._repo.find_by_index_code(new_index)
             if clash and clash.id != folder.id:
                 raise ValidationError(
-                    f"Archive folder with index '{new_index}' already exists for this year"
+                    f"Archive folder with index '{new_index}' already exists"
                 )
 
         folder.update(
@@ -58,7 +56,6 @@ class ArchiveFolderCommandHandler:
             total_sheets=command.total_sheets,
             start_date=command.start_date,
             end_date=command.end_date,
-            year_id=command.year_id,
         )
         return await self._repo.save(folder)
 
@@ -74,7 +71,7 @@ class ArchiveFolderQueryHandler:
         self._repo = archive_folder_repo
 
     async def list_folders(self, query: ListArchiveFoldersQuery) -> list[tuple[ArchiveFolder, int, int]]:
-        return await self._repo.find_all_with_counts(year_id=query.year_id, search=query.search)
+        return await self._repo.find_all_with_counts(search=query.search)
 
     async def get_folder(self, query: GetArchiveFolderQuery) -> ArchiveFolder:
         folder = await self._repo.find_by_id(query.folder_id)

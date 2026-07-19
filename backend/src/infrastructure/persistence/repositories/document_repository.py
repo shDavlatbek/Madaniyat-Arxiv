@@ -14,7 +14,6 @@ from src.infrastructure.persistence.models import (
     DocumentModel,
     PersonModel,
     SearchIndexJobModel,
-    YearModel,
 )
 
 
@@ -26,20 +25,15 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
         stmt = (
             select(DocumentModel)
             .where(DocumentModel.id == document_id)
-            .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
+            .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
         )
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return DocumentMapper.to_domain(model) if model else None
 
     async def search(self, params: DocumentSearchParams) -> tuple[list[Document], int]:
-        stmt = select(DocumentModel).options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
+        stmt = select(DocumentModel).options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
         count_stmt = select(func.count()).select_from(DocumentModel)
-
-        if params.year_id:
-            # year_id in search params is the year VALUE (e.g. 2020), not DB PK
-            stmt = stmt.join(YearModel, YearModel.id == DocumentModel.year_id).where(YearModel.value == params.year_id)
-            count_stmt = count_stmt.join(YearModel, YearModel.id == DocumentModel.year_id).where(YearModel.value == params.year_id)
 
         if params.category_id:
             stmt = stmt.where(DocumentModel.category_id == params.category_id)
@@ -128,7 +122,7 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             stmt = (
                 select(DocumentModel)
                 .where(DocumentModel.id == document.id)
-                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
+                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
             )
             result = await self._session.execute(stmt)
             self._enqueue_index_job(document.id, "index")
@@ -148,7 +142,7 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             stmt = (
                 select(DocumentModel)
                 .where(DocumentModel.id == model.id)
-                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.year), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
+                .options(selectinload(DocumentModel.field_values), selectinload(DocumentModel.attachments), selectinload(DocumentModel.document_type), selectinload(DocumentModel.person).selectinload(PersonModel.tenures))
             )
             result = await self._session.execute(stmt)
             self._enqueue_index_job(model.id, "index")

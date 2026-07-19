@@ -31,7 +31,6 @@ _MATCH_FIELDS = [
 ]
 
 _KEYWORD_FILTER_FIELDS = {
-    "year_value",
     "category_id",
     "document_view",
     "document_type_id",

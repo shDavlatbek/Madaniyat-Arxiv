@@ -7,7 +7,6 @@ import type {
   SearchHit,
   SearchResponse,
   SearchSort,
-  YearResponse,
 } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
@@ -31,11 +30,6 @@ function readListParam(name: string): string[] {
   if (!v) return []
   return Array.isArray(v) ? v.map(String) : String(v).split(',').filter(Boolean)
 }
-function readNumberList(name: string): number[] {
-  return readListParam(name).map(Number).filter(n => !isNaN(n))
-}
-
-const yearFilter = ref<number[]>(readNumberList('year_value'))
 const categoryFilter = ref<string[]>(readListParam('category_id'))
 const viewFilter = ref<string[]>(readListParam('document_view'))
 const typeFilter = ref<string[]>(readListParam('document_type_id'))
@@ -48,7 +42,6 @@ function syncUrl() {
   router.replace({
     query: {
       ...(q.value ? { q: q.value } : {}),
-      ...(yearFilter.value.length ? { year_value: yearFilter.value.join(',') } : {}),
       ...(categoryFilter.value.length ? { category_id: categoryFilter.value.join(',') } : {}),
       ...(viewFilter.value.length ? { document_view: viewFilter.value.join(',') } : {}),
       ...(typeFilter.value.length ? { document_type_id: typeFilter.value.join(',') } : {}),
@@ -62,12 +55,10 @@ function syncUrl() {
 }
 
 // ─── Reference data for filter labels + facet rendering ───────────────────
-const { data: years } = await useAsyncData('search-years', () => apiFetch<{ items: YearResponse[] }>('/api/years'))
 const { data: categories } = await useAsyncData('search-categories', () => apiFetch<{ items: CategoryResponse[] }>('/api/categories'))
 const { data: docTypes } = await useAsyncData('search-doc-types', () => apiFetch<{ items: DocumentTypeResponse[] }>('/api/document-types'))
 const { data: folders } = await useAsyncData('search-folders', () => apiFetch<{ items: ArchiveFolderResponse[] }>('/api/archive-folders'))
 
-const yearOptions = computed(() => (years.value?.items || []).map(y => ({ label: String(y.value), value: y.value })))
 const categoryById = computed(() => Object.fromEntries((categories.value?.items || []).map(c => [c.id, c.name])))
 const docTypeById = computed(() => Object.fromEntries((docTypes.value?.items || []).map(d => [d.id, d.name])))
 const folderById = computed(() => Object.fromEntries((folders.value?.items || []).map(f => [f.id, `${f.index_code} — ${f.title}`])))
@@ -96,7 +87,6 @@ const debounceTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 function buildFilters(): SearchFilters {
   return {
-    ...(yearFilter.value.length ? { year_value: [...yearFilter.value] } : {}),
     ...(categoryFilter.value.length ? { category_id: [...categoryFilter.value] } : {}),
     ...(viewFilter.value.length ? { document_view: [...viewFilter.value] } : {}),
     ...(typeFilter.value.length ? { document_type_id: [...typeFilter.value] } : {}),
@@ -113,7 +103,7 @@ async function runSearch() {
     const r = await search({
       q: q.value || undefined,
       filters: buildFilters(),
-      facets: ['year_value', 'category_id', 'document_view', 'document_type_id', 'archive_folder_id'],
+      facets: ['category_id', 'document_view', 'document_type_id', 'archive_folder_id'],
       page: page.value,
       page_size: 20,
       sort: sort.value,
@@ -137,7 +127,7 @@ function scheduleSearch(immediate = false) {
 }
 
 // Reset to page 1 whenever query/filters change.
-watch([q, yearFilter, categoryFilter, viewFilter, typeFilter, folderFilter, dateFrom, dateTo, sort], () => {
+watch([q, categoryFilter, viewFilter, typeFilter, folderFilter, dateFrom, dateTo, sort], () => {
   page.value = 1
   syncUrl()
   scheduleSearch()
@@ -166,12 +156,11 @@ function facetCount(field: string, value: string | number): number | null {
 
 const hasFilters = computed(() =>
   !!q.value || !!dateFrom.value || !!dateTo.value
-  || yearFilter.value.length || categoryFilter.value.length
+  || categoryFilter.value.length
   || viewFilter.value.length || typeFilter.value.length || folderFilter.value.length,
 )
 function clearAll() {
   q.value = ''
-  yearFilter.value = []
   categoryFilter.value = []
   viewFilter.value = []
   typeFilter.value = []
@@ -234,31 +223,6 @@ const totalPages = computed(() => Math.ceil(total.value / 20))
     <div class="flex h-full overflow-hidden">
       <!-- Filters panel -->
       <aside class="w-72 shrink-0 border-r border-default overflow-y-auto p-4 space-y-5 bg-elevated/20">
-        <!-- Year -->
-        <div>
-          <h3 class="text-xs font-bold uppercase text-muted mb-2">Yil</h3>
-          <div class="space-y-1">
-            <label
-              v-for="opt in yearOptions"
-              :key="opt.value"
-              class="flex items-center gap-2 text-sm cursor-pointer hover:text-highlighted"
-            >
-              <UCheckbox
-                :model-value="yearFilter.includes(opt.value)"
-                @update:model-value="v => v ? yearFilter.push(opt.value) : (yearFilter = yearFilter.filter(x => x !== opt.value))"
-              />
-              <span class="flex-1">{{ opt.label }}</span>
-              <UBadge
-                v-if="facetCount('year_value', opt.value) !== null"
-                :label="String(facetCount('year_value', opt.value))"
-                variant="soft"
-                size="xs"
-                color="neutral"
-              />
-            </label>
-          </div>
-        </div>
-
         <!-- Document view -->
         <div>
           <h3 class="text-xs font-bold uppercase text-muted mb-2">{{ LABELS.document_view }}</h3>
@@ -380,8 +344,8 @@ const totalPages = computed(() => Math.ceil(total.value / 20))
                 <UIcon name="i-lucide-file-text" class="text-primary shrink-0 text-xl mt-0.5" />
                 <div class="flex-1 min-w-0">
                   <NuxtLink
-                    v-if="hit.year_value && hit.category_id"
-                    :to="`/archive/${hit.year_value}/${hit.category_id}/${hit.id}`"
+                    v-if="hit.category_id"
+                    :to="`/archive/${hit.category_id}/${hit.id}`"
                     class="text-base font-semibold text-primary hover:underline"
                   >
                     <span v-if="hit.highlights.title?.[0]" v-html="hit.highlights.title[0]" />
@@ -416,13 +380,6 @@ const totalPages = computed(() => Math.ceil(total.value / 20))
 
                   <!-- Metadata badges -->
                   <div class="flex flex-wrap items-center gap-2 mt-3">
-                    <UBadge
-                      v-if="hit.year_value"
-                      :label="String(hit.year_value)"
-                      variant="subtle"
-                      size="xs"
-                      icon="i-lucide-calendar"
-                    />
                     <UBadge
                       v-if="hit.document_view && hit.document_view !== 'unknown'"
                       :label="DOCUMENT_VIEW_LABELS[hit.document_view as keyof typeof DOCUMENT_VIEW_LABELS] || hit.document_view"

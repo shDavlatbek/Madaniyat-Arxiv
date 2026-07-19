@@ -7,7 +7,6 @@ from src.domain.shared.errors import NotFoundError
 
 from .commands import (
     AddFieldCommand,
-    CopyCategoryCommand,
     CreateCategoryCommand,
     CreateDefaultFieldCommand,
     DeleteCategoryCommand,
@@ -17,7 +16,7 @@ from .commands import (
     UpdateDefaultFieldCommand,
     UpdateFieldCommand,
 )
-from .queries import GetCategoryFieldsQuery, ListAllCategoriesQuery, ListCategoriesByYearQuery, ListDefaultFieldsQuery
+from .queries import GetCategoryFieldsQuery, ListAllCategoriesQuery, ListDefaultFieldsQuery
 
 
 class CategoryCommandHandler:
@@ -30,7 +29,6 @@ class CategoryCommandHandler:
             code=command.code,
             description=command.description,
             sort_order=command.sort_order,
-            year_id=command.year_id,
         )
         saved = await self._category_repo.save(category)
 
@@ -63,7 +61,6 @@ class CategoryCommandHandler:
             code=command.code,
             description=command.description,
             sort_order=command.sort_order,
-            year_id=command.year_id,
         )
         saved = await self._category_repo.save(category)
         return saved
@@ -104,11 +101,6 @@ class CategoryCommandHandler:
     async def delete_field(self, command: DeleteFieldCommand) -> None:
         await self._category_repo.delete_field(command.field_id)
 
-    async def copy_category(self, command: CopyCategoryCommand) -> Category:
-        return await self._category_repo.copy_category(
-            command.source_category_id, command.target_year_id,
-        )
-
     async def create_default_field(self, command: CreateDefaultFieldCommand) -> DefaultField:
         field = DefaultField(
             name=command.name,
@@ -143,9 +135,6 @@ class CategoryCommandHandler:
 class CategoryQueryHandler:
     def __init__(self, category_repo: CategoryRepository):
         self._category_repo = category_repo
-
-    async def list_by_year(self, query: ListCategoriesByYearQuery) -> list[Category]:
-        return await self._category_repo.find_by_year(query.year_id)
 
     async def list_all(self, query: ListAllCategoriesQuery) -> list[Category]:
         return await self._category_repo.find_all()

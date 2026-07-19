@@ -10,7 +10,6 @@ from src.domain.document.value_objects import DocumentAttachment, DocumentFieldV
 class Document(AggregateRoot):
     def __init__(
         self,
-        year_id: int,
         category_id: uuid.UUID,
         title: str,
         document_number: str,
@@ -21,7 +20,6 @@ class Document(AggregateRoot):
         signer: str | None = None,
         archive_number: str | None = None,
         person_id: uuid.UUID | None = None,
-        year_value: int | None = None,
         person_name: str | None = None,
         person_position: str | None = None,
         created_by: uuid.UUID | None = None,
@@ -62,7 +60,6 @@ class Document(AggregateRoot):
         updated_at: datetime | None = None,
     ):
         super().__init__(id=id, created_at=created_at, updated_at=updated_at)
-        self.year_id = year_id
         self.category_id = category_id
         self.title = title
         self.document_number = document_number
@@ -72,7 +69,6 @@ class Document(AggregateRoot):
         self.file_path = file_path
         self.signer = signer
         self.archive_number = archive_number
-        self.year_value = year_value
         self.person_id = person_id
         self.person_name = person_name
         self.person_position = person_position

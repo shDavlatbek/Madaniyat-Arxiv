@@ -9,9 +9,6 @@ from pydantic import BaseModel, Field
 
 
 class SearchFilters(BaseModel):
-    # Note: ``year_value`` is the calendar year (e.g. 2022), not the years
-    # table PK. This mirrors the year-by-value convention noted in CLAUDE.md.
-    year_value: list[int] | None = None
     category_id: list[uuid.UUID] | None = None
     document_view: list[str] | None = None
     document_type_id: list[uuid.UUID] | None = None
@@ -52,8 +49,6 @@ class SearchHit(BaseModel):
     signer: str | None = None
     archive_number: str | None = None
     date: dt.date | None = None
-    year_id: int | None = None
-    year_value: int | None = None
     category_id: uuid.UUID | None = None
     category_name: str | None = None
     person_id: uuid.UUID | None = None

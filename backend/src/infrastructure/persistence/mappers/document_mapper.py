@@ -33,7 +33,6 @@ class DocumentMapper:
 
         return Document(
             id=model.id,
-            year_id=model.year_id,
             category_id=model.category_id,
             title=model.title,
             document_number=model.document_number,
@@ -43,7 +42,6 @@ class DocumentMapper:
             file_path=model.file_path,
             signer=model.signer,
             archive_number=model.archive_number,
-            year_value=model.year.value if model.year else model.year_id,
             person_id=model.person_id,
             person_name=model.person.full_name if model.person else None,
             person_position=DocumentMapper._get_person_position(model) if model.person else None,
@@ -84,7 +82,6 @@ class DocumentMapper:
     def to_model(entity: Document) -> DocumentModel:
         model = DocumentModel(
             id=entity.id,
-            year_id=entity.year_id,
             category_id=entity.category_id,
             title=entity.title,
             document_number=entity.document_number,

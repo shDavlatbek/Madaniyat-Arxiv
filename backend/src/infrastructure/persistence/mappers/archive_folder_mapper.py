@@ -20,7 +20,6 @@ class ArchiveFolderMapper:
             total_sheets=model.total_sheets,
             start_date=model.start_date,
             end_date=model.end_date,
-            year_id=model.year_id,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
@@ -39,7 +38,6 @@ class ArchiveFolderMapper:
             total_sheets=entity.total_sheets,
             start_date=entity.start_date,
             end_date=entity.end_date,
-            year_id=entity.year_id,
         )
 
     @staticmethod
@@ -54,4 +52,3 @@ class ArchiveFolderMapper:
         model.total_sheets = entity.total_sheets
         model.start_date = entity.start_date
         model.end_date = entity.end_date
-        model.year_id = entity.year_id

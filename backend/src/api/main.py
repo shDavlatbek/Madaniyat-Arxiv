@@ -78,7 +78,6 @@ async def domain_error_handler(request: Request, exc: DomainError):
 # Routes
 from src.api.routes.auth_routes import router as auth_router
 from src.api.routes.user_routes import router as user_router
-from src.api.routes.year_routes import router as year_router
 from src.api.routes.category_routes import router as category_router
 from src.api.routes.document_routes import router as document_router
 from src.api.routes.person_routes import router as person_router
@@ -93,7 +92,6 @@ from src.api.routes.music_school_specialty_routes import router as music_school_
 
 app.include_router(auth_router)
 app.include_router(user_router)
-app.include_router(year_router)
 app.include_router(category_router)
 app.include_router(document_router)
 app.include_router(person_router)

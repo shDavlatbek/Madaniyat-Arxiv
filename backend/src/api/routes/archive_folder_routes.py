@@ -42,7 +42,6 @@ def _to_response(
         documents_pages_sum=documents_pages_sum,
         start_date=folder.start_date,
         end_date=folder.end_date,
-        year_id=folder.year_id,
         document_count=document_count,
         created_at=folder.created_at,
         updated_at=folder.updated_at,
@@ -51,12 +50,11 @@ def _to_response(
 
 @router.get("", response_model=ArchiveFolderListResponse)
 async def list_archive_folders(
-    year_id: int | None = Query(None),
     search: str | None = Query(None),
     handler: ArchiveFolderQueryHandler = Depends(get_archive_folder_query_handler),
     _: User = Depends(get_current_user),
 ):
-    folders = await handler.list_folders(ListArchiveFoldersQuery(year_id=year_id, search=search))
+    folders = await handler.list_folders(ListArchiveFoldersQuery(search=search))
     return ArchiveFolderListResponse(
         items=[_to_response(f, count, pages_sum) for f, count, pages_sum in folders]
     )
@@ -90,7 +88,6 @@ async def create_archive_folder(
             total_sheets=request.total_sheets,
             start_date=request.start_date,
             end_date=request.end_date,
-            year_id=request.year_id,
         )
     )
     return _to_response(folder)
@@ -116,7 +113,6 @@ async def update_archive_folder(
             total_sheets=request.total_sheets,
             start_date=request.start_date,
             end_date=request.end_date,
-            year_id=request.year_id,
         )
     )
     return _to_response(folder)

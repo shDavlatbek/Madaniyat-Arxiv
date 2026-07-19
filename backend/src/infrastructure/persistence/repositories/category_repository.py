@@ -9,7 +9,7 @@ from src.domain.category.repository import CategoryRepository
 from src.domain.category.value_objects import FieldType
 from src.domain.shared.errors import NotFoundError
 from src.infrastructure.persistence.mappers.category_mapper import CategoryFieldMapper, CategoryMapper, DefaultFieldMapper
-from src.infrastructure.persistence.models import CategoryFieldModel, CategoryModel, DefaultFieldModel, YearModel
+from src.infrastructure.persistence.models import CategoryFieldModel, CategoryModel, DefaultFieldModel
 
 
 class SqlAlchemyCategoryRepository(CategoryRepository):
@@ -29,18 +29,6 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
     async def find_all(self) -> list[Category]:
         stmt = (
             select(CategoryModel)
-            .options(selectinload(CategoryModel.fields))
-            .order_by(CategoryModel.sort_order)
-        )
-        result = await self._session.execute(stmt)
-        return [CategoryMapper.to_domain(m) for m in result.scalars().all()]
-
-    async def find_by_year(self, year_id: int) -> list[Category]:
-        # year_id param is actually the year VALUE (e.g. 2020), not the DB primary key
-        stmt = (
-            select(CategoryModel)
-            .join(YearModel, YearModel.id == CategoryModel.year_id)
-            .where(YearModel.value == year_id)
             .options(selectinload(CategoryModel.fields))
             .order_by(CategoryModel.sort_order)
         )
@@ -78,32 +66,6 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
         if model:
             await self._session.delete(model)
             await self._session.flush()
-
-    async def copy_category(self, source_id: uuid.UUID, target_year_id: int) -> Category:
-        source = await self.find_by_id(source_id)
-        if not source:
-            raise NotFoundError("Category", str(source_id))
-        new_cat = Category(
-            name=source.name,
-            code=source.code,
-            description=source.description,
-            sort_order=source.sort_order,
-            year_id=target_year_id,
-        )
-        saved = await self.save(new_cat)
-        for field in source.fields:
-            new_field = CategoryField(
-                category_id=saved.id,
-                name=field.name,
-                label=field.label,
-                field_type=field.field_type,
-                is_required=field.is_required,
-                sort_order=field.sort_order,
-                options=field.options,
-                placeholder=field.placeholder,
-            )
-            await self.save_field(new_field)
-        return await self.find_by_id(saved.id)
 
     async def find_field_by_id(self, field_id: uuid.UUID) -> CategoryField | None:
         model = await self._session.get(CategoryFieldModel, field_id)

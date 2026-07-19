@@ -8,7 +8,6 @@ from src.domain.document.value_objects import DocumentView
 
 @dataclass
 class ListDocumentsQuery:
-    year_id: int | None = None
     category_id: uuid.UUID | None = None
     search: str | None = None
     date_from: str | None = None

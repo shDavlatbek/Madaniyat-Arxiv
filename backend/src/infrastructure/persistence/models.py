@@ -88,17 +88,9 @@ class UserModel(Base):
 
 
 
-class YearModel(Base):
-    __tablename__ = "years"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    value: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
-
-
 class CategoryModel(Base):
+    """Nomenklatura — top-level document grouping (the Year concept was removed)."""
+
     __tablename__ = "categories"
 
     id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
@@ -106,12 +98,10 @@ class CategoryModel(Base):
     code: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    year_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("years.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
     fields: Mapped[list["CategoryFieldModel"]] = relationship(back_populates="category", cascade="all, delete-orphan", order_by="CategoryFieldModel.sort_order")
-    year: Mapped["YearModel"] = relationship()
 
 
 class CategoryFieldModel(Base):
@@ -156,13 +146,8 @@ class DepartmentModel(Base):
     index_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    year_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("years.id", ondelete="SET NULL"), nullable=True
-    )
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
-
-    year: Mapped["YearModel | None"] = relationship()
 
 
 class ArchiveFolderModel(Base):
@@ -187,15 +172,11 @@ class ArchiveFolderModel(Base):
     # start_date / end_date are re-surfaced by the redesigned form.
     start_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
     end_date: Mapped[date_type | None] = mapped_column(Date, nullable=True)
-    year_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("years.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
-    year: Mapped["YearModel | None"] = relationship()
     retention_period: Mapped["RetentionPeriodModel | None"] = relationship()
     department: Mapped["DepartmentModel | None"] = relationship()
-
-    __table_args__ = (UniqueConstraint("year_id", "index_code"),)
 
 
 class DocumentTypeModel(Base):
@@ -276,7 +257,6 @@ class DocumentModel(Base):
     __tablename__ = "documents"
 
     id: Mapped[uuid.UUID] = mapped_column(GUID(), primary_key=True, default=uuid.uuid4)
-    year_id: Mapped[int] = mapped_column(Integer, ForeignKey("years.id"), nullable=False)
     category_id: Mapped[uuid.UUID] = mapped_column(GUID(), ForeignKey("categories.id"), nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     document_number: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -335,7 +315,6 @@ class DocumentModel(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 
-    year: Mapped["YearModel"] = relationship()
     category: Mapped["CategoryModel"] = relationship()
     person: Mapped["PersonModel | None"] = relationship()
     archive_folder: Mapped["ArchiveFolderModel | None"] = relationship()

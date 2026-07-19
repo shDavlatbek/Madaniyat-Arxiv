@@ -2,7 +2,6 @@ import uuid
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from src.domain.department.entity import Department
 from src.domain.department.repository import DepartmentRepository
@@ -15,27 +14,17 @@ class SqlAlchemyDepartmentRepository(DepartmentRepository):
         self._session = session
 
     async def find_by_id(self, department_id: uuid.UUID) -> Department | None:
-        stmt = (
-            select(DepartmentModel)
-            .options(selectinload(DepartmentModel.year))
-            .where(DepartmentModel.id == department_id)
-        )
-        result = await self._session.execute(stmt)
-        model = result.scalar_one_or_none()
+        model = await self._session.get(DepartmentModel, department_id)
         return DepartmentMapper.to_domain(model) if model else None
 
     async def find_by_name(self, name: str) -> Department | None:
-        stmt = (
-            select(DepartmentModel)
-            .options(selectinload(DepartmentModel.year))
-            .where(DepartmentModel.name == name)
-        )
+        stmt = select(DepartmentModel).where(DepartmentModel.name == name)
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return DepartmentMapper.to_domain(model) if model else None
 
     async def find_all(self, search: str | None = None, active_only: bool = False) -> list[Department]:
-        stmt = select(DepartmentModel).options(selectinload(DepartmentModel.year))
+        stmt = select(DepartmentModel)
         if search:
             stmt = stmt.where(DepartmentModel.name.ilike(f"%{search}%"))
         if active_only:
@@ -49,17 +38,13 @@ class SqlAlchemyDepartmentRepository(DepartmentRepository):
         if existing:
             DepartmentMapper.update_model(existing, department)
             await self._session.flush()
-            department_id = existing.id
-        else:
-            model = DepartmentMapper.to_model(department)
-            self._session.add(model)
-            await self._session.flush()
-            department_id = model.id
-        # Refetch with the year relationship eagerly loaded — the mapper reads
-        # year.value and would otherwise trigger an implicit lazy load.
-        saved = await self.find_by_id(department_id)
-        assert saved is not None
-        return saved
+            await self._session.refresh(existing)
+            return DepartmentMapper.to_domain(existing)
+        model = DepartmentMapper.to_model(department)
+        self._session.add(model)
+        await self._session.flush()
+        await self._session.refresh(model)
+        return DepartmentMapper.to_domain(model)
 
     async def delete(self, department_id: uuid.UUID) -> None:
         model = await self._session.get(DepartmentModel, department_id)

@@ -4,7 +4,6 @@ import type { CategoryFieldResponse } from '~/types'
 definePageMeta({ layout: 'dashboard' })
 
 const route = useRoute()
-const year = computed(() => Number(route.params.year))
 const categoryId = computed(() => route.params.categoryId as string)
 const documentId = computed(() => route.params.documentId as string)
 
@@ -174,7 +173,7 @@ async function handleDelete() {
   try {
     await deleteDocument(documentId.value)
     toast.add({ title: 'Muvaffaqiyat', description: 'Hujjat o\'chirildi', color: 'success', icon: 'i-lucide-check-circle' })
-    navigateTo(`/archive/${year.value}`)
+    navigateTo(`/archive/${categoryId.value}`)
   } catch {
     toast.add({ title: 'Xatolik', description: 'O\'chirib bo\'lmadi', color: 'error', icon: 'i-lucide-alert-circle' })
   }
@@ -184,7 +183,7 @@ async function handleDelete() {
 <template>
   <PagePanel :title="doc?.title || 'Hujjat'" icon="i-lucide-file-text">
     <template #headerLeft>
-      <UButton icon="i-lucide-arrow-left" variant="ghost" :to="`/archive/${year}`" />
+      <UButton icon="i-lucide-arrow-left" variant="ghost" :to="`/archive/${categoryId}`" />
     </template>
     <template #headerRight>
       <div class="flex gap-2">
@@ -199,7 +198,7 @@ async function handleDelete() {
           icon="i-lucide-pencil"
           label="Tahrirlash"
           variant="soft"
-          :to="`/archive/${year}/${categoryId}/${documentId}/edit`"
+          :to="`/archive/${categoryId}/${documentId}/edit`"
         />
         <UButton
           icon="i-lucide-trash-2"

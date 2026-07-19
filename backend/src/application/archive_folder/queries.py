@@ -6,7 +6,6 @@ from dataclasses import dataclass
 
 @dataclass
 class ListArchiveFoldersQuery:
-    year_id: int | None = None
     search: str | None = None
 
 

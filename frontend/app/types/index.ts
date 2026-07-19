@@ -13,14 +13,6 @@ export interface UserResponse {
   updated_at: string
 }
 
-export interface YearResponse {
-  id: number
-  value: number
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
-
 export interface CategoryFieldResponse {
   id: string
   category_id: string
@@ -41,7 +33,6 @@ export interface CategoryResponse {
   code: string
   description: string | null
   sort_order: number
-  year_id: number | null
   fields: CategoryFieldResponse[]
   created_at: string
   updated_at: string
@@ -56,7 +47,6 @@ export type DocumentView = 'incoming' | 'outgoing' | 'internal' | 'appeal' | 'un
 
 export interface DocumentResponse {
   id: string
-  year_id: number
   category_id: string
   title: string
   document_number: string
@@ -113,7 +103,6 @@ export type OcrStatus = 'pending' | 'processing' | 'done' | 'failed' | 'skipped'
 export type SearchSort = 'relevance' | 'date_desc' | 'date_asc'
 
 export interface SearchFilters {
-  year_value?: number[]
   category_id?: string[]
   document_view?: string[]
   document_type_id?: string[]
@@ -151,8 +140,6 @@ export interface SearchHit {
   signer: string | null
   archive_number: string | null
   date: string | null
-  year_id: number | null
-  year_value: number | null
   category_id: string | null
   category_name: string | null
   person_id: string | null
@@ -223,8 +210,6 @@ export interface DepartmentResponse {
   index_code: string | null
   description: string | null
   is_active: boolean
-  year_id: number | null
-  year_value: number | null
   created_at: string
   updated_at: string
 }
@@ -275,7 +260,6 @@ export interface ArchiveFolderResponse {
   documents_pages_sum: number
   start_date: string | null
   end_date: string | null
-  year_id: number | null
   document_count: number
   created_at: string
   updated_at: string

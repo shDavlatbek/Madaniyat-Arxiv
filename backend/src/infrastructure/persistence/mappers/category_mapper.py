@@ -56,7 +56,6 @@ class CategoryMapper:
             code=model.code,
             description=model.description,
             sort_order=model.sort_order,
-            year_id=model.year_id,
             fields=fields,
             created_at=model.created_at,
             updated_at=model.updated_at,
@@ -70,7 +69,6 @@ class CategoryMapper:
             code=entity.code,
             description=entity.description,
             sort_order=entity.sort_order,
-            year_id=entity.year_id,
         )
 
     @staticmethod
@@ -79,7 +77,6 @@ class CategoryMapper:
         model.code = entity.code
         model.description = entity.description
         model.sort_order = entity.sort_order
-        model.year_id = entity.year_id
 
 
 class DefaultFieldMapper:

@@ -47,8 +47,6 @@ def _build_es_doc(model: DocumentModel) -> dict[str, Any]:
     return {
         "id": str(model.id),
         # ─── denormalized refs (None when FK target is missing) ──────────
-        "year_id": model.year_id,
-        "year_value": model.year.value if model.year else None,
         "category_id": str(model.category_id) if model.category_id else None,
         "category_name": model.category.name if model.category else None,
         "person_id": str(model.person_id) if model.person_id else None,
@@ -123,7 +121,6 @@ def _select_with_joins():
     return (
         select(DocumentModel)
         .options(
-            selectinload(DocumentModel.year),
             selectinload(DocumentModel.category),
             selectinload(DocumentModel.person).selectinload(PersonModel.tenures),
             selectinload(DocumentModel.archive_folder),

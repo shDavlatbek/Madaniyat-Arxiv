@@ -24,22 +24,18 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
         model = result.scalar_one_or_none()
         return ArchiveFolderMapper.to_domain(model) if model else None
 
-    async def find_by_index_code(self, year_id: int | None, index_code: str) -> ArchiveFolder | None:
+    async def find_by_index_code(self, index_code: str) -> ArchiveFolder | None:
         stmt = (
             select(ArchiveFolderModel)
             .options(selectinload(ArchiveFolderModel.retention_period), selectinload(ArchiveFolderModel.department))
-            .where(
-                ArchiveFolderModel.year_id.is_(year_id) if year_id is None
-                else ArchiveFolderModel.year_id == year_id,
-                ArchiveFolderModel.index_code == index_code,
-            )
+            .where(ArchiveFolderModel.index_code == index_code)
         )
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return ArchiveFolderMapper.to_domain(model) if model else None
 
     async def find_all_with_counts(
-        self, year_id: int | None = None, search: str | None = None
+        self, search: str | None = None
     ) -> list[tuple[ArchiveFolder, int, int]]:
         # Single round-trip: LEFT JOIN documents, COUNT + SUM(pages), grouped per
         # folder. pages_sum is the automatic total-sheets sum ("avtomatik summa").
@@ -50,8 +46,6 @@ class SqlAlchemyArchiveFolderRepository(ArchiveFolderRepository):
             .options(selectinload(ArchiveFolderModel.retention_period), selectinload(ArchiveFolderModel.department))
             .group_by(ArchiveFolderModel.id)
         )
-        if year_id is not None:
-            stmt = stmt.where(ArchiveFolderModel.year_id == year_id)
         if search:
             stmt = stmt.where(ArchiveFolderModel.title.ilike(f"%{search}%"))
         stmt = stmt.order_by(ArchiveFolderModel.index_code)

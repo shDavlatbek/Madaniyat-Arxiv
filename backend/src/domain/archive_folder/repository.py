@@ -11,11 +11,11 @@ class ArchiveFolderRepository(ABC):
     async def find_by_id(self, folder_id: uuid.UUID) -> ArchiveFolder | None: ...
 
     @abstractmethod
-    async def find_by_index_code(self, year_id: int | None, index_code: str) -> ArchiveFolder | None: ...
+    async def find_by_index_code(self, index_code: str) -> ArchiveFolder | None: ...
 
     @abstractmethod
     async def find_all_with_counts(
-        self, year_id: int | None = None, search: str | None = None
+        self, search: str | None = None
     ) -> list[tuple[ArchiveFolder, int, int]]:
         """Return (folder, document_count, documents_pages_sum) tuples in one round-trip."""
         ...

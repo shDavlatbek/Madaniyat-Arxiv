@@ -100,7 +100,6 @@ class Category(Entity):
         description: str | None = None,
         sort_order: int = 0,
         fields: list[CategoryField] | None = None,
-        year_id: int | None = None,
         id: uuid.UUID | None = None,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
@@ -111,11 +110,9 @@ class Category(Entity):
         self.description = description
         self.sort_order = sort_order
         self.fields = fields or []
-        self.year_id = year_id
 
     def update(self, name: str | None = None, code: str | None = None,
-               description: str | None = None, sort_order: int | None = None,
-               year_id: int | None = None) -> None:
+               description: str | None = None, sort_order: int | None = None) -> None:
         if name is not None:
             self.name = name
         if code is not None:
@@ -124,8 +121,6 @@ class Category(Entity):
             self.description = description
         if sort_order is not None:
             self.sort_order = sort_order
-        if year_id is not None:
-            self.year_id = year_id
         self.updated_at = datetime.utcnow()
 
     def add_field(self, field: CategoryField) -> None:

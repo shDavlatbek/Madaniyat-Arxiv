@@ -11,15 +11,13 @@ interface ArchiveFolderPayload {
   total_sheets?: number | null
   start_date?: string | null
   end_date?: string | null
-  year_id?: number | null
 }
 
 export const useArchiveFolders = () => {
   const { apiFetch } = useApi()
 
-  async function list(opts?: { yearId?: number, search?: string }) {
+  async function list(opts?: { search?: string }) {
     const params = new URLSearchParams()
-    if (opts?.yearId != null) params.set('year_id', String(opts.yearId))
     if (opts?.search) params.set('search', opts.search)
     const query = params.toString() ? `?${params.toString()}` : ''
     return apiFetch<{ items: ArchiveFolderResponse[] }>(`/api/archive-folders${query}`)

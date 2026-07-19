@@ -32,7 +32,6 @@ def _missing_extras(view: DocumentView, values: "BaseModel") -> list[str]:
 
 
 class CreateDocumentRequest(BaseModel):
-    year_id: int
     category_id: uuid.UUID
     title: str = Field(min_length=1, max_length=500)
     document_number: str = Field(min_length=1, max_length=100)
@@ -150,7 +149,6 @@ class DocumentFieldValueResponse(BaseModel):
 
 class DocumentResponse(BaseModel):
     id: uuid.UUID
-    year_id: int
     category_id: uuid.UUID
     title: str
     document_number: str

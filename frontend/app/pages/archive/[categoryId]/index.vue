@@ -1,95 +1,41 @@
 <script setup lang="ts">
-import type { CategoryResponse, YearResponse } from '~/types'
+import type { CategoryResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
 
 const route = useRoute()
-const isAllYears = computed(() => route.params.year === 'all')
-const year = computed(() => isAllYears.value ? null : Number(route.params.year))
+const categoryId = computed(() => route.params.categoryId as string)
 
 const { apiFetch } = useApi()
 const { listDocuments } = useDocuments()
 
-const selectedCategoryId = ref<string | undefined>(undefined)
-const selectedYearFilter = ref<number | undefined>(undefined)
 const search = ref('')
 const dateFrom = ref('')
 const dateTo = ref('')
 const page = ref(1)
 const fieldFilters = ref<Record<string, string>>({})
 
-// Per-column search filters
+// Per-column search filters (client-side)
 const filterTitle = ref('')
 const filterShortDesc = ref('')
 const filterSigner = ref('')
 const filterDocNumber = ref('')
 
-// Create document modal - category selection
-const createOpen = ref(false)
-const createCategoryId = ref<string | undefined>(undefined)
-
-// Fetch years list (for "all" mode year filter)
-const { data: yearsData } = await useAsyncData(
-  'all-years',
-  () => apiFetch<{ items: YearResponse[] }>('/api/years'),
-  { immediate: isAllYears.value }
+// The nomenklatura (category) whose documents this page lists.
+const { data: catsData } = await useAsyncData(
+  `archive-category-${categoryId.value}`,
+  () => apiFetch<{ items: CategoryResponse[] }>('/api/categories'),
 )
-const yearItems = computed(() =>
-  (yearsData.value?.items || []).map(y => ({ label: String(y.value), value: y.value }))
-)
+const category = computed(() => catsData.value?.items.find(c => c.id === categoryId.value) || null)
+const categoryFields = computed(() => category.value?.fields || [])
 
-// Fetch categories — all or per year
-const { data: categoriesData } = await useAsyncData(
-  `categories-${year.value ?? 'all'}`,
-  () => isAllYears.value
-    ? apiFetch<{ items: CategoryResponse[] }>('/api/categories')
-    : apiFetch<{ items: CategoryResponse[] }>(`/api/years/${year.value}/categories`)
-)
-
-const allCategories = computed(() => categoriesData.value?.items || [])
-const categories = computed(() => {
-  if (isAllYears.value && selectedYearFilter.value) {
-    const yearObj = yearsData.value?.items.find(y => y.value === selectedYearFilter.value)
-    if (yearObj) return allCategories.value.filter(c => c.year_id === yearObj.id)
-  }
-  return allCategories.value
-})
-const categoryItems = computed(() =>
-  categories.value.map(c => ({ label: c.name, value: c.id }))
-)
-
-// Selected category's fields (for field search)
-const selectedCategory = computed(() =>
-  categories.value.find(c => c.id === selectedCategoryId.value) || null
-)
-const categoryFields = computed(() => selectedCategory.value?.fields || [])
-
-// Reset page and field filters when category changes
-watch(selectedCategoryId, () => {
+// Reset page when filters change
+watch([search, dateFrom, dateTo, filterTitle, filterShortDesc, filterSigner, filterDocNumber, fieldFilters], () => {
   page.value = 1
-  fieldFilters.value = {}
-})
+}, { deep: true })
 
-// Reset category and page when year filter changes (all-years mode)
-watch(selectedYearFilter, () => {
-  selectedCategoryId.value = undefined
-  page.value = 1
-  fieldFilters.value = {}
-})
+const combinedSearch = computed(() => search.value || undefined)
 
-// Reset page when any filter changes
-watch([search, dateFrom, dateTo, filterTitle, filterShortDesc, filterSigner, filterDocNumber], () => {
-  page.value = 1
-})
-
-// Combine all text searches into one search string for the API
-const combinedSearch = computed(() => {
-  // The main search box searches across all fields via backend `search` param
-  // Column-specific filters are client-side or we pass the main one
-  return search.value || undefined
-})
-
-// Build active field filters (exclude empty values)
 const activeFieldFilters = computed(() => {
   const active: Record<string, string> = {}
   for (const [key, val] of Object.entries(fieldFilters.value)) {
@@ -98,22 +44,20 @@ const activeFieldFilters = computed(() => {
   return Object.keys(active).length > 0 ? active : undefined
 })
 
-// Fetch documents
+// Fetch documents for this nomenklatura
 const { data: docsData, status } = await useAsyncData(
-  `docs-year-${year.value ?? 'all'}`,
+  `docs-category-${categoryId.value}`,
   () => listDocuments({
-    year_id: isAllYears.value ? (selectedYearFilter.value || undefined) : year.value!,
-    category_id: selectedCategoryId.value || undefined,
+    category_id: categoryId.value,
     search: combinedSearch.value,
     date_from: dateFrom.value || undefined,
     date_to: dateTo.value || undefined,
     page: page.value,
     field_filters: activeFieldFilters.value,
   }),
-  { watch: [search, page, selectedCategoryId, fieldFilters, dateFrom, dateTo, selectedYearFilter] }
+  { watch: [search, page, fieldFilters, dateFrom, dateTo], deep: true },
 )
 
-// Client-side filtering for per-column searches
 const allDocuments = computed(() => docsData.value?.items || [])
 const documents = computed(() => {
   let docs = allDocuments.value
@@ -137,17 +81,6 @@ const documents = computed(() => {
 })
 const total = computed(() => docsData.value?.total || 0)
 
-// Get category name for a document
-function getCategoryName(catId: string) {
-  return allCategories.value.find(c => c.id === catId)?.name || '-'
-}
-
-// Get year value for a document — year_id in response IS the year value (e.g. 2020)
-function getYearValue(yearId: number) {
-  return yearId
-}
-
-// Format date from YYYY-MM-DD to DD.MM.YYYY
 function formatDate(date: string) {
   if (!date) return '-'
   const parts = date.split('-')
@@ -155,35 +88,22 @@ function formatDate(date: string) {
   return `${parts[2]}.${parts[1]}.${parts[0]}`
 }
 
-const columns = computed(() => {
-  const cols: Array<{ accessorKey?: string; id?: string; header: string }> = [
-    { id: 'index', header: '№' },
-    { accessorKey: 'title', header: 'Hujjat nomi' },
-    { accessorKey: 'short_desc', header: 'Qisqacha tavsif' },
-  ]
-  if (isAllYears.value && !selectedYearFilter.value) {
-    cols.push({ accessorKey: 'year_id', header: 'Yil' })
-  }
-  if (!selectedCategoryId.value) {
-    cols.push({ accessorKey: 'category_id', header: 'Nomenklatura' })
-  }
-  cols.push(
-    { accessorKey: 'signer', header: 'Imzo' },
-    { accessorKey: 'document_number', header: 'Tartib raqami' },
-    { accessorKey: 'date', header: 'Qabul qilingan sana' },
-  )
-  return cols
-})
+const columns = [
+  { id: 'index', header: '№' },
+  { accessorKey: 'title', header: 'Hujjat nomi' },
+  { accessorKey: 'short_desc', header: 'Qisqacha tavsif' },
+  { accessorKey: 'signer', header: 'Imzo' },
+  { accessorKey: 'document_number', header: 'Tartib raqami' },
+  { accessorKey: 'date', header: 'Qabul qilingan sana' },
+]
 
 const hasActiveFilters = computed(() =>
-  !!selectedCategoryId.value || !!selectedYearFilter.value || !!search.value || !!dateFrom.value || !!dateTo.value
+  !!search.value || !!dateFrom.value || !!dateTo.value
   || !!filterTitle.value || !!filterShortDesc.value || !!filterSigner.value || !!filterDocNumber.value
   || Object.values(fieldFilters.value).some(v => v?.trim())
 )
 
 function clearAllFilters() {
-  selectedCategoryId.value = undefined
-  selectedYearFilter.value = undefined
   search.value = ''
   dateFrom.value = ''
   dateTo.value = ''
@@ -197,28 +117,19 @@ function clearAllFilters() {
 </script>
 
 <template>
-  <PagePanel :title="isAllYears ? 'Barcha yillar' : `${year} yil`" :icon="isAllYears ? 'i-lucide-layers' : 'i-lucide-calendar'">
+  <PagePanel :title="category?.name || 'Nomenklatura'" icon="i-lucide-folder">
     <template #headerLeft>
       <UButton icon="i-lucide-arrow-left" variant="ghost" to="/archive" />
     </template>
     <template #headerRight>
       <UBadge :label="`${total} hujjat`" variant="subtle" class="mr-2" />
       <UButton
-        v-if="!isAllYears"
         icon="i-lucide-plus"
         label="Yangi hujjat"
-        @click="selectedCategoryId ? navigateTo(`/archive/${year}/${selectedCategoryId}/create`) : (createCategoryId = undefined, createOpen = true)"
+        @click="navigateTo(`/archive/${categoryId}/create`)"
       />
     </template>
     <template #toolbar>
-      <USelect
-        v-if="isAllYears"
-        v-model="selectedYearFilter"
-        :items="yearItems"
-        placeholder="Yil"
-        icon="i-lucide-calendar"
-        class="w-36"
-      />
       <UInput
         v-model="search"
         icon="i-lucide-search"
@@ -236,8 +147,8 @@ function clearAllFilters() {
       />
     </template>
 
-    <!-- Dynamic field filters (when category selected) -->
-    <div v-if="selectedCategoryId && categoryFields.length" class="border-b border-default px-5 py-2 bg-elevated/10">
+    <!-- Dynamic field filters -->
+    <div v-if="categoryFields.length" class="border-b border-default px-5 py-2 bg-elevated/10">
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-xs text-muted font-medium shrink-0">Maydonlar:</span>
         <template v-for="field in categoryFields" :key="field.id">
@@ -294,7 +205,6 @@ function clearAllFilters() {
       :loading="status === 'pending'"
       class="w-full [&_th]:border [&_th]:border-default [&_td]:border [&_td]:border-default [&_th]:align-top"
     >
-      <!-- Header slots with search inputs -->
       <template #index-header>
         <div class="flex flex-col items-center gap-2">
           <span class="font-bold">№</span>
@@ -310,25 +220,6 @@ function clearAllFilters() {
         <div class="flex flex-col items-center gap-2">
           <span class="font-bold">Qisqacha tavsif</span>
           <UInput v-model="filterShortDesc" size="sm" placeholder="" class="w-full" />
-        </div>
-      </template>
-      <template #year_id-header>
-        <div class="flex flex-col items-center gap-2">
-          <span class="font-bold">Yil</span>
-        </div>
-      </template>
-      <template #category_id-header>
-        <div class="flex flex-col items-center gap-1">
-          <span class="font-bold">Nomenklatura</span>
-          <USelectMenu
-            v-model="selectedCategoryId"
-            value-key="value"
-            :items="categoryItems"
-            :search-input="{ placeholder: 'Qidirish...' }"
-            placeholder="Barchasi"
-            size="sm"
-            class="w-full"
-          />
         </div>
       </template>
       <template #signer-header>
@@ -350,13 +241,12 @@ function clearAllFilters() {
         </div>
       </template>
 
-      <!-- Cell slots -->
       <template #index-cell="{ row }">
         <span class="font-mono text-base font-semibold text-highlighted">{{ row.index + 1 + (page - 1) * 20 }}</span>
       </template>
       <template #title-cell="{ row }">
         <NuxtLink
-          :to="`/archive/${isAllYears ? getYearValue(row.original.year_id) : year}/${row.original.category_id}/${row.original.id}`"
+          :to="`/archive/${categoryId}/${row.original.id}`"
           class="text-primary hover:underline font-semibold text-base"
         >
           {{ row.original.title }}
@@ -364,12 +254,6 @@ function clearAllFilters() {
       </template>
       <template #short_desc-cell="{ row }">
         <span class="text-sm text-muted line-clamp-2">{{ row.original.short_desc || '-' }}</span>
-      </template>
-      <template #year_id-cell="{ row }">
-        <UBadge :label="String(getYearValue(row.original.year_id))" variant="subtle" color="primary" size="md" />
-      </template>
-      <template #category_id-cell="{ row }">
-        <UBadge :label="getCategoryName(row.original.category_id)" variant="subtle" color="neutral" size="md" />
       </template>
       <template #signer-cell="{ row }">
         <span class="text-base text-highlighted">{{ row.original.person_name || row.original.signer || '-' }}</span>
@@ -390,44 +274,8 @@ function clearAllFilters() {
       <EmptyState
         icon="i-lucide-file-x"
         title="Hujjatlar topilmadi"
-        :description="selectedCategoryId ? 'Bu kategoriyada hujjatlar mavjud emas' : isAllYears ? 'Hujjatlar topilmadi' : `${year} yil uchun hujjatlar mavjud emas`"
+        description="Bu nomenklaturada hujjatlar mavjud emas"
       />
     </div>
   </PagePanel>
-
-  <!-- Category select for new document -->
-  <UModal v-model:open="createOpen" title="Nomenklaturani tanlang">
-    <template #body>
-      <div class="space-y-3">
-        <p class="text-sm text-muted">Hujjat qaysi nomenklaturaga tegishli?</p>
-        <div class="flex flex-col gap-2">
-          <UButton
-            v-for="cat in categories"
-            :key="cat.id"
-            :label="cat.name"
-            :variant="createCategoryId === cat.id ? 'solid' : 'outline'"
-            :color="createCategoryId === cat.id ? 'primary' : 'neutral'"
-            block
-            class="justify-start"
-            @click="createCategoryId = cat.id"
-          />
-        </div>
-        <div v-if="!categories.length" class="text-sm text-muted text-center py-4">
-          Bu yil uchun nomenklaturalar topilmadi
-        </div>
-      </div>
-    </template>
-    <template #footer>
-      <div class="flex justify-end gap-2">
-        <UButton variant="outline" label="Bekor qilish" @click="createOpen = false" />
-        <UButton
-          label="Davom etish"
-          icon="i-lucide-arrow-right"
-          :disabled="!createCategoryId"
-          @click="createOpen = false; navigateTo(`/archive/${year}/${createCategoryId}/create`)"
-        />
-      </div>
-    </template>
-  </UModal>
-
 </template>

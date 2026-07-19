@@ -8,7 +8,6 @@ from dataclasses import dataclass
 class CreateCategoryCommand:
     name: str
     code: str
-    year_id: int
     description: str | None = None
     sort_order: int = 0
 
@@ -20,7 +19,6 @@ class UpdateCategoryCommand:
     code: str | None = None
     description: str | None = None
     sort_order: int | None = None
-    year_id: int | None = None
 
 
 @dataclass
@@ -56,12 +54,6 @@ class UpdateFieldCommand:
 @dataclass
 class DeleteFieldCommand:
     field_id: uuid.UUID
-
-
-@dataclass
-class CopyCategoryCommand:
-    source_category_id: uuid.UUID
-    target_year_id: int
 
 
 @dataclass

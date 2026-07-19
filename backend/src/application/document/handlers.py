@@ -7,8 +7,6 @@ from src.domain.document.entity import Document
 from src.domain.document.errors import DocumentNotFoundError
 from src.domain.document.repository import DocumentRepository, DocumentSearchParams
 from src.domain.document.value_objects import DocumentAttachment, DocumentFieldValue
-from src.domain.shared.errors import ValidationError
-from src.domain.year.repository import YearRepository
 from src.infrastructure.file_storage.local_storage import FileStorageService
 
 from .commands import CreateDocumentCommand, DeleteAttachmentCommand, DeleteDocumentCommand, UpdateDocumentCommand, UploadAttachmentCommand, UploadFileCommand
@@ -20,32 +18,17 @@ class DocumentCommandHandler:
         self,
         document_repo: DocumentRepository,
         category_repo: CategoryRepository,
-        year_repo: YearRepository,
         file_storage: FileStorageService,
     ):
         self._document_repo = document_repo
         self._category_repo = category_repo
-        self._year_repo = year_repo
         self._file_storage = file_storage
 
     async def create(self, command: CreateDocumentCommand) -> Document:
-        # Resolve year: command.year_id is the year VALUE (e.g. 2020), not the DB id
-        year = await self._year_repo.find_by_value(command.year_id)
-        if not year:
-            raise ValidationError(f"{command.year_id} yil topilmadi")
-
-        # Validate date falls within the year
-        if command.date and command.date.year != year.value:
-            raise ValidationError(
-                f"Hujjat sanasi {year.value} yil oralig'ida bo'lishi kerak "
-                f"({year.value}-01-01 dan {year.value}-12-31 gacha)"
-            )
-
         # Build dynamic field values
         field_values = await self._build_field_values(command.category_id, command.dynamic_fields)
 
         document = Document(
-            year_id=year.id,  # Use the DB id, not the year value
             category_id=command.category_id,
             title=command.title,
             document_number=command.document_number,
@@ -87,15 +70,6 @@ class DocumentCommandHandler:
         document = await self._document_repo.find_by_id(command.document_id)
         if not document:
             raise DocumentNotFoundError(str(command.document_id))
-
-        # Validate date against document's year if date is being changed
-        if command.date is not None:
-            year = await self._year_repo.find_by_id(document.year_id)
-            if year and command.date.year != year.value:
-                raise ValidationError(
-                    f"Hujjat sanasi {year.value} yil oralig'ida bo'lishi kerak "
-                    f"({year.value}-01-01 dan {year.value}-12-31 gacha)"
-                )
 
         document.update(
             category_id=command.category_id,
@@ -207,7 +181,6 @@ class DocumentQueryHandler:
 
     async def list_documents(self, query: ListDocumentsQuery) -> tuple[list[Document], int]:
         params = DocumentSearchParams(
-            year_id=query.year_id,
             category_id=query.category_id,
             search=query.search,
             date_from=query.date_from,

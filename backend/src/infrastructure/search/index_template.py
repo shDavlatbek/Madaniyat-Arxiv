@@ -69,7 +69,7 @@ ANALYSIS_SETTINGS = {
 #   * Free text → text with ``uz_multi`` analyzer
 #   * Titles also indexed with ``uz_autocomplete`` for prefix search
 #   * Dates → date
-#   * Numeric FKs (year_id is integer in Postgres) → long
+#   * Numeric fields (e.g. pages) → long
 
 _TEXT = {"type": "text", "analyzer": "uz_multi"}
 _TEXT_WITH_KEYWORD = {
@@ -85,8 +85,6 @@ MAPPING = {
     "properties": {
         "id": _KEYWORD,
         # ─── denormalized refs ──────────────────────────────────────────
-        "year_id": _LONG,
-        "year_value": _LONG,
         "category_id": _KEYWORD,
         "category_name": _TEXT_WITH_KEYWORD,
         "person_id": _KEYWORD,

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Archive system for the Ministry of Culture of Uzbekistan (Madaniyat vazirligi Arxiv tizimi). Documents organized by year and category, with dynamic fields per category. Each category belongs to one year. When creating a new year, categories can be imported (copied) from an existing year. A second, separate subdomain (`music_school_*`) tracks music-school diplomas with its own role-scoped access.
+Archive system for the Ministry of Culture of Uzbekistan (Madaniyat vazirligi Arxiv tizimi). Documents are organized under **Nomenklaturalar** (categories) — the top-level grouping — each with its own dynamic fields. A nomenklatura is identified only by its name (which typically encodes a year/period). The earlier separate **Year** entity was removed entirely: there is no `years` table, no `year_id` on any model, and no `/admin/years` — the nomenklatura plays that role. A second, separate subdomain (`music_school_*`) tracks music-school diplomas with its own role-scoped access. (Note: `music_school_documents.graduation_year` is an unrelated plain integer field, not the removed Year entity.)
 
 ## Tech Stack
 
@@ -45,7 +45,6 @@ Reindexing / one-off scripts (run with `uv run python -m ...` from `backend/`):
 
 ```sh
 python -m scripts.reindex                   # enqueue every doc into the outbox
-python -m scripts.reindex --year 2024
 python -m scripts.reindex --since 2024-01-01
 python -m scripts.reindex --dry-run
 python -m scripts.ocr_backfill              # backfill OCR for legacy documents
@@ -67,7 +66,7 @@ Backend follows DDD (Domain-Driven Design):
 ```
 backend/src/
   domain/         # Entities, value objects, repository interfaces (no external deps)
-                  # Aggregates: user, year, category, document, person, department,
+                  # Aggregates: user, category, document, person, department,
                   # archive_folder, document_type, music_school, music_school_document,
                   # music_school_specialty
   application/    # Commands, queries, handlers per aggregate (depends on domain only)
@@ -135,7 +134,7 @@ Music-school users see only their own school's documents — ownership is enforc
 
 - **Pydantic schemas**: Do NOT use `from __future__ import annotations` — breaks Pydantic type evaluation at runtime.
 - **UTable (TanStack Table v3)**: Columns use `accessorKey`/`header` (not `key`/`label`). Empty-header columns need explicit `id`. Cell slot data accessed via `row.original.*` (not `row.*`).
-- **find_by_year()**: The `year_id` parameter is the year VALUE (e.g. 2020), not the DB primary key. Repository joins `YearModel` to match by `YearModel.value`.
+- **No Year entity**: The `years` table and all `year_id` FKs (documents, categories, archive_folders, departments) were hard-dropped in migration `e7f8a9b0c1d2`. Nomenklatura (Category) is the top-level grouping; documents attach directly to a `category_id`. Don't reintroduce a year filter/param.
 - **GUID + JSONType**: Models use custom `GUID` (native UUID on Postgres, CHAR(36) elsewhere) and `JSONType` (JSONB on Postgres, JSON elsewhere). Alembic autogenerate writes `GUID` as `src.infrastructure...GUID(length=36)` — manually replace with `sa.String(length=36)` in migration files.
 - **No passlib**: Incompatible with newer bcrypt. Using `bcrypt` library directly via `src/infrastructure/auth/password_service.py`. (`passlib` is still listed in `pyproject.toml`; do not import it.)
 - **CORS origins**: Configured via `CORS_ORIGINS` env (comma-separated) → `src/infrastructure/config.py`. Default includes `http://localhost:3000` and `http://192.168.20.247:3000`. Update env/compose when deploying or changing frontend port.
@@ -147,9 +146,8 @@ Music-school users see only their own school's documents — ownership is enforc
 
 ## Domain Patterns
 
-- **Category-Year relationship**: Each category has a single `year_id` FK. `import_from_year_id` on year creation copies categories with all fields as new records.
+- **Nomenklatura (Category)**: The top-level document grouping, identified only by its `name`. `code` is a slug derived from the name. Creating one auto-copies the `default_fields` templates as its initial `category_fields`.
 - **Default field templates**: `default_fields` table stores admin-managed templates. Auto-copied as initial category fields when creating a category. Admin page at `/admin/default-fields`.
-- **Copy category**: `POST /api/categories/{id}/copy` with `{ target_year_id }` duplicates a category (name/code/fields) into the target year.
 - **Dynamic fields (EAV)**: `category_fields` defines field schemas per category, `document_field_values` stores per-document data. Common document fields (title, date, etc.) are real columns and are also denormalized into the ES `field_values` nested array for search.
 - **File upload**: Two-step — create document first, then `POST /api/documents/{id}/file` with FormData. Download uses authenticated `fetch()` + blob URL (JWT required). Upload routes also enqueue `ocr_extract` via the arq pool.
 - **Attachments**: General documents support multiple secondary files via `document_attachments`. Attachments are indexed as a nested `attachments` field in ES, and their highlights are flattened out of `inner_hits` by the search route before responding.
@@ -179,10 +177,11 @@ Frontend reads `NUXT_PUBLIC_API_BASE` (default `http://localhost:8000` in `nuxt.
 
 ```
 /login                                                # Username/password
-/archive                                              # Year grid
-/archive/:year                                        # Documents table + category/date filter
-/archive/:year/:categoryId/:id                        # Document detail (PDF preview)
-/archive/:year/:categoryId/:id/edit
+/archive                                              # Nomenklatura (category) grid
+/archive/:categoryId                                  # Documents table for that nomenklatura + date/field filters
+/archive/:categoryId/create                           # Create document in the nomenklatura
+/archive/:categoryId/:id                              # Document detail (PDF preview)
+/archive/:categoryId/:id/edit
 /archive/search                                       # Full-text search UI
 
 /archive-folders                                      # Browse + filter folders
@@ -192,8 +191,7 @@ Frontend reads `NUXT_PUBLIC_API_BASE` (default `http://localhost:8000` in `nuxt.
 /music-school-specialties                             # Specialty picker UI
 
 /admin/users                                          # admin only
-/admin/years                                          # + import categories
-/admin/categories                                     # + copy
+/admin/categories                                     # Nomenklatura list (name-only create/edit)
 /admin/categories/:id/fields
 /admin/default-fields
 /admin/persons                                        # CRUD + tenures
@@ -213,14 +211,8 @@ GET|POST        /api/users
 GET|PUT|DELETE  /api/users/:id
 PUT             /api/users/:id/password
 
-GET|POST        /api/years                            # GET: ?active_only=true
-PUT|DELETE      /api/years/:id
-                                                       # POST body: { value, is_active, import_from_year_id? }
-
-GET|POST        /api/categories
+GET|POST        /api/categories                       # POST body: { name } (name-only nomenklatura)
 PUT|DELETE      /api/categories/:id
-POST            /api/categories/:id/copy              # { target_year_id }
-GET             /api/years/:yearValue/categories
 
 GET|POST        /api/categories/:id/fields
 PUT|DELETE      /api/categories/:id/fields/:fieldId
@@ -228,7 +220,7 @@ PUT|DELETE      /api/categories/:id/fields/:fieldId
 GET|POST        /api/default-fields
 PUT|DELETE      /api/default-fields/:id
 
-GET|POST        /api/documents                        # GET: ?year_id&category_id&search&date_from&date_to&field_filters&page&page_size
+GET|POST        /api/documents                        # GET: ?category_id&search&date_from&date_to&field_filters&page&page_size
 GET|PUT|DELETE  /api/documents/:id
 POST            /api/documents/:id/file               # upload (FormData) — enqueues ocr_extract
 GET             /api/documents/:id/file               # download (JWT required)

@@ -11,7 +11,6 @@ Usage::
 
     cd backend
     uv run python -m scripts.reindex                  # everything
-    uv run python -m scripts.reindex --year 2024
     uv run python -m scripts.reindex --since 2024-01-01
     uv run python -m scripts.reindex --dry-run        # report-only
 
@@ -30,7 +29,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from src.infrastructure.persistence.database import async_session
-from src.infrastructure.persistence.models import DocumentModel, SearchIndexJobModel, YearModel
+from src.infrastructure.persistence.models import DocumentModel, SearchIndexJobModel
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("reindex")
@@ -38,16 +37,14 @@ log = logging.getLogger("reindex")
 BATCH_SIZE = 500
 
 
-async def run(year: int | None, since: date | None, dry_run: bool) -> int:
+async def run(since: date | None, dry_run: bool) -> int:
     async with async_session() as s:
         stmt = select(DocumentModel.id)
-        if year is not None:
-            stmt = stmt.join(YearModel, YearModel.id == DocumentModel.year_id).where(YearModel.value == year)
         if since is not None:
             stmt = stmt.where(DocumentModel.updated_at >= since)
 
         ids = (await s.execute(stmt)).scalars().all()
-        log.info("Reindex candidates: %d (year=%s, since=%s, dry_run=%s)", len(ids), year, since, dry_run)
+        log.info("Reindex candidates: %d (since=%s, dry_run=%s)", len(ids), since, dry_run)
 
         if dry_run or not ids:
             return len(ids)
@@ -70,12 +67,11 @@ def _parse_date(value: str) -> date:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--year", type=int, help="Filter by year value (e.g. 2024)")
     parser.add_argument("--since", type=_parse_date, help="Only docs with updated_at >= ISO date (YYYY-MM-DD)")
     parser.add_argument("--dry-run", action="store_true", help="Report counts without writing")
     args = parser.parse_args()
 
-    asyncio.run(run(year=args.year, since=args.since, dry_run=args.dry_run))
+    asyncio.run(run(since=args.since, dry_run=args.dry_run))
     return 0
 
 

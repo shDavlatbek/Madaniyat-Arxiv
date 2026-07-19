@@ -17,7 +17,6 @@ class CreateArchiveFolderCommand:
     total_sheets: int | None = None
     start_date: date | None = None
     end_date: date | None = None
-    year_id: int | None = None
 
 
 @dataclass
@@ -33,7 +32,6 @@ class UpdateArchiveFolderCommand:
     total_sheets: int | None = None
     start_date: date | None = None
     end_date: date | None = None
-    year_id: int | None = None
 
 
 @dataclass

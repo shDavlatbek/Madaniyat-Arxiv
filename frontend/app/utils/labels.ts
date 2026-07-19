@@ -26,7 +26,6 @@ export const LABELS = {
   title: "Yig'ma jild sarlavhasi",
   department_name: "Bo'lim nomi",
   department_index_code: "Bo'lim indeksi",
-  department_year: 'Yil',
   article_number: 'Modda raqami',
   list_number: "Ro'yxat raqami",
   retention_period: 'Saqlash muddati',

@@ -65,8 +65,6 @@ async def search(
             signer=src.get("signer"),
             archive_number=src.get("archive_number"),
             date=src.get("date"),
-            year_id=src.get("year_id"),
-            year_value=src.get("year_value"),
             category_id=src.get("category_id"),
             category_name=src.get("category_name"),
             person_id=src.get("person_id"),

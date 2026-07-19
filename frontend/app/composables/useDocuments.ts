@@ -4,7 +4,6 @@ export const useDocuments = () => {
   const { apiFetch } = useApi()
 
   async function listDocuments(params: {
-    year_id?: number
     category_id?: string
     search?: string
     date_from?: string
@@ -14,7 +13,6 @@ export const useDocuments = () => {
     field_filters?: Record<string, string>
   }) {
     const query = new URLSearchParams()
-    if (params.year_id) query.set('year_id', String(params.year_id))
     if (params.category_id) query.set('category_id', params.category_id)
     if (params.search) query.set('search', params.search)
     if (params.date_from) query.set('date_from', params.date_from)

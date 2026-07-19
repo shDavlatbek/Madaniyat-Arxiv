@@ -9,7 +9,6 @@ from src.domain.document.entity import Document
 
 @dataclass
 class DocumentSearchParams:
-    year_id: int | None = None
     category_id: uuid.UUID | None = None
     search: str | None = None
     date_from: str | None = None

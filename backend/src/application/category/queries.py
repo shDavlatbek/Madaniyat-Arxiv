@@ -5,11 +5,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ListCategoriesByYearQuery:
-    year_id: int
-
-
-@dataclass
 class ListAllCategoriesQuery:
     pass
 

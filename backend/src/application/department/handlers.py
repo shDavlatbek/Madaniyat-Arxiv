@@ -26,7 +26,6 @@ class DepartmentCommandHandler:
             name=command.name,
             index_code=command.index_code,
             description=command.description,
-            year_id=command.year_id,
         )
         return await self._department_repo.save(department)
 
@@ -42,7 +41,6 @@ class DepartmentCommandHandler:
             name=command.name,
             index_code=command.index_code,
             description=command.description,
-            year_id=command.year_id,
         )
         return await self._department_repo.save(department)
 

@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 
 class CreateCategoryRequest(BaseModel):
     name: str = Field(min_length=1, max_length=255)
-    year_id: int
     description: str | None = None
     sort_order: int = 0
 
@@ -15,7 +14,6 @@ class UpdateCategoryRequest(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = None
     sort_order: int | None = None
-    year_id: int | None = None
 
 
 class AddFieldRequest(BaseModel):
@@ -58,7 +56,6 @@ class CategoryResponse(BaseModel):
     code: str
     description: str | None
     sort_order: int
-    year_id: int | None
     fields: list[CategoryFieldResponse]
     created_at: datetime
     updated_at: datetime
@@ -66,10 +63,6 @@ class CategoryResponse(BaseModel):
 
 class CategoryListResponse(BaseModel):
     items: list[CategoryResponse]
-
-
-class CopyCategoryRequest(BaseModel):
-    target_year_id: int
 
 
 class DefaultFieldResponse(BaseModel):

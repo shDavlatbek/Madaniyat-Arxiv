@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { z } from 'zod'
-import type { CategoryFieldResponse, DocumentResponse, PersonResponse, YearResponse } from '~/types'
+import type { CategoryFieldResponse, DocumentResponse, PersonResponse } from '~/types'
 
 const props = defineProps<{
   categoryId: string
   initialData?: DocumentResponse | null
-  defaultYear?: number
   forceDirty?: boolean
 }>()
 
@@ -24,14 +23,10 @@ const { data: fields } = await useAsyncData(
   () => apiFetch<CategoryFieldResponse[]>(`/api/categories/${props.categoryId}/fields`),
 )
 
-// Archive folders (Yig'ma jild) + years — to scope folders to the document's year
+// Archive folders (Yig'ma jild)
 const { data: archiveFoldersData } = await useAsyncData(
   'doc-form-archive-folders',
   () => listArchiveFolders(),
-)
-const { data: yearsForFolders } = await useAsyncData(
-  'doc-form-years',
-  () => apiFetch<{ items: YearResponse[] }>('/api/years?active_only=false'),
 )
 
 // Document types (Hujjat turi) — reference taxonomy
@@ -45,7 +40,7 @@ const { data: documentTypesData } = await useAsyncData(
 const state = reactive<Record<string, any>>({
   title: props.initialData?.title || '',
   document_number: props.initialData?.document_number || '',
-  date: props.initialData?.date || (props.defaultYear ? `${props.defaultYear}-01-01` : ''),
+  date: props.initialData?.date || '',
   short_desc: props.initialData?.short_desc || '',
   pages: props.initialData?.pages || undefined,
   person_id: props.initialData?.person_id || undefined,
@@ -158,22 +153,11 @@ const initialSnapshot = props.initialData
 
 const initialDynamicSnapshot = ref<string | null>(null)
 
-// Year constraints for date picker
-const docYear = computed(() => {
-  if (props.defaultYear) return props.defaultYear
-  if (props.initialData?.date) return Number(props.initialData.date.split('-')[0])
-  return null
-})
-const dateMinDate = computed(() => docYear.value ? `${docYear.value}-01-01` : undefined)
-const dateMaxDate = computed(() => docYear.value ? `${docYear.value}-12-31` : undefined)
-
-// Yig'ma jild options — scoped to the document's year when resolvable
-const archiveFolderItems = computed(() => {
-  const yearId = yearsForFolders.value?.items.find(y => y.value === docYear.value)?.id
-  return (archiveFoldersData.value?.items || [])
-    .filter(f => yearId == null ? true : f.year_id === yearId)
-    .map(f => ({ label: `${f.index_code} — ${f.title}`, value: f.id }))
-})
+// Yig'ma jild options
+const archiveFolderItems = computed(() =>
+  (archiveFoldersData.value?.items || [])
+    .map(f => ({ label: `${f.index_code} — ${f.title}`, value: f.id })),
+)
 
 // Hujjat turi options
 const documentTypeItems = computed(() =>
@@ -460,7 +444,7 @@ async function handleSubmit() {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <UFormField label="Sana" name="date" required>
-              <DatePicker v-model="state.date" size="lg" :min-date="dateMinDate" :max-date="dateMaxDate" />
+              <DatePicker v-model="state.date" size="lg" />
             </UFormField>
 
             <UFormField :label="LABELS.pages_total" name="pages">

@@ -15,7 +15,6 @@ class CreateArchiveFolderRequest(BaseModel):
     total_sheets: int | None = Field(default=None, ge=0)
     start_date: dt.date | None = None
     end_date: dt.date | None = None
-    year_id: int | None = None
 
 
 class UpdateArchiveFolderRequest(BaseModel):
@@ -29,7 +28,6 @@ class UpdateArchiveFolderRequest(BaseModel):
     total_sheets: int | None = Field(default=None, ge=0)
     start_date: dt.date | None = None
     end_date: dt.date | None = None
-    year_id: int | None = None
 
 
 class ArchiveFolderResponse(BaseModel):
@@ -48,7 +46,6 @@ class ArchiveFolderResponse(BaseModel):
     documents_pages_sum: int
     start_date: dt.date | None
     end_date: dt.date | None
-    year_id: int | None
     document_count: int
     created_at: dt.datetime
     updated_at: dt.datetime

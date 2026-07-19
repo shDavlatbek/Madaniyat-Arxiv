@@ -38,7 +38,6 @@ class ArchiveFolder(Entity):
         total_sheets: int | None = None,
         start_date: date | None = None,
         end_date: date | None = None,
-        year_id: int | None = None,
         id: uuid.UUID | None = None,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
@@ -64,7 +63,6 @@ class ArchiveFolder(Entity):
         self.retention_period_name = retention_period_name
         self.start_date = start_date
         self.end_date = end_date
-        self.year_id = year_id
 
     def update(
         self,
@@ -78,7 +76,6 @@ class ArchiveFolder(Entity):
         total_sheets: int | None = None,
         start_date: date | None = None,
         end_date: date | None = None,
-        year_id: int | None = None,
     ) -> None:
         if index_code is not None:
             if not index_code.strip():
@@ -104,8 +101,6 @@ class ArchiveFolder(Entity):
             self.start_date = start_date
         if end_date is not None:
             self.end_date = end_date
-        if year_id is not None:
-            self.year_id = year_id
         if (
             self.start_date is not None
             and self.end_date is not None

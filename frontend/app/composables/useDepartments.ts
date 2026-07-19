@@ -4,7 +4,6 @@ interface DepartmentPayload {
   name?: string
   index_code?: string | null
   description?: string | null
-  year_id?: number | null
 }
 
 export const useDepartments = () => {

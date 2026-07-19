@@ -1,39 +1,28 @@
 <script setup lang="ts">
-import type { CategoryResponse, YearResponse } from '~/types'
+import type { CategoryResponse } from '~/types'
 
 definePageMeta({ layout: 'dashboard' })
 
 const { apiFetch } = useApi()
-const { data: yearsData, status } = await useAsyncData('years', () =>
-  apiFetch<{ items: YearResponse[] }>('/api/years')
+const { data: catsData, status } = await useAsyncData('archive-categories', () =>
+  apiFetch<{ items: CategoryResponse[] }>('/api/categories'),
 )
 
-const years = computed(() => yearsData.value?.items || [])
+const categories = computed(() => catsData.value?.items || [])
 
-// Create document flow: pick year → pick category → navigate
-const createOpen = ref(false)
-const createYear = ref<number | undefined>(undefined)
-const createCategoryId = ref<string | undefined>(undefined)
-const createCategories = ref<CategoryResponse[]>([])
-const loadingCategories = ref(false)
-
-watch(createYear, async (val) => {
-  createCategoryId.value = undefined
-  createCategories.value = []
-  if (!val) return
-  loadingCategories.value = true
-  try {
-    const data = await apiFetch<{ items: CategoryResponse[] }>(`/api/years/${val}/categories`)
-    createCategories.value = data.items || []
-  } finally {
-    loadingCategories.value = false
-  }
+const search = ref('')
+const filtered = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  if (!q) return categories.value
+  return categories.value.filter(c => c.name.toLowerCase().includes(q))
 })
 
+// Create document flow: pick nomenklatura → navigate
+const createOpen = ref(false)
+const createCategoryId = ref<string | undefined>(undefined)
+
 function openCreate() {
-  createYear.value = undefined
   createCategoryId.value = undefined
-  createCategories.value = []
   createOpen.value = true
 }
 </script>
@@ -41,85 +30,63 @@ function openCreate() {
 <template>
   <PagePanel title="Arxiv" icon="i-lucide-archive">
     <template #headerRight>
-      <UBadge :label="`${years.length} yil`" variant="subtle" class="mr-2" />
+      <UBadge :label="`${categories.length} nomenklatura`" variant="subtle" class="mr-2" />
       <UButton icon="i-lucide-plus" label="Yangi hujjat" @click="openCreate" />
+    </template>
+    <template #toolbar>
+      <UInput
+        v-model="search"
+        icon="i-lucide-search"
+        placeholder="Nomenklatura qidirish..."
+        class="w-64"
+      />
     </template>
 
     <div v-if="status === 'pending'" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-6">
       <USkeleton v-for="i in 8" :key="i" class="h-32 rounded-xl" />
     </div>
-    <div v-else-if="years.length" class="p-6">
-      <p class="text-sm text-muted mb-4">Yilni tanlang:</p>
+    <div v-else-if="filtered.length" class="p-6">
+      <p class="text-sm text-muted mb-4">Nomenklaturani tanlang:</p>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        <NuxtLink to="/archive/all">
-          <UCard class="hover:ring-2 hover:ring-primary hover:shadow-md transition-all cursor-pointer text-center h-full group ring-1 ring-primary/30 bg-primary/5">
-            <div class="flex flex-col items-center gap-3 py-3">
-              <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-                <UIcon name="i-lucide-layers" class="text-primary text-xl" />
-              </div>
-              <span class="text-2xl font-bold text-primary">Barchasi</span>
-            </div>
-          </UCard>
-        </NuxtLink>
         <NuxtLink
-          v-for="year in years"
-          :key="year.id"
-          :to="`/archive/${year.value}`"
+          v-for="cat in filtered"
+          :key="cat.id"
+          :to="`/archive/${cat.id}`"
         >
           <UCard class="hover:ring-2 hover:ring-primary hover:shadow-md transition-all cursor-pointer text-center h-full group">
             <div class="flex flex-col items-center gap-3 py-3">
               <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <UIcon name="i-lucide-calendar" class="text-primary text-xl" />
+                <UIcon name="i-lucide-folder" class="text-primary text-xl" />
               </div>
-              <span class="text-2xl font-bold text-highlighted">{{ year.value }}</span>
+              <span class="text-lg font-bold text-highlighted leading-tight">{{ cat.name }}</span>
             </div>
           </UCard>
         </NuxtLink>
       </div>
     </div>
     <div v-else class="flex items-center justify-center p-12">
-      <EmptyState icon="i-lucide-calendar-x" title="Yillar topilmadi" description="Hozircha arxivda yillar mavjud emas" />
+      <EmptyState icon="i-lucide-folder-x" title="Nomenklaturalar topilmadi" description="Hozircha arxivda nomenklaturalar mavjud emas" />
     </div>
   </PagePanel>
 
-  <!-- Create document: pick year + category -->
+  <!-- Create document: pick nomenklatura -->
   <UModal v-model:open="createOpen" title="Yangi hujjat yaratish">
     <template #body>
-      <div class="space-y-4">
-        <div>
-          <p class="text-sm text-muted mb-2">Yilni tanlang:</p>
-          <div class="flex flex-wrap gap-2">
-            <UButton
-              v-for="y in years"
-              :key="y.id"
-              :label="String(y.value)"
-              :variant="createYear === y.value ? 'solid' : 'outline'"
-              :color="createYear === y.value ? 'primary' : 'neutral'"
-              size="sm"
-              @click="createYear = y.value"
-            />
-          </div>
+      <div class="space-y-3">
+        <p class="text-sm text-muted">Hujjat qaysi nomenklaturaga tegishli?</p>
+        <div v-if="categories.length" class="flex flex-col gap-2 max-h-80 overflow-y-auto">
+          <UButton
+            v-for="cat in categories"
+            :key="cat.id"
+            :label="cat.name"
+            :variant="createCategoryId === cat.id ? 'solid' : 'outline'"
+            :color="createCategoryId === cat.id ? 'primary' : 'neutral'"
+            block
+            class="justify-start"
+            @click="createCategoryId = cat.id"
+          />
         </div>
-
-        <div v-if="createYear">
-          <p class="text-sm text-muted mb-2">Nomenklaturani tanlang:</p>
-          <div v-if="loadingCategories" class="py-4 flex justify-center">
-            <UIcon name="i-lucide-loader-2" class="animate-spin text-muted" />
-          </div>
-          <div v-else-if="createCategories.length" class="flex flex-col gap-2">
-            <UButton
-              v-for="cat in createCategories"
-              :key="cat.id"
-              :label="cat.name"
-              :variant="createCategoryId === cat.id ? 'solid' : 'outline'"
-              :color="createCategoryId === cat.id ? 'primary' : 'neutral'"
-              block
-              class="justify-start"
-              @click="createCategoryId = cat.id"
-            />
-          </div>
-          <p v-else class="text-sm text-muted text-center py-4">Bu yil uchun nomenklaturalar topilmadi</p>
-        </div>
+        <p v-else class="text-sm text-muted text-center py-4">Nomenklaturalar topilmadi</p>
       </div>
     </template>
     <template #footer>
@@ -128,8 +95,8 @@ function openCreate() {
         <UButton
           label="Davom etish"
           icon="i-lucide-arrow-right"
-          :disabled="!createYear || !createCategoryId"
-          @click="createOpen = false; navigateTo(`/archive/${createYear}/${createCategoryId}/create`)"
+          :disabled="!createCategoryId"
+          @click="createOpen = false; navigateTo(`/archive/${createCategoryId}/create`)"
         />
       </div>
     </template>
