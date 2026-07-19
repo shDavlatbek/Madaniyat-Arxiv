@@ -14,6 +14,9 @@ class CategoryRepository(ABC):
     async def find_all(self) -> list[Category]: ...
 
     @abstractmethod
+    async def find_by_name(self, name: str) -> Category | None: ...
+
+    @abstractmethod
     async def save(self, category: Category) -> Category: ...
 
     @abstractmethod

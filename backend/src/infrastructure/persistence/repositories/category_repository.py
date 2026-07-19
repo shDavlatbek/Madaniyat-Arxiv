@@ -35,6 +35,16 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
         result = await self._session.execute(stmt)
         return [CategoryMapper.to_domain(m) for m in result.scalars().all()]
 
+    async def find_by_name(self, name: str) -> Category | None:
+        stmt = (
+            select(CategoryModel)
+            .where(CategoryModel.name == name)
+            .options(selectinload(CategoryModel.fields))
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return CategoryMapper.to_domain(model) if model else None
+
     async def save(self, category: Category) -> Category:
         existing_stmt = (
             select(CategoryModel)

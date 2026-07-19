@@ -3,7 +3,7 @@ from __future__ import annotations
 from src.domain.category.entity import Category, CategoryField, DefaultField
 from src.domain.category.repository import CategoryRepository
 from src.domain.category.value_objects import FieldType
-from src.domain.shared.errors import NotFoundError
+from src.domain.shared.errors import NotFoundError, ValidationError
 
 from .commands import (
     AddFieldCommand,
@@ -24,6 +24,9 @@ class CategoryCommandHandler:
         self._category_repo = category_repo
 
     async def create(self, command: CreateCategoryCommand) -> Category:
+        existing = await self._category_repo.find_by_name(command.name.strip())
+        if existing:
+            raise ValidationError(f"'{command.name}' nomenklaturasi allaqachon mavjud")
         category = Category(
             name=command.name,
             code=command.code,
@@ -56,6 +59,10 @@ class CategoryCommandHandler:
         category = await self._category_repo.find_by_id(command.category_id)
         if not category:
             raise NotFoundError("Category", str(command.category_id))
+        if command.name is not None and command.name.strip() != category.name:
+            clash = await self._category_repo.find_by_name(command.name.strip())
+            if clash and clash.id != category.id:
+                raise ValidationError(f"'{command.name}' nomenklaturasi allaqachon mavjud")
         category.update(
             name=command.name,
             code=command.code,

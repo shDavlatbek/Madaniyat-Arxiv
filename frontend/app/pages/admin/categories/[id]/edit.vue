@@ -16,19 +16,22 @@ const { data: category } = await useAsyncData(`cat-edit-${catId.value}`, () =>
   ),
 )
 
-// Nomenklatura is identified only by its name (the Year concept was removed).
+// A nomenklatura is a unique year number (e.g. 2024).
 const schema = z.object({
-  name: z.string().min(1, 'Nomenklatura nomi kiritilishi shart'),
+  year: z.coerce.number({ invalid_type_error: 'Yil raqamini kiriting' })
+    .int('Yil butun son bo\'lishi kerak')
+    .gte(1900, 'Yil 1900 dan katta bo\'lishi kerak')
+    .lte(2100, 'Yil 2100 dan kichik bo\'lishi kerak'),
 })
 
-const state = reactive({ name: category.value?.name || '' })
+const state = reactive({ year: Number(category.value?.name) || new Date().getFullYear() })
 
-const isDirty = computed(() => state.name.trim() !== (category.value?.name || ''))
+const isDirty = computed(() => String(state.year) !== (category.value?.name || ''))
 
 async function handleSubmit() {
   loading.value = true
   try {
-    await apiFetch(`/api/categories/${catId.value}`, { method: 'PUT', body: { name: state.name.trim() } })
+    await apiFetch(`/api/categories/${catId.value}`, { method: 'PUT', body: { name: String(state.year) } })
     toast.add({ title: 'Muvaffaqiyat', description: 'Nomenklatura yangilandi', color: 'success', icon: 'i-lucide-check-circle' })
     navigateTo('/admin/categories')
   } catch (error: any) {
@@ -56,8 +59,8 @@ async function handleSubmit() {
     <div class="p-6 max-w-xl">
       <UForm :schema="schema" :state="state" @submit="handleSubmit">
         <UCard :ui="{ body: 'space-y-5' }">
-          <UFormField label="Nomenklatura" name="name" required help="Nomenklatura nomi (masalan: 2024)">
-            <UInput v-model="state.name" placeholder="Nomenklatura nomi" icon="i-lucide-folder" size="lg" class="w-full" />
+          <UFormField label="Nomenklatura (yil)" name="year" required help="Yil raqami — takrorlanmaydi (masalan: 2024)">
+            <UInput v-model="state.year" type="number" placeholder="2024" icon="i-lucide-calendar" size="lg" class="w-full" />
           </UFormField>
 
           <div class="flex items-center justify-end gap-3">

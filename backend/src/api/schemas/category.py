@@ -1,7 +1,17 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+def _validate_year_name(v: str | None) -> str | None:
+    """A nomenklatura is a 4-digit year number (e.g. "2024")."""
+    if v is None:
+        return v
+    v = v.strip()
+    if not (v.isdigit() and len(v) == 4 and 1900 <= int(v) <= 2100):
+        raise ValueError("Nomenklatura yil raqami bo'lishi kerak (masalan: 2024)")
+    return v
 
 
 class CreateCategoryRequest(BaseModel):
@@ -9,11 +19,15 @@ class CreateCategoryRequest(BaseModel):
     description: str | None = None
     sort_order: int = 0
 
+    _check_year = field_validator("name")(_validate_year_name)
+
 
 class UpdateCategoryRequest(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = None
     sort_order: int | None = None
+
+    _check_year = field_validator("name")(_validate_year_name)
 
 
 class AddFieldRequest(BaseModel):

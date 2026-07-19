@@ -103,6 +103,9 @@ class CategoryModel(Base):
 
     fields: Mapped[list["CategoryFieldModel"]] = relationship(back_populates="category", cascade="all, delete-orphan", order_by="CategoryFieldModel.sort_order")
 
+    # A nomenklatura is a unique year number (e.g. "2024") — no duplicates.
+    __table_args__ = (UniqueConstraint("name", name="uq_categories_name"),)
+
 
 class CategoryFieldModel(Base):
     __tablename__ = "category_fields"
